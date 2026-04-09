@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!--
+    Rehello favicon — a stylized monogram of the wordmark.
+    A serif "R" in the brand accent, with a floating accent dot
+    to the upper right echoing the "Re·hello" logo.
+  -->
+  <rect width="64" height="64" rx="14" fill="#f6efe6"/>
+  <text
+    x="32"
+    y="48"
+    font-family="'Instrument Serif', 'Georgia', 'Times New Roman', serif"
+    font-size="48"
+    font-style="italic"
+    text-anchor="middle"
+    fill="#b16e46"
+  >R</text>
+  <circle cx="48" cy="18" r="3.4" fill="#b16e46"/>
+</svg>

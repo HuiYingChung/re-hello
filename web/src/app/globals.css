@@ -1,0 +1,333 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f6efe6;
+  --foreground: #2f241c;
+  --surface: #fffaf5;
+  --surface-alt: #f0e5d7;
+  --border: #e3d5c3;
+  --muted: #7e6a5c;
+  --accent: #d48e61;
+  --accent-strong: #b16e46;
+  --accent-soft: #f7e7da;
+  --green-bg: #edf5ef;
+  --green-soft: #cfe1d4;
+  --green-strong: #5f8a69;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), sans-serif;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(circle at top left, rgba(212, 142, 97, 0.24), transparent 28%),
+    radial-gradient(circle at top right, rgba(95, 138, 105, 0.16), transparent 24%),
+    linear-gradient(180deg, #fbf5ee 0%, #f4ebdf 100%);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.app-stage {
+  margin: 0 auto;
+  display: flex;
+  min-height: 100vh;
+  max-width: 1100px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 1.25rem;
+}
+
+.phone-shell {
+  position: relative;
+  width: min(100%, 390px);
+  min-height: 820px;
+  overflow: hidden;
+  border: 1px solid rgba(117, 84, 60, 0.2);
+  border-radius: 34px;
+  background: rgba(249, 243, 235, 0.92);
+  box-shadow:
+    0 30px 60px rgba(53, 36, 24, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(18px);
+}
+
+.phone-status {
+  display: flex;
+  justify-content: center;
+  padding: 0.85rem 0 0.55rem;
+}
+
+.phone-notch {
+  height: 0.35rem;
+  width: 5rem;
+  border-radius: 999px;
+  background: rgba(127, 104, 88, 0.18);
+}
+
+.phone-scroll {
+  height: calc(820px - 82px);
+  overflow-y: auto;
+}
+
+.screen-header {
+  padding: 1.1rem 1.15rem 0.6rem;
+}
+
+.screen-content {
+  padding: 1.2rem 1rem 6rem;
+}
+
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+  border-top: 1px solid rgba(117, 84, 60, 0.12);
+  background: rgba(255, 250, 245, 0.94);
+  padding: 0.75rem 0.85rem 0.95rem;
+}
+
+.nav-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.18rem;
+  color: var(--muted);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.nav-pill.nav-active {
+  color: var(--accent-strong);
+}
+
+.nav-pill.nav-active .nav-icon-wrap {
+  background: rgba(212, 142, 97, 0.16);
+  box-shadow: 0 0 0 4px rgba(212, 142, 97, 0.08);
+}
+
+.nav-pill.nav-accent .nav-icon-wrap {
+  background: rgba(212, 142, 97, 0.14);
+}
+
+.nav-icon-wrap {
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hand-drawn icon treatment for Lucide SVGs.
+   Slightly thicker, rounded strokes + tiny rotation feels more like a real
+   pen than a CAD tool. */
+.icon-handdrawn {
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform: rotate(-1.5deg);
+}
+
+.icon-handdrawn-flat {
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface-alt);
+  padding: 0.95rem 1rem;
+  color: var(--foreground);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  outline: none;
+}
+
+textarea {
+  min-height: 5rem;
+  resize: vertical;
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(212, 142, 97, 0.12);
+}
+
+.font-serif {
+  font-family: var(--font-serif), serif;
+}
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: rgba(255, 250, 245, 0.88);
+  padding: 1.5rem;
+  box-shadow: 0 10px 35px rgba(71, 48, 28, 0.06);
+  backdrop-filter: blur(8px);
+}
+
+.hero-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  border: 1px solid rgba(177, 110, 70, 0.16);
+  border-radius: 34px;
+  padding: 1.75rem;
+  background:
+    linear-gradient(135deg, rgba(255, 250, 245, 0.96), rgba(247, 231, 218, 0.9)),
+    radial-gradient(circle at top right, rgba(95, 138, 105, 0.12), transparent 30%);
+  box-shadow: 0 20px 45px rgba(71, 48, 28, 0.08);
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.section-heading h2,
+.section-heading h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.section-heading a {
+  font-size: 0.9rem;
+  color: var(--accent-strong);
+}
+
+.primary-button,
+.secondary-button,
+.pill-link {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+
+.primary-button:hover,
+.secondary-button:hover,
+.pill-link:hover {
+  transform: translateY(-1px);
+}
+
+.primary-button {
+  background: var(--accent);
+  color: white;
+  padding: 0.9rem 1.3rem;
+}
+
+.secondary-button {
+  border: 1px solid rgba(177, 110, 70, 0.18);
+  background: rgba(255, 250, 245, 0.92);
+  color: var(--accent-strong);
+  padding: 0.9rem 1.3rem;
+}
+
+.pill-link {
+  border: 1px solid var(--border);
+  background: rgba(255, 250, 245, 0.72);
+  color: var(--foreground);
+  padding: 0.7rem 1rem;
+}
+
+.detail-label {
+  margin-bottom: 0.6rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
+}
+
+.detail-copy {
+  font-size: 1rem;
+  line-height: 1.9;
+  color: var(--foreground);
+}
+
+.field {
+  display: block;
+}
+
+.field span {
+  display: block;
+  margin-bottom: 0.55rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+@media (max-width: 640px) {
+  .app-stage {
+    padding: 0;
+  }
+
+  .phone-shell {
+    width: 100%;
+    min-height: 100vh;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .phone-scroll {
+    height: calc(100vh - 82px);
+  }
+
+  .app-caption {
+    display: none;
+  }
+
+  .card,
+  .hero-panel {
+    border-radius: 24px;
+    padding: 1.2rem;
+  }
+}
