@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -92,7 +92,7 @@ export default function PeoplePage() {
     }
   }
 
-  // dnd-kit sensors â€” pointer for mouse, touch for mobile, keyboard for a11y
+  // dnd-kit sensors - pointer for mouse, touch for mobile, keyboard for a11y
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(TouchSensor, {
