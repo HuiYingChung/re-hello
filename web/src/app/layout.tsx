@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Instrument_Serif, Noto_Sans_TC } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const notoSansTc = Noto_Sans_TC({
@@ -92,7 +93,10 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${notoSansTc.variable} ${instrumentSerif.variable}`}
     >
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
