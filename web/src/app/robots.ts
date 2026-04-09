@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://rehello.app/sitemap.xml",
+    sitemap: "https://re-hello.vercel.app/sitemap.xml",
   };
 }
