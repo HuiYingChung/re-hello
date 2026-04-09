@@ -235,7 +235,7 @@ export default function PersonDetailPage() {
           </div>
         )}
 
-        {/* Next time ask â€” most prominent */}
+        {/* Next time ask - most prominent */}
         {latest?.nextTimeAsk && (
           <div className="rounded-[24px] bg-[var(--accent-soft)] p-5">
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-strong)]">
@@ -274,7 +274,7 @@ export default function PersonDetailPage() {
             </h3>
             <p className="mt-1 text-pretty text-xs leading-6 text-[var(--muted)]">
               Set a quiet nudge for when you want to think of {person.name}{" "}
-              again. No pressure â€” just a safety net so they don&apos;t fade away.
+              again. No pressure - just a safety net so they don&apos;t fade away.
             </p>
           </div>
 

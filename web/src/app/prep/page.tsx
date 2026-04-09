@@ -315,7 +315,7 @@ export default function PrepPage() {
               </div>
             ) : (
               <p className="text-sm text-[var(--muted)]">
-                No one saved yet. That&apos;s okay â€” you&apos;ll meet someone
+                No one saved yet. That&apos;s okay - you&apos;ll meet someone
                 great today.
               </p>
             )}
@@ -390,7 +390,7 @@ export default function PrepPage() {
               </div>
             )}
 
-            {/* Generic starters â€” randomized, filtered by event type */}
+            {/* Generic starters - randomized, filtered by event type */}
             <div className="space-y-2">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
                 {starterHeading}
