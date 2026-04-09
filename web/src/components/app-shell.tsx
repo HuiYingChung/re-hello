@@ -1,8 +1,8 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Home, NotebookPen, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { hasOnboarded } from "@/lib/storage";
@@ -24,12 +24,27 @@ const navItems: NavItem[] = [
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const isWelcomeRoute = pathname === "/welcome";
+  const [canRender, setCanRender] = useState(isWelcomeRoute);
 
   useEffect(() => {
-    if (pathname !== "/welcome" && !hasOnboarded()) {
-      router.replace("/welcome");
+    if (isWelcomeRoute) {
+      setCanRender(true);
+      return;
     }
-  }, [pathname, router]);
+
+    if (!hasOnboarded()) {
+      setCanRender(false);
+      router.replace("/welcome");
+      return;
+    }
+
+    setCanRender(true);
+  }, [isWelcomeRoute, pathname, router]);
+
+  if (!canRender && !isWelcomeRoute) {
+    return null;
+  }
 
   return (
     <div className="app-stage">
