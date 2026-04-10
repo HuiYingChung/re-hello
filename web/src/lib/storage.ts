@@ -311,6 +311,22 @@ export function getLatestEncounter(personId: string): Encounter | undefined {
   return getEncounters(personId)[0];
 }
 
+export function getLatestEncountersMap(): Map<string, Encounter> {
+  const latestByPerson = new Map<string, Encounter>();
+
+  read<Encounter>(KEYS.encounters).forEach((encounter) => {
+    const current = latestByPerson.get(encounter.personId);
+    if (
+      !current ||
+      getEncounterSortTime(encounter) > getEncounterSortTime(current)
+    ) {
+      latestByPerson.set(encounter.personId, encounter);
+    }
+  });
+
+  return latestByPerson;
+}
+
 export function getEncounter(id: string): Encounter | undefined {
   return read<Encounter>(KEYS.encounters).find((e) => e.id === id);
 }

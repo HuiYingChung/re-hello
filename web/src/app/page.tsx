@@ -8,10 +8,9 @@ import { Avatar, PersonCard } from "@/components/person-card";
 import { Icon } from "@/components/icon";
 import {
   getSortedPeople,
-  getLatestEncounter,
+  getLatestEncountersMap,
   getDueReminders,
   getUpcomingReminders,
-  getPerson,
   dismissReminder,
   getPeopleWorthReviewing,
   getHiddenSections,
@@ -47,14 +46,9 @@ export default function HomePage() {
 
   const refresh = useCallback(() => {
     const allPeople = getSortedPeople();
+    const latestEncounters = getLatestEncountersMap();
     setPeople(allPeople);
-
-    const encMap = new Map<string, Encounter>();
-    allPeople.forEach((p) => {
-      const enc = getLatestEncounter(p.id);
-      if (enc) encMap.set(p.id, enc);
-    });
-    setEncounters(encMap);
+    setEncounters(latestEncounters);
     setDueReminders(getDueReminders());
     setUpcomingReminders(getUpcomingReminders(7));
     setWorthReviewing(getPeopleWorthReviewing(3));
@@ -190,7 +184,7 @@ export default function HomePage() {
               Gentle nudges for today.
             </p>
             {dueReminders.map((reminder) => {
-              const person = getPerson(reminder.personId);
+              const person = people.find((item) => item.id === reminder.personId);
               if (!person) return null;
               return (
                 <div
@@ -361,7 +355,7 @@ export default function HomePage() {
               Coming up soon.
             </p>
             {upcomingReminders.map((reminder) => {
-              const person = getPerson(reminder.personId);
+              const person = people.find((item) => item.id === reminder.personId);
               if (!person) return null;
               return (
                 <Link
