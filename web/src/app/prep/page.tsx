@@ -1,7 +1,7 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -9,6 +9,7 @@ import {
   Briefcase,
   BookOpen,
   Coffee,
+  ChevronLeft,
   Star,
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
@@ -16,10 +17,6 @@ import { Avatar } from "@/components/person-card";
 import { Icon } from "@/components/icon";
 import { getPeople, getLatestEncounter, getEncounters } from "@/lib/storage";
 import { Person, Encounter } from "@/lib/types";
-
-// Event types
-// Picking the event type up front lets us suggest starters that actually
-// fit the room. A coffee 1:1 needs different openers than a work mixer.
 
 type EventType = "social" | "work" | "learning" | "casual";
 
@@ -106,68 +103,45 @@ const encouragements = [
   "You already know more than you think. Trust yourself.",
 ];
 
-// History mining
-// Scan the user's own past encounters for recurring topics. If a word
-// appears in talkedAbout / memorableDetail across at least 2 different
-// encounters, it counts as a "theme" the user often talks about.
-//
-// This is intentionally lightweight - no NLP, no LLM, no network. Just
-// word frequency with a stop-word filter. Good enough to surface the
-// real patterns ("books", "running", "ramen") without pretending to be
-// smarter than it is.
-
 const STOP_WORDS = new Set([
-  // articles, prepositions, conjunctions
   "the","a","an","and","or","but","of","to","in","on","at","for","with","by",
   "from","up","about","into","through","during","before","after","above","below",
-  // forms of be / have / do
   "is","are","was","were","be","been","being","have","has","had","do","does","did",
-  // pronouns / possessives
   "her","his","their","our","my","your","its","this","that","these","those",
   "you","he","she","it","we","they","me","him","them","us","i",
-  // common qualifiers
   "as","not","no","so","if","then","than","too","very","just","also","both",
-  // wh-words
   "what","how","when","where","why","which","who","whom",
-  // determiners
   "more","most","some","any","all","each","every","other","another",
-  // generic adjectives / adverbs
   "favorite","first","one","new","old","good","great","really","much","many",
   "small","large","big","little","next","last","real","whole","still","even",
-  // modal / cognitive verbs
   "would","could","should","will","might","like","want","need","know","think",
-  // very generic nouns
   "people","person","time","things","thing","stuff","way","kind","sort","lot",
   "year","years","month","months","week","weeks","day","days","hour","hours",
-  // reporting verbs (used a lot in encounter notes)
   "talked","told","said","asked","mentioned","felt","seemed","made","make",
-  // calendar / time-of-day context noise
   "morning","afternoon","evening","night","today","tomorrow","yesterday",
   "weekend","weekday","monday","tuesday","wednesday","thursday","friday",
   "saturday","sunday",
-  // pronoun-ish leftovers
   "everyone","everything","anyone","anything","nothing","something","someone",
 ]);
 
 function extractTopics(encounters: Encounter[], limit = 5): string[] {
   const counts = new Map<string, number>();
-  // Only count each word ONCE per encounter, so a single chatty entry
-  // can't dominate the top topics.
-  encounters.forEach((e) => {
-    const text = `${e.talkedAbout || ""} ${e.memorableDetail || ""}`.toLowerCase();
+  encounters.forEach((encounter) => {
+    const text = `${encounter.talkedAbout || ""} ${encounter.memorableDetail || ""}`.toLowerCase();
     const words = text.match(/[a-z]{4,}/g) || [];
     const seen = new Set<string>();
-    words.forEach((w) => {
-      if (STOP_WORDS.has(w) || seen.has(w)) return;
-      seen.add(w);
-      counts.set(w, (counts.get(w) || 0) + 1);
+    words.forEach((word) => {
+      if (STOP_WORDS.has(word) || seen.has(word)) return;
+      seen.add(word);
+      counts.set(word, (counts.get(word) || 0) + 1);
     });
   });
+
   return [...counts.entries()]
-    .filter(([, c]) => c >= 2) // must appear in at least 2 different encounters
+    .filter(([, count]) => count >= 2)
     .sort((a, b) => b[1] - a[1])
     .slice(0, limit)
-    .map(([w]) => w);
+    .map(([word]) => word);
 }
 
 function pickRandom<T>(arr: T[], n: number): T[] {
@@ -175,99 +149,159 @@ function pickRandom<T>(arr: T[], n: number): T[] {
   return shuffled.slice(0, n);
 }
 
-export default function PrepPage() {
+function isEventType(value: string | null): value is EventType {
+  return value === "social" || value === "work" || value === "learning" || value === "casual";
+}
+
+function clampStep(value: string | null, hasEventType: boolean): number {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed)) return 0;
+  if (parsed < 0) return 0;
+  if (!hasEventType) return 0;
+  return Math.min(parsed, 3);
+}
+
+function PrepFlow() {
   const router = useRouter();
-  const [step, setStep] = useState(0); // 0=event type, 1=faces, 2=starters, 3=encouragement
-  const [eventType, setEventType] = useState<EventType | null>(null);
+  const searchParams = useSearchParams();
+  const eventTypeParam = searchParams.get("eventType");
+  const initialEventType: EventType | null = isEventType(eventTypeParam)
+    ? eventTypeParam
+    : null;
+  const [step, setStep] = useState(() =>
+    clampStep(searchParams.get("step"), initialEventType !== null)
+  );
+  const [eventType, setEventType] = useState<EventType | null>(initialEventType);
   const [people, setPeople] = useState<{ person: Person; encounter: Encounter }[]>([]);
   const [topics, setTopics] = useState<string[]>([]);
 
   useEffect(() => {
     const allPeople = getPeople();
     const withEnc = allPeople
-      .map((p) => {
-        const enc = getLatestEncounter(p.id);
-        return enc ? { person: p, encounter: enc } : null;
+      .map((person) => {
+        const encounter = getLatestEncounter(person.id);
+        return encounter ? { person, encounter } : null;
       })
       .filter(Boolean) as { person: Person; encounter: Encounter }[];
-    // Intentional client-only hydration from localStorage.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPeople(withEnc);
 
-    // Mine topics from ALL encounters, not just latest, so we get a
-    // fuller picture of what this user actually talks about.
+    setPeople(withEnc);
     setTopics(extractTopics(getEncounters()));
   }, []);
 
-  // Pick 3 fresh starters whenever the step lands on the starters screen
-  // and an event type is set. Wrapped in useMemo so a re-render of the
-  // same step doesn't reshuffle while the user is reading.
+  useEffect(() => {
+    const nextEventTypeParam = searchParams.get("eventType");
+    const nextEventType: EventType | null = isEventType(nextEventTypeParam)
+      ? nextEventTypeParam
+      : null;
+    const nextStep = clampStep(searchParams.get("step"), nextEventType !== null);
+
+    setEventType((current) => (current === nextEventType ? current : nextEventType));
+    setStep((current) => (current === nextStep ? current : nextStep));
+  }, [searchParams]);
+
   const starters = useMemo(() => {
     if (!eventType) return [];
     return pickRandom(STARTER_POOL[eventType], 3);
-  }, [eventType, step]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [eventType, step]);
 
-  // Pick one encouragement per session-start. Lazy useState init keeps the
-  // impure Math.random call out of the render path so React 19's purity
-  // checker stays happy, and guarantees a stable string across re-renders.
   const [encouragement] = useState(
     () => encouragements[Math.floor(Math.random() * encouragements.length)]
   );
 
   const starterHeading =
-    EVENT_TYPES.find((e) => e.id === eventType)?.starterHeading ||
-    "For new people";
+    EVENT_TYPES.find((item) => item.id === eventType)?.starterHeading || "For new people";
+
+  function goToStep(nextStep: number, nextEventType = eventType) {
+    const params = new URLSearchParams();
+
+    if (nextEventType) {
+      params.set("eventType", nextEventType);
+      params.set("step", String(Math.min(Math.max(nextStep, 0), 3)));
+    }
+
+    const href = params.toString() ? `/prep?${params.toString()}` : "/prep";
+    setEventType(nextEventType);
+    setStep(nextEventType ? Math.min(Math.max(nextStep, 0), 3) : 0);
+    router.replace(href, { scroll: false });
+  }
+
+  function goBack() {
+    if (step === 0) {
+      router.push("/");
+      return;
+    }
+    goToStep(step - 1);
+  }
+
+  const canJumpToStep = (targetStep: number) => {
+    if (targetStep === 0) return true;
+    if (!eventType) return false;
+    return targetStep <= step;
+  };
 
   return (
     <AppShell>
       <div className="space-y-6 py-4">
-        {/* Progress dots */}
-        <div className="flex justify-center gap-2">
-          {[0, 1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className={`h-2 w-2 rounded-full transition-colors ${
-                i <= step ? "bg-[var(--accent)]" : "bg-[var(--surface-alt)]"
-              }`}
-            />
-          ))}
+        <div className="flex items-center justify-between">
+          <button
+            onClick={goBack}
+            className="inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs font-medium text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
+          >
+            <Icon as={ChevronLeft} size={14} flat />
+            <span>{step === 0 ? "Home" : "Back"}</span>
+          </button>
+          <div className="flex justify-center gap-2">
+            {[0, 1, 2, 3].map((index) => {
+              const isActive = index === step;
+              const isAvailable = canJumpToStep(index);
+              return (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => isAvailable && goToStep(index)}
+                  disabled={!isAvailable}
+                  aria-label={`Go to step ${index + 1}`}
+                  className={`h-2.5 w-2.5 rounded-full transition-colors ${
+                    isActive
+                      ? "bg-[var(--accent)]"
+                      : index < step
+                        ? "bg-[var(--accent)]/55"
+                        : "bg-[var(--surface-alt)]"
+                  } ${isAvailable ? "cursor-pointer" : "cursor-default opacity-70"}`}
+                />
+              );
+            })}
+          </div>
+          <div className="w-12" />
         </div>
 
-        {/* Step 0: Pick event type */}
         {step === 0 && (
           <div className="space-y-5">
             <div>
-              <p className="text-xs text-[var(--muted)]">
-                Let&apos;s get you ready
-              </p>
+              <p className="text-xs text-[var(--muted)]">Let&apos;s get you ready</p>
               <h1 className="text-balance font-serif text-2xl text-[var(--foreground)]">
                 What kind of room are you walking into?
               </h1>
             </div>
             <div className="space-y-3">
-              {EVENT_TYPES.map((ev) => (
+              {EVENT_TYPES.map((item) => (
                 <button
-                  key={ev.id}
-                  onClick={() => {
-                    setEventType(ev.id);
-                    setStep(1);
-                  }}
+                  key={item.id}
+                  onClick={() => goToStep(1, item.id)}
                   className={`flex w-full items-center gap-4 rounded-[20px] border px-5 py-4 text-left transition-colors ${
-                    eventType === ev.id
+                    eventType === item.id
                       ? "border-[var(--accent)] bg-[var(--accent-soft)]"
                       : "border-[var(--border)] bg-[var(--surface)]"
                   }`}
                 >
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent-strong)]">
-                    <Icon as={ev.icon} size={20} />
+                    <Icon as={item.icon} size={20} />
                   </span>
                   <span className="min-w-0">
                     <span className="block text-sm font-semibold text-[var(--foreground)]">
-                      {ev.label}
+                      {item.label}
                     </span>
-                    <span className="block text-xs text-[var(--muted)]">
-                      {ev.hint}
-                    </span>
+                    <span className="block text-xs text-[var(--muted)]">{item.hint}</span>
                   </span>
                 </button>
               ))}
@@ -275,97 +309,81 @@ export default function PrepPage() {
           </div>
         )}
 
-        {/* Step 1: Familiar faces */}
         {step === 1 && (
           <div className="space-y-5">
             <div>
-              <h1 className="font-serif text-2xl text-[var(--foreground)]">
-                Anyone you might see?
-              </h1>
+              <h1 className="font-serif text-2xl text-[var(--foreground)]">Anyone you might see?</h1>
               <p className="mt-1 text-sm text-[var(--muted)]">
-                Tap to review their recall card
+                Tap to review their recall card, then come right back here.
               </p>
             </div>
             {people.length > 0 ? (
               <div className="space-y-3">
-                {people.slice(0, 5).map(({ person, encounter }) => (
-                  <Link
-                    key={person.id}
-                    href={`/people/${person.id}/recall`}
-                    className="flex items-center gap-3 rounded-[20px] border border-[var(--border)] bg-[var(--surface)] px-4 py-3"
-                  >
-                    <Avatar
-                      name={person.name}
-                      color={person.color}
-                      avatarStyle={person.avatarStyle}
-                      size="sm"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-[var(--foreground)]">
-                        {person.name}
-                      </p>
-                      {encounter.nextTimeAsk && (
-                        <p className="truncate text-xs text-[var(--muted)]">
-                          Ask: {encounter.nextTimeAsk}
-                        </p>
-                      )}
-                    </div>
-                  </Link>
-                ))}
+                {people.slice(0, 5).map(({ person, encounter }) => {
+                  const params = new URLSearchParams({ step: "1" });
+                  if (eventType) params.set("eventType", eventType);
+                  const returnTo = `/prep?${params.toString()}`;
+
+                  return (
+                    <Link
+                      key={person.id}
+                      href={`/people/${person.id}/recall?returnTo=${encodeURIComponent(returnTo)}`}
+                      className="flex items-center gap-3 rounded-[20px] border border-[var(--border)] bg-[var(--surface)] px-4 py-3"
+                    >
+                      <Avatar
+                        name={person.name}
+                        color={person.color}
+                        avatarStyle={person.avatarStyle}
+                        size="sm"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-[var(--foreground)]">{person.name}</p>
+                        {encounter.nextTimeAsk && (
+                          <p className="truncate text-xs text-[var(--muted)]">Ask: {encounter.nextTimeAsk}</p>
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             ) : (
               <p className="text-sm text-[var(--muted)]">
-                No one saved yet. That&apos;s okay - you&apos;ll meet someone
-                great today.
+                No one saved yet. That&apos;s okay - you&apos;ll meet someone great today.
               </p>
             )}
-            <button
-              onClick={() => setStep(2)}
-              className="primary-button w-full justify-center"
-            >
+            <button onClick={() => goToStep(2)} className="primary-button w-full justify-center">
               Next
             </button>
           </div>
         )}
 
-        {/* Step 2: Conversation starters */}
         {step === 2 && (
           <div className="space-y-5">
             <div>
-              <h1 className="font-serif text-2xl text-[var(--foreground)]">
-                Conversation starters
-              </h1>
-              <p className="mt-1 text-sm text-[var(--muted)]">
-                A few ideas, just in case
-              </p>
+              <h1 className="font-serif text-2xl text-[var(--foreground)]">Conversation starters</h1>
+              <p className="mt-1 text-sm text-[var(--muted)]">A few ideas, just in case</p>
             </div>
 
-            {/* Personalized starters from saved people */}
-            {people.filter((p) => p.encounter.nextTimeAsk).length > 0 && (
+            {people.filter((item) => item.encounter.nextTimeAsk).length > 0 && (
               <div className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-strong)]">
                   For people you know
                 </p>
                 {people
-                  .filter((p) => p.encounter.nextTimeAsk)
+                  .filter((item) => item.encounter.nextTimeAsk)
                   .slice(0, 3)
                   .map(({ person, encounter }) => (
                     <div
                       key={person.id}
                       className="rounded-[16px] bg-[var(--accent-soft)] px-4 py-3"
                     >
-                      <p className="text-xs font-medium text-[var(--accent-strong)]">
-                        {person.name}
-                      </p>
-                      <p className="mt-1 text-sm text-[var(--foreground)]">
-                        &ldquo;{encounter.nextTimeAsk}&rdquo;
-                      </p>
+                      <p className="text-xs font-medium text-[var(--accent-strong)]">{person.name}</p>
+                      <p className="mt-1 text-sm text-[var(--foreground)]">&ldquo;{encounter.nextTimeAsk}&rdquo;</p>
                     </div>
                   ))}
               </div>
             )}
 
-            {/* Themes mined from the user's own past conversations */}
             {topics.length > 0 && (
               <div className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
@@ -373,50 +391,47 @@ export default function PrepPage() {
                 </p>
                 <div className="rounded-[16px] border border-dashed border-[var(--border)] bg-[var(--surface)] px-4 py-3">
                   <div className="flex flex-wrap gap-2">
-                    {topics.map((t) => (
+                    {topics.map((topic) => (
                       <span
-                        key={t}
+                        key={topic}
                         className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-medium text-[var(--accent-strong)]"
                       >
-                        {t}
+                        {topic}
                       </span>
                     ))}
                   </div>
                   <p className="mt-2 text-[11px] leading-5 text-[var(--muted)]">
-                    These come up a lot in your past conversations. If you
-                    don&apos;t know what to ask, it&apos;s safe ground.
+                    These come up a lot in your past conversations. If you don&apos;t know what to ask, it&apos;s safe ground.
                   </p>
                 </div>
               </div>
             )}
 
-            {/* Generic starters - randomized, filtered by event type */}
             <div className="space-y-2">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
                 {starterHeading}
               </p>
-              {starters.map((s, i) => (
+              {starters.map((starter, index) => (
                 <div
-                  key={i}
+                  key={index}
                   className="rounded-[16px] border border-[var(--border)] bg-[var(--surface)] px-4 py-3"
                 >
-                  <p className="text-sm text-[var(--foreground)]">
-                    &ldquo;{s}&rdquo;
-                  </p>
+                  <p className="text-sm text-[var(--foreground)]">&ldquo;{starter}&rdquo;</p>
                 </div>
               ))}
             </div>
 
-            <button
-              onClick={() => setStep(3)}
-              className="primary-button w-full justify-center"
-            >
-              Almost ready
-            </button>
+            <div className="flex flex-col gap-2">
+              <button onClick={() => goToStep(1)} className="secondary-button justify-center">
+                Review people again
+              </button>
+              <button onClick={() => goToStep(3)} className="primary-button w-full justify-center">
+                Almost ready
+              </button>
+            </div>
           </div>
         )}
 
-        {/* Step 3: Encouragement */}
         {step === 3 && (
           <div className="flex flex-col items-center gap-8 py-10 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent-strong)]">
@@ -425,12 +440,14 @@ export default function PrepPage() {
             <p className="text-balance font-serif text-2xl leading-9 text-[var(--foreground)]">
               {encouragement}
             </p>
-            <button
-              onClick={() => router.push("/")}
-              className="primary-button"
-            >
-              I&apos;m ready
-            </button>
+            <div className="flex w-full flex-col gap-2">
+              <button onClick={() => goToStep(2)} className="secondary-button justify-center">
+                Back to starters
+              </button>
+              <button onClick={() => router.push("/")} className="primary-button justify-center">
+                I&apos;m ready
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -438,5 +455,10 @@ export default function PrepPage() {
   );
 }
 
-
-
+export default function PrepPage() {
+  return (
+    <Suspense fallback={null}>
+      <PrepFlow />
+    </Suspense>
+  );
+}

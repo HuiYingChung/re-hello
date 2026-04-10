@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
-import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { Avatar } from "@/components/person-card";
 import { StayInTouchPicker } from "@/components/stay-in-touch-picker";
@@ -12,9 +12,11 @@ import {
 } from "@/lib/storage";
 import { Person, Encounter } from "@/lib/types";
 
-export default function RecallPage() {
+function RecallFlow() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
   const [person, setPerson] = useState<Person | null>(null);
   const [encounter, setEncounter] = useState<Encounter | null>(null);
   const [showPicker, setShowPicker] = useState(false);
@@ -27,14 +29,18 @@ export default function RecallPage() {
       router.replace("/");
       return;
     }
-    // Intentional: localStorage reads must defer past hydration. The
-    // following setState calls are how we hand client-only data to
-    // the render pass on first mount.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPerson(p);
     setEncounter(getLatestEncounter(id) || null);
     markPersonReviewed(id);
   }, [id, router]);
+
+  function handleReady() {
+    if (returnTo) {
+      router.push(returnTo);
+      return;
+    }
+    router.back();
+  }
 
   if (!person) return null;
 
@@ -95,7 +101,6 @@ export default function RecallPage() {
           )}
         </div>
 
-        {/* Stay in touch picker — soft, optional */}
         {showPicker && !reminderSet && (
           <div className="w-full rounded-[20px] border border-dashed border-[var(--border)] bg-[var(--surface)] p-5">
             <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-strong)]">
@@ -134,14 +139,19 @@ export default function RecallPage() {
               Remind me later
             </button>
           )}
-          <button
-            onClick={() => router.back()}
-            className="primary-button justify-center"
-          >
+          <button onClick={handleReady} className="primary-button justify-center">
             Got it, I&apos;m ready
           </button>
         </div>
       </div>
     </AppShell>
+  );
+}
+
+export default function RecallPage() {
+  return (
+    <Suspense fallback={null}>
+      <RecallFlow />
+    </Suspense>
   );
 }
