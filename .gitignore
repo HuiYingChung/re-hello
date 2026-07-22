@@ -1,1 +1,22 @@
-web/re-hellow/
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Local environment files and secrets (applies recursively)
+.env
+.env.*
+!.env.example
+
+# Local service metadata
+.vercel/
+
+# Logs and generated test artifacts
+*.log
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.agent-browser/

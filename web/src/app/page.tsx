@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useReducer, useState } from "react";
 import { SlidersHorizontal, X } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Avatar, PersonCard } from "@/components/person-card";
@@ -17,6 +17,7 @@ import {
   hideSection,
 } from "@/lib/storage";
 import { Person, Encounter, Reminder } from "@/lib/types";
+import { useHydrated } from "@/lib/use-hydrated";
 
 function computeGreeting(d: Date) {
   const h = d.getHours();
@@ -35,30 +36,22 @@ const SECTION = {
 } as const;
 
 export default function HomePage() {
-  const [people, setPeople] = useState<Person[]>([]);
-  const [encounters, setEncounters] = useState<Map<string, Encounter>>(new Map());
-  const [dueReminders, setDueReminders] = useState<Reminder[]>([]);
-  const [upcomingReminders, setUpcomingReminders] = useState<Reminder[]>([]);
-  const [worthReviewing, setWorthReviewing] = useState<Person[]>([]);
-  const [hidden, setHidden] = useState<string[]>([]);
-  const [greeting, setGreeting] = useState<string | null>(null);
+  const hydrated = useHydrated();
+  const [, refresh] = useReducer((version: number) => version + 1, 0);
   const [actionError, setActionError] = useState<string | null>(null);
-
-  const refresh = useCallback(() => {
-    const allPeople = getSortedPeople();
-    const latestEncounters = getLatestEncountersMap();
-    setPeople(allPeople);
-    setEncounters(latestEncounters);
-    setDueReminders(getDueReminders());
-    setUpcomingReminders(getUpcomingReminders(7));
-    setWorthReviewing(getPeopleWorthReviewing(3));
-    setHidden(getHiddenSections());
-  }, []);
-
-  useEffect(() => {
-    setGreeting(computeGreeting(new Date()));
-    refresh();
-  }, [refresh]);
+  const greeting = hydrated ? computeGreeting(new Date()) : null;
+  const people: Person[] = hydrated ? getSortedPeople() : [];
+  const encounters: Map<string, Encounter> = hydrated
+    ? getLatestEncountersMap()
+    : new Map();
+  const dueReminders: Reminder[] = hydrated ? getDueReminders() : [];
+  const upcomingReminders: Reminder[] = hydrated
+    ? getUpcomingReminders(7)
+    : [];
+  const worthReviewing: Person[] = hydrated
+    ? getPeopleWorthReviewing(3)
+    : [];
+  const hidden = hydrated ? getHiddenSections() : [];
 
   function handleDismiss(id: string) {
     try {
@@ -78,7 +71,7 @@ export default function HomePage() {
     try {
       setActionError(null);
       hideSection(id);
-      setHidden(getHiddenSections());
+      refresh();
     } catch (error) {
       setActionError(
         error instanceof Error

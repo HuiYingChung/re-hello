@@ -172,8 +172,9 @@ export default function SettingsPage() {
             Your data
           </h3>
           <p className="text-xs leading-6 text-[var(--muted)]">
-            Everything Rehello knows about your people lives only on this
-            device. Save a backup so you don&apos;t lose it.
+            Your saved people and moments live only on this device. Quick
+            Remember sends only the note you submit to OpenAI to shape your
+            card. Save a backup so you don&apos;t lose it.
           </p>
 
           <div className="space-y-2">
@@ -299,8 +300,8 @@ export default function SettingsPage() {
             Version 0.1 · Made with care
           </p>
           <p className="mx-auto max-w-[260px] pt-2 text-xs leading-6 text-[var(--muted)]">
-            Your data never leaves this device. No accounts, no servers, no
-            tracking.
+            Your saved people stay on this device. Quick Remember sends only
+            the note you submit to OpenAI. No accounts or tracking.
           </p>
         </section>
       </div>
