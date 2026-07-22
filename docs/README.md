@@ -11,6 +11,7 @@ This directory separates current engineering evidence from historical product ma
 | [`product/`](product/) | Product scope and specifications. | Baseline product intent; update deliberately when scope changes. |
 | [`research/`](research/) | User, reviewer, and model feedback used as product input. | Reference material, not an implementation contract. |
 | [`prototypes/`](prototypes/) | Early standalone interface and strategy explorations. | Historical reference only; these files are not built or deployed by the current app. |
+| [`../lessons.md`](../lessons.md) | Append-only failure lessons and mandatory prevention rules. | Required preflight reading through the repository-level `AGENTS.md`. |
 
 ## Current records
 
@@ -22,6 +23,7 @@ This directory separates current engineering evidence from historical product ma
 - [Engineering Log: GitHub Actions CI Baseline](engineering-log/2026-07-22-github-actions-ci-baseline.md)
 - [Engineering Log: Quick Remember Entry Prompts](engineering-log/2026-07-22-quick-remember-entry-prompts.md)
 - [Engineering Log: GPT-5.6 Launch Framing and Demo Entry](engineering-log/2026-07-22-gpt56-launch-framing.md)
+- [Failure Lessons and Prevention Playbook](../lessons.md)
 - [MVP Specification](product/mvp-spec.md)
 - [GPT Prototype Feedback](research/gpt-feedback.md)
 
@@ -35,6 +37,7 @@ This directory separates current engineering evidence from historical product ma
 ## Documentation conventions
 
 - Engineering logs and decision records are written in English.
+- New failed attempts are appended to [`../lessons.md`](../lessons.md) with evidence, recovery, and a concrete next-time rule.
 - Engineering logs use concrete dates, times, time zones, commands, and outcomes. Unknown timestamps must be labeled as unknown rather than reconstructed without evidence.
 - ADRs are append-only in rationale: add a dated amendment or a superseding ADR instead of rewriting history.
 - Temporary screenshots and browser artifacts stay untracked. Copy only intentional evidence into a future tracked `docs/evidence/` directory and document its provenance.
