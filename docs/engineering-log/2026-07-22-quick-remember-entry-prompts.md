@@ -125,3 +125,11 @@ The screenshot is untracked and temporary. Visual inspection confirmed that the 
 3. Run exact-head CI after publication.
 4. Deploy or merge through the normal Vercel-connected workflow.
 5. Run a minimal production UI smoke test without submitting a GPT request unless a live model check is explicitly required.
+
+## Subsequent committed state
+
+- At 2026-07-22 14:25:50 -05:00, the implementation, ADR-0003, documentation index update, and initial version of this log were committed as `b7181b26853baf6bc624134c5328d6adc6b08b44` (`feat: add Quick Remember entry prompts`).
+- ESLint was re-run against that exact commit from 2026-07-22 14:26:03 through 14:26:13 -05:00 and passed with exit 0.
+- The production build was re-run against that exact commit from 2026-07-22 14:26:06 through 14:26:22 -05:00 and passed with exit 0. Compilation, TypeScript, page-data collection, and generation of all 16 routes succeeded.
+- This subsequent-state addition changes documentation only. It does not change the source that passed the exact-commit lint, build, and earlier browser verification.
+- The branch remains local and has not been pushed, merged, or deployed.

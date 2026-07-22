@@ -210,3 +210,11 @@ Review this decision if:
 ## Amendment policy
 
 Future changes should append a dated amendment or create a superseding ADR. Do not rewrite this rationale to imply that later voice, multilingual, deployment, or analytics decisions were known on 2026-07-22.
+
+## Amendment: Local feature commit verified on 2026-07-22
+
+The interface implementation and initial decision records were committed locally as `b7181b26853baf6bc624134c5328d6adc6b08b44` at 2026-07-22 14:25:50 -05:00.
+
+ESLint and the production build were then run against that exact commit. ESLint passed from 14:26:03 through 14:26:13 -05:00. The production build passed from 14:26:06 through 14:26:22 -05:00, including compilation, TypeScript, page-data collection, and all 16 routes.
+
+This resolves the original local-commit item. It does not resolve publication, exact-head GitHub Actions, Vercel deployment, production smoke testing, rate limiting, real-device verification, or the deferred voice work.
