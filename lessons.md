@@ -636,3 +636,83 @@ These items remain open and must not be described as fixed:
 **Next-time rule:** When a sandbox denies `.git/index.lock`, verify that staging did not partially occur, request permission for the same path-limited Git mutation, and never broaden the file list or use a blanket add.
 
 **Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)
+
+### L45. Convert expected memory-search absence into an explicit result
+
+**Observed at:** Exact time not captured; before 2026-07-22 17:09:23.835 -05:00
+
+**Failure:** A composite discovery command successfully read the Playwright skill and then exited 1 because its final `rg` search found no relevant Rehello mobile-layout entry in the memory registry.
+
+**Evidence:** The tool output contained the complete skill text, an empty `MEMORY HITS` section, and overall exit code 1.
+
+**Root cause:** The command repeated L35 by leaving an expected no-match `rg` invocation as its unhandled final operation.
+
+**Recovery:** Classified the memory lookup as a zero-match, stopped memory discovery, and continued from current repository and production evidence.
+
+**Next-time rule:** Memory discovery must count or explicitly handle zero matches. Do not let an expected empty lookup obscure successful prerequisite reads or appear to be an operational failure.
+
+**Source:** [Mobile viewport shell investigation](docs/engineering-log/2026-07-22-mobile-viewport-shell-investigation.md)
+
+### L46. Classify an uncached browser CLI before diagnosing the application
+
+**Observed at:** Exact time not captured; before 2026-07-22 17:09:23.835 -05:00
+
+**Failure:** The first `@playwright/cli` help command failed before browser launch because restricted npm used `only-if-cached` mode and had no cached package response.
+
+**Evidence:** npm returned `ENOTCACHED` for `@playwright/cli` and reported that it could not write a log under the npm cache directory.
+
+**Root cause:** The required diagnostic CLI package was absent from the restricted npm cache. No Rehello request or browser action occurred.
+
+**Recovery:** Re-ran the unchanged package and help command with narrowly approved npm network access, then opened an isolated browser session.
+
+**Next-time rule:** When a pinned or explicit browser CLI fails only with `ENOTCACHED`, record it as tool availability, retry the identical command with narrow network access, and do not infer an application defect.
+
+**Source:** [Mobile viewport shell investigation](docs/engineering-log/2026-07-22-mobile-viewport-shell-investigation.md)
+
+### L47. Match Playwright CLI code to the command's execution grammar
+
+**Observed at:** Exact time not captured; after 2026-07-22 17:09:23.835 and before 17:16:11.857 -05:00
+
+**Failure:** The first geometry measurement used a top-level `return` in Playwright CLI `run-code` and failed with `SyntaxError: Unexpected token 'return'`.
+
+**Evidence:** The CLI returned the syntax error and no viewport, scroll-width, or navigation geometry result.
+
+**Root cause:** The submitted snippet assumed function-body return semantics that the selected CLI command did not provide at its top level.
+
+**Recovery:** Re-expressed the measurement as a value-producing expression for the CLI `eval` command.
+
+**Next-time rule:** Before sending a long browser diagnostic, prove the chosen CLI command's grammar with a one-line expression. Treat a syntax failure as zero page evidence and rerun the full measurement only after the probe succeeds.
+
+**Source:** [Mobile viewport shell investigation](docs/engineering-log/2026-07-22-mobile-viewport-shell-investigation.md)
+
+### L48. Pass complex Playwright expressions through one PowerShell variable
+
+**Observed at:** Exact time not captured; after L47 and before 2026-07-22 17:16:11.857 -05:00
+
+**Failure:** The first `eval` geometry expression failed with `SyntaxError: Unexpected token '*'` because quotes around the universal selector did not survive the Windows native-command argument boundary.
+
+**Evidence:** The error was consistent with the browser receiving `querySelectorAll(*)` instead of a quoted selector, and no geometry result was returned.
+
+**Root cause:** Nested JavaScript double quotes were reconstructed incorrectly between PowerShell and the native CLI, repeating the quoting class already identified by L12.
+
+**Recovery:** Stored the full expression in a task-specific PowerShell variable and used JavaScript single-quoted strings encoded inside the PowerShell value. The next command returned the complete JSON measurement.
+
+**Next-time rule:** For Playwright CLI `eval` on Windows, pass one prebuilt expression argument from a task-specific variable and validate it with a small probe. Do not stack shell escapes around nested JavaScript quotes.
+
+**Source:** [Mobile viewport shell investigation](docs/engineering-log/2026-07-22-mobile-viewport-shell-investigation.md)
+
+### L49. Keep Playwright session snapshots out of the repository
+
+**Observed at:** Artifacts created from 2026-07-22 17:09:23.835 through 17:22:35.249 -05:00; cleanup completed before 17:26:41.436 -05:00
+
+**Failure:** Playwright navigation and snapshot commands created 21 untracked `.playwright-cli/page-*.yml` files because the directory was not ignored. The fetched main branch already contained one tracked snapshot from an earlier commit.
+
+**Evidence:** `git status --short` listed 21 untracked snapshot files, `git check-ignore` returned no rule, and `git ls-files` listed the older tracked snapshot.
+
+**Root cause:** The browser CLI writes session snapshots to `.playwright-cli` by default, while the repository ignores `.agent-browser` and test-report directories but not `.playwright-cli`.
+
+**Recovery:** Closed the exact browser session, enumerated only untracked `.playwright-cli` paths, validated every resolved path stayed inside the expected directory, removed 21 generated files, preserved the tracked file, and confirmed a clean working tree.
+
+**Next-time rule:** Add `.playwright-cli/` to `.gitignore` before further CLI browser work and deliberately remove any tracked session snapshot in a scoped commit. During cleanup, enumerate only untracked files and never delete the directory recursively when tracked evidence is present.
+
+**Source:** [Mobile viewport shell investigation](docs/engineering-log/2026-07-22-mobile-viewport-shell-investigation.md)
