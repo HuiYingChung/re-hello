@@ -325,3 +325,11 @@ Review this decision if any of the following occurs:
 ## Amendment policy
 
 Future changes should append a dated amendment or create a superseding ADR. They should not rewrite the original rationale to make later decisions appear to have been known on 2026-07-22.
+
+## Amendment: Production release verified on 2026-07-22
+
+The implementation was subsequently committed, merged through pull request 2, and deployed from merge commit `0302c162cf8341c363e0e96bea9eefac797135eb`.
+
+The exact merge commit passed GitHub Actions run `29947945570` and the Vercel deployment check. A no-token production probe confirmed that `/api/remember` was present and that the production function could see a non-empty `OPENAI_API_KEY`. One controlled browser test using the synthetic Maya example then completed the GPT-5.6 request, structured-card review, localStorage save, and `Remembered!` UI state. The synthetic browser data was cleared after verification.
+
+This amendment resolves the earlier commit, push, deployment, environment-presence, and production-smoke items. It does not resolve the Vercel WAF/rate-limit item, formal model evaluation, or durable usage accounting. The detailed timestamps, failed automation attempts, retry justification, and evidence limitations remain in the related engineering log.

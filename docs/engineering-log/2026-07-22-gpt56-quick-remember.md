@@ -173,3 +173,59 @@ No ESLint rule was disabled or suppressed.
 - At 2026-07-22 13:16:59 CT, the implementation, repository organization, ADR-0001, and this engineering log were committed on `codex/quick-remember-gpt56` as `cd9d50a1fe6bae4b63d7431d42011d1e5000dab4` (`feat: add GPT-5.6 quick remember flow`).
 - The branch had not been pushed when this update was written.
 - CI baseline work after that commit is recorded separately in `2026-07-22-github-actions-ci-baseline.md` and ADR-0002.
+
+## Production verification after merge
+
+### Deployment and exact-head CI
+
+- The feature branch was merged through GitHub pull request 2.
+- At verification time, local `main`, `origin/main`, and `origin/HEAD` all resolved to merge commit `0302c162cf8341c363e0e96bea9eefac797135eb`; the working tree was clean.
+- GitHub Actions run `29947945570` executed the `CI` workflow for a `push` to `main` from 2026-07-22 13:43:53 CT through 13:44:43 CT and concluded `success` for the exact merge commit.
+- The GitHub combined status for the same commit reported the Vercel deployment check as `success`.
+
+### No-token route and environment probe
+
+At 2026-07-22 13:50:27–13:50:28 CT, a production request sent the intentionally invalid JSON payload `{ "memory": "short" }` to `POST https://re-hello.vercel.app/api/remember`.
+
+Evidence:
+
+- HTTP status: `400`.
+- Content type: `application/json`.
+- Cache policy: `no-store`.
+- Body: `{ "error": "Add a little more detail so we have something to shape." }`.
+- No OpenAI request was made because the note failed the route's minimum-length validation.
+- The route checks `OPENAI_API_KEY` before validating note length. Receiving the validation response instead of the route's `503` configuration response therefore confirmed that the production function could see a non-empty `OPENAI_API_KEY`. This confirms presence, not the value or provider-side account settings.
+
+An earlier attempt at 2026-07-22 13:49:40 CT did not send a request because Windows PowerShell did not support the requested `Invoke-WebRequest -SkipHttpErrorCheck` parameter. It returned no HTTP response and incurred no provider usage. The successful probe used `.NET HttpClient` instead.
+
+### Browser and live GPT flow
+
+The production `/remember` route was opened in an isolated `agent-browser` session after setting only the onboarding flag in that session's localStorage.
+
+Initial UI evidence:
+
+- The URL remained `https://re-hello.vercel.app/remember`.
+- The page title was `Rehello | A gentle place for the people you meet`.
+- The body contained meaningful content and the expected note textbox, example action, disabled initial submit action, guided-flow action, and primary navigation.
+- No Next.js error overlay or captured console error was present.
+- Navigation from Remember to Home succeeded; Home rendered `Ready for someone new?` with no overlay or captured console error.
+
+The first automation click reported success but produced no `/api/remember` performance entry, left the page unchanged, and therefore did not send a GPT request. A text-based wait then failed with an operating-system connection timeout. Because browser evidence showed that no fetch had occurred, one native DOM `button.click()` retry was permitted without duplicating provider usage.
+
+The native retry began at 2026-07-22 13:55:08 CT using the built-in synthetic Maya example. By the observation recorded at 2026-07-22 13:55:38 CT:
+
+- Exactly one `/api/remember` browser resource entry existed.
+- The fetch duration was approximately 1,605 ms and transferred 532 bytes according to the browser Performance API.
+- The response rendered the `Your Rehello card` review state with the name `Maya`.
+- The generated card included the one-line description `Warm book club connection`, the neighborhood book club context, the explicit Taiwanese cooking and sourdough topics, the possible starter detail, and a grounded next-time question about the sourdough experiments.
+- No Next.js error overlay or captured console error was present.
+
+Saving the synthetic card produced one Person and one Encounter in the isolated session's localStorage. The Encounter `personId` matched the saved Person `id`. Skipping the optional reminder reached the `Remembered!` completion state. The synthetic localStorage data was then cleared and the browser session was closed.
+
+The final completion screenshot was stored only in the local temporary agent-browser screenshot directory. It was not committed and must not be represented as durable repository evidence.
+
+### Production conclusion
+
+**PASS:** The exact merged commit passed GitHub Actions and Vercel deployment checks. Production then passed the no-token API/configuration probe and one controlled end-to-end `browser → API → GPT-5.6 structured response → review UI → localStorage → completion UI` flow.
+
+This result does not remove the known public-cost risk: the endpoint still lacks durable distributed rate limiting, and a provider spending limit is not equivalent to application-level abuse prevention.
