@@ -216,6 +216,15 @@ At 2026-07-22 17:30:49.393 -05:00, the local documentation validator passed:
 
 No lint, production build, browser rerun, CI, deployment, or production smoke test was required for this docs-only handoff commit. The runtime application remains unchanged.
 
+## Local commit evidence
+
+- Investigation commit: `586e287d95e5d837c2878e3344d3c43cc6e236ee`
+- Commit created: 2026-07-22 17:31:22 -05:00
+- Commit subject: `docs: record mobile shell investigation`
+- Exact-commit `git show --check`: passed by 2026-07-22 17:31:31.334 -05:00
+- Working tree after the commit: clean
+- Publication state: local branch only; not pushed, merged, deployed, or checked by CI
+
 ## Collaboration attribution
 
 - User: reported the mobile navigation and horizontal-gesture symptoms, challenged the layout foundation, and requested a durable handoff for a new task.
