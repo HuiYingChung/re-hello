@@ -1,0 +1,340 @@
+# Rehello Failure Lessons and Prevention Playbook
+
+## Record metadata
+
+- Initial record date: 2026-07-22
+- Initial drafting started: 2026-07-22 14:56:49 -05:00
+- Initial record created: 2026-07-22 14:59:01.184 -05:00 (NTFS `CreationTime`)
+- Time zone: America/Chicago (UTC-05:00 on this date)
+- Repository: `C:\Users\Winnie\Dropbox\PC\Documents\Playground\re-hello`
+- Initial scope: failures, false starts, false signals, and avoidable rework observed during the GPT-5.6 Quick Remember, CI, entry-prompt, production-verification, and launch-framing work on 2026-07-22
+- Maintainer rule: append new lessons; do not rewrite history to hide an earlier failure
+
+## How to use this file
+
+This is an operational prevention file, not a success report. Before doing related work, read the relevant lesson and apply its **Next-time rule** before running the command or editing the code.
+
+Every new entry must include:
+
+1. what failed or produced a false signal;
+2. the observed evidence and time, when captured;
+3. the root cause or the most honest current diagnosis;
+4. how the work recovered;
+5. a concrete prevention rule that can be checked next time;
+6. the source engineering log when one exists.
+
+Unknown causes and timestamps must remain labeled unknown. A later successful retry does not erase the failed attempt.
+
+## Mandatory preflight checklist
+
+Before changing code or publication state:
+
+- [ ] Fetch Git refs before branching when the user has just merged or fetched elsewhere.
+- [ ] Confirm the branch base SHA and working-tree status.
+- [ ] Read this file and the closest `AGENTS.md` completely.
+- [ ] Read the relevant local Next.js documentation before editing `web/`.
+- [ ] Run or inspect the existing baseline checks before attributing errors to new work.
+- [ ] Decide whether the verification needs network access, a real browser, a live API request, or only local deterministic checks.
+- [ ] For any live API request, define the maximum number of requests and the evidence that proves whether a request occurred.
+- [ ] For deployment work, bind local HEAD, pushed SHA, CI SHA, Vercel deployment SHA, and production behavior separately.
+- [ ] Use a self-contained browser/server command with an isolated port, readiness check, and exact cleanup.
+- [ ] Test the narrow mobile viewport and inspect a screenshot when CTA visibility matters.
+- [ ] Verify marketing, privacy, analytics, and setup claims against code before publishing them.
+
+## Failure ledger
+
+| ID | Observed failure or false signal | Prevention rule |
+| --- | --- | --- |
+| L01 | Existing React hook violations were discovered only after feature implementation began. | Establish lint/build/browser baseline before attributing failures to the new change. |
+| L02 | Four restricted-environment builds separately failed on the same two Google Font downloads. | Treat this repository's `next/font` network dependency as known; run the important build with approved network access or immediately retry once after classifying the exact font-fetch error. |
+| L03 | Turbopack rejected a temporary external `node_modules` junction used for a key-free CI simulation. | Use a real clean temporary copy plus `npm ci`; do not junction external dependencies into a Turbopack build. |
+| L04 | A Vercel CLI environment query timed out and could not prove the remote key existed. | Never infer remote environment state from a local link or a timed-out query; use an authorized dashboard/CLI check or a no-token production behavior probe after the correct SHA is deployed. |
+| L05 | Production `/api/remember` returned 404 after a reported redeploy because the deployed artifact was older than the feature. | Verify push, merge, deployment SHA, and route presence in that order before diagnosing environment variables. |
+| L06 | A production probe used a PowerShell parameter unavailable in the installed Windows PowerShell. | Check the shell version and use compatible `.NET HttpClient` for status/body probes on Windows PowerShell 5.1. |
+| L07 | Browser automation reported a successful click even though no fetch occurred and the UI did not change. | A click return value is not proof; require a network entry, URL/state transition, or expected rendered result before counting the action. |
+| L08 | Text/URL wait operations failed with operating-system connection timeouts. | Prefer bounded polling of `location.href` and page state; retain cleanup and do not interpret the wait failure as an application failure. |
+| L09 | `Start-Process` failed because its environment contained duplicate `Path` and `PATH` keys. | Avoid rebuilding the entire inherited environment for hidden launchers; use a self-contained command and set only task-specific variables. |
+| L10 | Detached dev-server launchers exited or lost their listener when the parent tool process ended. | Start, verify, browse, and stop the server inside one tool lifecycle; do not assume a detached child survives the boundary. |
+| L11 | A browser attempt hit `EADDRINUSE` on port 3100. | Select an isolated port, check it before launch, capture the actual listener PID, and stop only that PID. |
+| L12 | Windows CLI quoting removed JavaScript string quotes from browser setup code. | Pass nontrivial JavaScript through stdin or a tool-supported expression input, not nested shell quoting. |
+| L13 | Git branch creation was denied when the restricted environment could not create a lock file. | Use read-only Git checks first, then request the narrow approved Git mutation command instead of retrying broad shell variants. |
+| L14 | A multi-file patch failed because one `layout.tsx` context no longer matched. | Inspect current file context and apply small file-specific patches; verify that a failed atomic patch changed nothing before continuing. |
+| L15 | An inline 820-pixel Welcome height put launch CTAs below the visible viewport. | Do not use inline fixed heights for responsive shells; use responsive CSS and verify at 390 by 653 plus a short desktop viewport. |
+| L16 | A case-sensitive text assertion returned `mentionsGPT: false` for visually uppercased GPT copy. | Normalize case or query a stable semantic element; do not convert a harness artifact into a product change without corroborating evidence. |
+| L17 | README claims said `no tracking` despite Vercel Analytics and pointed sample-data setup to the wrong UI location. | Trace claims to code and walk the current first-run flow before editing public documentation. |
+| L18 | A parallel verification wrapper surfaced the failed build output but did not preserve the sibling lint result. | Use result collection that preserves every sibling outcome, or rerun each command separately with its own timestamps before recording status. |
+| L19 | The original disabled `Shape my memory` action did not explain its 20-character requirement. | Every disabled primary action must expose the unmet prerequisite; test empty, boundary-minus-one, and boundary states. |
+| L20 | GPT-5.6 was described as optional even though the contest required a clear model-centered story. | Before launch, map the claim to the strongest real model transformation and show it in the first-run and social-preview surfaces. |
+| L21 | A staged diff check found a blank line at EOF, but a composite shell command continued and obscured the check's exit status. | Run integrity gates as standalone commands or capture and propagate their exit codes immediately. |
+
+## Detailed lessons
+
+### L01. Establish the baseline before blaming the new feature
+
+**Failure:** Initial full-project lint reported five `react-hooks/set-state-in-effect` errors and one `react-hooks/exhaustive-deps` warning in code that existed before the GPT route work.
+
+**Why it mattered:** Without a baseline, these errors could have been incorrectly attributed to Quick Remember or left to fail CI later.
+
+**Recovery:** The implementation replaced effect-driven state mirroring with hydration-aware derivation, `useSyncExternalStore`, and URL-derived Prep state. No lint rule was disabled.
+
+**Next-time rule:** Before feature edits, run lint and build when practical, or explicitly capture the known baseline failures. In this app, do not mirror localStorage or URL state into React state from an effect when the value can be derived after hydration.
+
+**Source:** [GPT-5.6 Quick Remember engineering log](docs/engineering-log/2026-07-22-gpt56-quick-remember.md)
+
+### L02. Classify the known Google Fonts network failure immediately
+
+**Failure:** Restricted-environment production builds failed on Instrument Serif and Noto Sans TC at least four times: 12:39, 13:22, 14:08, and 14:53 CT.
+
+**Root cause:** The existing `next/font/google` build path needed access to `fonts.googleapis.com`; the restricted environment could not establish that connection.
+
+**Recovery:** The same builds passed with network access. Compilation, TypeScript, and all 16 routes succeeded.
+
+**Next-time rule:** When an important Rehello build is executed in a restricted environment, account for the known font fetch before interpreting the result. If the exact two font-fetch errors occur, label the attempt as an environment failure and retry once with approved network access. Do not modify product code merely to silence an environment-only failure unless the team separately decides to self-host fonts.
+
+**Sources:** [Quick Remember log](docs/engineering-log/2026-07-22-gpt56-quick-remember.md), [CI baseline log](docs/engineering-log/2026-07-22-github-actions-ci-baseline.md), [entry-prompt log](docs/engineering-log/2026-07-22-quick-remember-entry-prompts.md), and [launch-framing log](docs/engineering-log/2026-07-22-gpt56-launch-framing.md)
+
+### L03. Do not use a `node_modules` junction for Turbopack isolation
+
+**Failure:** At 13:27:53-13:27:57 CT, the first key-free CI simulation failed because Turbopack rejected a temporary external `node_modules` junction.
+
+**Root cause:** The shortcut did not reproduce the filesystem assumptions of a clean install.
+
+**Recovery:** A clean temporary copy with its own Node.js 24 `npm ci` completed lint and build with no `.env.local` and no `OPENAI_API_KEY`.
+
+**Next-time rule:** For clean-room or secret-free verification, copy the application into an isolated temporary directory and run `npm ci`. Never infer CI validity from a dependency junction that the real workflow does not use.
+
+**Source:** [GitHub Actions CI baseline engineering log](docs/engineering-log/2026-07-22-github-actions-ci-baseline.md)
+
+### L04. A timed-out environment query proves nothing about Vercel secrets
+
+**Failure:** At 12:48:07 CT, a read-only Vercel CLI environment query timed out.
+
+**False inference to avoid:** A linked local `.vercel/project.json`, a user report, or a timeout does not confirm a remote variable's presence or value.
+
+**Recovery:** After the correct commit was deployed, a deliberately invalid short production request returned the route's 400 validation response instead of its 503 missing-configuration response. That confirmed only that the function saw a non-empty key.
+
+**Next-time rule:** Report secret presence, secret value, provider project settings, and runtime behavior as separate claims. Never print the value. Use the Vercel dashboard/authorized CLI for configuration and a zero-token behavior probe only after the exact feature SHA is deployed.
+
+**Source:** [GPT-5.6 Quick Remember engineering log](docs/engineering-log/2026-07-22-gpt56-quick-remember.md)
+
+### L05. Verify the deployed artifact before debugging its environment
+
+**Failure:** At 13:13:45 CT, production returned `404 text/html` for `/api/remember` after the user reported redeploying.
+
+**Root cause:** The production artifact was older than the local Quick Remember implementation; the route did not exist in that deployment.
+
+**Recovery:** The feature was committed, pushed, merged, and deployed. Exact merge SHA CI and the Vercel check passed before the production probe was repeated successfully.
+
+**Next-time rule:** Use this order: local HEAD -> pushed branch SHA -> merged SHA -> CI SHA -> Vercel deployment SHA/status -> production route presence -> environment behavior -> optional live model request. Do not diagnose a secret on an artifact that does not contain the route.
+
+**Source:** [GPT-5.6 Quick Remember engineering log](docs/engineering-log/2026-07-22-gpt56-quick-remember.md)
+
+### L06. Use commands supported by the installed PowerShell
+
+**Failure:** At 13:49:40 CT, `Invoke-WebRequest -SkipHttpErrorCheck` failed before making a request because the installed Windows PowerShell did not support that parameter.
+
+**Recovery:** The probe used `.NET HttpClient`, which returned the status, content type, cache policy, and body without requiring a PowerShell 7-only flag.
+
+**Next-time rule:** Check `$PSVersionTable.PSVersion` before using version-specific parameters. For controlled HTTP probes that need non-2xx response bodies on Windows PowerShell 5.1, prefer `.NET HttpClient`.
+
+**Source:** [GPT-5.6 Quick Remember engineering log](docs/engineering-log/2026-07-22-gpt56-quick-remember.md)
+
+### L07. A reported click is not evidence of a request
+
+**Failure:** During production verification, the first automation click reported success, but the page stayed unchanged and the Performance API showed no `/api/remember` request.
+
+**Recovery:** Because zero fetches were confirmed, one native DOM `button.click()` retry was allowed. Exactly one resource entry then appeared and the expected review card rendered.
+
+**Next-time rule:** Before retrying a potentially paid action, prove that the first action caused no provider request. Require at least one objective side effect: a matching resource entry, expected UI state, server receipt, or URL transition. Cap live model attempts in advance.
+
+**Source:** [GPT-5.6 Quick Remember engineering log](docs/engineering-log/2026-07-22-gpt56-quick-remember.md)
+
+### L08. Avoid fragile text and URL wait primitives on Windows
+
+**Failure:** Text-based and URL-based browser waits ended in operating-system connection timeouts, including Windows socket error 10060 during launch-framing verification.
+
+**Diagnosis:** The page state had already rendered correctly in at least one case; the wait primitive failed independently of the application assertion.
+
+**Recovery:** Later checks used bounded fixed waits followed by direct inspection of `location.href`, DOM state, localStorage, and error overlays.
+
+**Next-time rule:** Use short bounded waits and poll observable state. When a wait tool fails, inspect the page before declaring the product broken. Always close the browser and stop the exact server listener.
+
+**Sources:** [Quick Remember log](docs/engineering-log/2026-07-22-gpt56-quick-remember.md) and [launch-framing log](docs/engineering-log/2026-07-22-gpt56-launch-framing.md)
+
+### L09. Do not rebuild the inherited environment for `Start-Process`
+
+**Failure:** At 14:09:50 CT, a hidden dev-server launcher failed because PowerShell encountered both `Path` and `PATH` keys.
+
+**Root cause:** Windows environment keys are case-insensitive even when a constructed map contains both forms.
+
+**Recovery:** The final verification used a self-contained server/browser command rather than a separately detached hidden launcher.
+
+**Next-time rule:** Do not clone and rewrite the full environment map. Set only task-specific variables, and never repurpose common system variables. Prefer one self-contained lifecycle over `Start-Process` for automated verification.
+
+**Source:** [Quick Remember entry-prompt engineering log](docs/engineering-log/2026-07-22-quick-remember-entry-prompts.md)
+
+### L10. Keep the server and browser in one tool lifecycle
+
+**Failure:** Two hidden launchers and a later isolated port 3101 attempt did not retain their listeners after the parent tool process ended.
+
+**Root cause:** The automation boundary did not guarantee survival of detached child processes.
+
+**Recovery:** A single command started the production server, waited for readiness, ran browser checks, closed the browser, and stopped the captured listener PID.
+
+**Next-time rule:** Do not launch the server in one tool call and assume it remains available in another. Make readiness, browser work, and cleanup part of the same bounded command unless the product provides a persistent server mechanism.
+
+**Source:** [Quick Remember entry-prompt engineering log](docs/engineering-log/2026-07-22-quick-remember-entry-prompts.md)
+
+### L11. Check the port before starting the server
+
+**Failure:** A combined dev-server/browser attempt returned `EADDRINUSE` on port 3100.
+
+**Recovery:** Later attempts used isolated ports and verified the final listener was absent after cleanup.
+
+**Next-time rule:** Select a task-specific port, test whether it is free, capture the listener PID after startup, and stop only that exact PID. Never kill broad process groups to recover from a port collision.
+
+**Source:** [Quick Remember entry-prompt engineering log](docs/engineering-log/2026-07-22-quick-remember-entry-prompts.md)
+
+### L12. Pass browser JavaScript through stdin
+
+**Failure:** At 14:19:52-14:20:00 CT, Windows CLI quoting removed string quotes from the onboarding localStorage expression.
+
+**Recovery:** The successful browser run passed JavaScript evaluation through stdin.
+
+**Next-time rule:** Any expression containing nested strings, JSON, `$`, backticks, or shell metacharacters must use stdin or the browser tool's structured input. Do not add more shell escaping to an already fragile command.
+
+**Source:** [Quick Remember entry-prompt engineering log](docs/engineering-log/2026-07-22-quick-remember-entry-prompts.md)
+
+### L13. Separate read-only Git inspection from approved Git mutation
+
+**Failure:** The first `git switch -c` attempt for `codex/launch-framing` was denied because the restricted environment could not create the Git lock file.
+
+**Related risk:** Before fetching, local refs appeared stale relative to the user's report that the branch had been merged and fetched.
+
+**Recovery:** `git fetch origin --prune` confirmed merged commit `087488c`, then the narrow branch command was retried with approved Git write access.
+
+**Next-time rule:** After an external merge, fetch first and compare `main`, `origin/main`, and the intended base. Use read-only commands without escalation. For branch, stage, or commit operations, request only the narrow Git mutation required; do not retry with broader filesystem authority.
+
+**Source:** [GPT-5.6 launch-framing engineering log](docs/engineering-log/2026-07-22-gpt56-launch-framing.md)
+
+### L14. Patch current contexts in small units
+
+**Failure:** A combined multi-file patch failed because its `layout.tsx` context did not match. The atomic patch applied nothing.
+
+**Recovery:** Current diffs and file contents were re-inspected, then small file-specific patches were applied and reviewed.
+
+**Next-time rule:** Read the exact target region immediately before patching. Split changes by file or cohesive concern. After any patch failure, verify the working tree before assuming partial application.
+
+**Source:** [GPT-5.6 launch-framing engineering log](docs/engineering-log/2026-07-22-gpt56-launch-framing.md)
+
+### L15. Fixed inline heights defeat responsive launch UX
+
+**Failure:** The first launch-framing screenshot showed both final Welcome actions below a 624-pixel viewport because the scroll container had an inline 820-pixel height.
+
+**Root cause:** The inline style overrode the intended responsive behavior.
+
+**Recovery:** The height moved to a dedicated CSS class using the phone-frame height on desktop and `100dvh` on narrow screens. At 390 by 653, both actions were fully visible with `scrollTop` equal to zero.
+
+**Next-time rule:** Layout properties that must change across viewports belong in responsive CSS, not inline fixed values. For launch-critical mobile paths, assert CTA bounding rectangles and inspect a screenshot at 390 by 653 before committing.
+
+**Source:** [GPT-5.6 launch-framing engineering log](docs/engineering-log/2026-07-22-gpt56-launch-framing.md)
+
+### L16. Normalize assertion text before diagnosing the UI
+
+**Failure:** A diagnostic check reported `mentionsGPT: false` even though the page visibly contained `Powered by GPT-5.6`.
+
+**Root cause:** The check was case-sensitive while the element's rendered text was transformed to uppercase.
+
+**Recovery:** The result was labeled a harness artifact and corroborated with visual and DOM evidence; no unnecessary product change was made.
+
+**Next-time rule:** Normalize with a case-insensitive comparison or query a stable element/accessible name. A single failed string heuristic must not overrule stronger browser evidence.
+
+**Source:** [GPT-5.6 launch-framing engineering log](docs/engineering-log/2026-07-22-gpt56-launch-framing.md)
+
+### L17. Verify public claims against code and the current UI
+
+**Failure:** The README claimed `no tracking` even though `@vercel/analytics` was loaded, and it told users to find sample data in Settings even though the first-run path was Welcome.
+
+**Root cause:** Documentation described an intended or older state instead of the code that would ship.
+
+**Recovery:** The blanket tracking claim was removed, the precise browser-storage/OpenAI-submit boundary was documented, and the sample-data instructions were corrected.
+
+**Next-time rule:** Before changing README, Product Hunt copy, privacy text, or setup instructions, trace every behavioral claim to code and walk the exact user path in a browser. Avoid absolute claims such as `no tracking` unless repository and deployment evidence support them.
+
+**Source:** [GPT-5.6 launch-framing engineering log](docs/engineering-log/2026-07-22-gpt56-launch-framing.md)
+
+### L18. Preserve all outcomes when parallel checks fail
+
+**Failure:** At 14:53 CT, lint and build were launched together. The build failed on the known font network issue, and the orchestration wrapper surfaced only the build failure rather than preserving a complete sibling lint result.
+
+**Recovery:** Lint was rerun with its own timestamps, and the build was rerun with network access. Both exact-feature-commit checks passed.
+
+**Next-time rule:** Use an all-settled result collector for parallel checks or run each check in a wrapper that returns its exit code as data. Do not record a sibling as passed, failed, or skipped unless its own output was captured.
+
+**Source:** [GPT-5.6 launch-framing engineering log](docs/engineering-log/2026-07-22-gpt56-launch-framing.md)
+
+### L19. Disabled actions must explain their prerequisite
+
+**Failure:** A user could type into Quick Remember without knowing why `Shape my memory` remained disabled. The 20-character minimum existed only in code.
+
+**Recovery:** The UI now exposes exact remaining characters, provides three user-authored sentence starters, and tests empty, 19-character, and 20-character states. Inserted labels do not count toward eligibility.
+
+**Next-time rule:** A disabled primary action must have a visible, accessible reason. Test the empty state, every automatic scaffold, the boundary minus one, and the exact boundary. Application-authored scaffolding must not unlock a paid request.
+
+**Sources:** [Quick Remember entry-prompt engineering log](docs/engineering-log/2026-07-22-quick-remember-entry-prompts.md) and [ADR-0003](docs/decisions/ADR-0003-quick-remember-entry-prompts.md)
+
+### L20. Launch framing must make the real AI role obvious
+
+**Failure:** Rehello's README described GPT-5.6 as an optional route, which weakened the story for a contest explicitly about building with GPT-5.6.
+
+**Recovery:** The launch surfaces now lead with the real rough-note-to-recall-card transformation, and the ready-made demo is visible on the final Welcome screen. No unsupported AI capability was claimed.
+
+**Next-time rule:** Before contest submission, write one sentence describing the model's indispensable user-facing transformation and verify that the first-run flow, social preview, metadata, README, and demo all prove the same sentence. Do not add a rushed second AI route merely to increase route count.
+
+**Sources:** [GPT-5.6 launch-framing engineering log](docs/engineering-log/2026-07-22-gpt56-launch-framing.md) and [ADR-0004](docs/decisions/ADR-0004-gpt56-launch-framing.md)
+
+### L21. Do not hide a failed gate inside a composite shell command
+
+**Observed at:** Exact time not captured; after 2026-07-22 14:59:36 -05:00
+
+**Failure:** `git diff --cached --check` reported a new blank line at the end of `AGENTS.md`. The same PowerShell invocation then ran status and diff-display commands, so the overall tool result did not preserve the earlier check's failure status.
+
+**Root cause:** The file patch left an unnecessary final blank line, and the composite verification command did not save or immediately propagate `$LASTEXITCODE` from the integrity gate.
+
+**Recovery:** The blank line was removed, the failure was added to this append-only record, and the staged check was rerun as a standalone command.
+
+**Next-time rule:** Run commit-blocking gates such as `git diff --check` and `git diff --cached --check` alone, or capture their exit code before executing any later command. Never infer pass from the final exit code of a multi-command diagnostic sequence.
+
+**Source:** Local staged-diff output while creating this file; no separate engineering log exists for this documentation-only correction.
+
+## Known unresolved risks, not completed lessons
+
+These items remain open and must not be described as fixed:
+
+- `/api/remember` still lacks durable distributed application-level rate limiting.
+- A provider spending limit is not equivalent to request abuse prevention.
+- One controlled synthetic GPT example is not a formal hallucination or multilingual evaluation.
+- The launch-framing branch has not yet been pushed, merged, deployed, or production-smoke-tested.
+- The final mobile check used a browser viewport, not a physical device.
+- Product Hunt's actual gallery/card rendering has not been verified.
+- GPT-generated Prep assistance and realtime voice are deliberately deferred.
+
+## Append-only lesson template
+
+```markdown
+### LXX. Short prevention-oriented title
+
+**Observed at:** YYYY-MM-DD HH:MM:SS UTC offset, or `Exact time not captured`
+
+**Failure:** What failed or produced a false signal.
+
+**Evidence:** Command output, status, screenshot, network entry, or file state.
+
+**Root cause:** Confirmed cause, or `Unknown` with the current best boundary.
+
+**Recovery:** What eventually worked.
+
+**Next-time rule:** A concrete action that must happen before repeating the operation.
+
+**Source:** Relative link to the detailed engineering log or decision record.
+```
