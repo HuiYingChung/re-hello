@@ -92,7 +92,7 @@ focused on the real usage environment.
 | **Remember flow** | Paste one messy note and let GPT-5.6 shape a recall card, or use the original prompt-by-prompt capture flow. |
 | **Recall** | Spaced-review card that surfaces what to ask about next time, plus an inline Stay in touch picker. |
 | **Prep** | Pick an event type (social mixer / work / class / coffee), get starters tuned to that context plus topics mined from your own conversation history. |
-| **Settings** | Restore hidden sections, load sample data, clear all data, view storage size. |
+| **Settings** | Back up or restore people, moments, and reminders; restore hidden sections; load sample data; replay Welcome; or clear local data. |
 
 ---
 
@@ -135,6 +135,107 @@ flowchart TD
 
   H -->|Settings| AA["Backup or restore, sample data, restore sections, or clear data"]
 ```
+
+---
+
+## Product architecture and GPT-5.6's role
+
+GPT-5.6 performs one bounded transformation: it turns the single Quick Remember
+note the user explicitly submits into a seven-field draft. It is not the app's
+database, reminder engine, Prep engine, or long-term memory. The checked code has
+no path that automatically uploads saved `localStorage` history to the model.
+
+```mermaid
+flowchart TD
+  subgraph browser["Browser / current device"]
+    Q["Quick Remember note<br/>20-1200 characters"]
+    G["Guided capture<br/>no GPT call"]
+    R["Review GPT draft<br/>save as-is or adjust"]
+    S["Browser save logic"]
+    L[("localStorage<br/>people / encounters / reminders")]
+    F["Rendered app surfaces<br/>Home / People / Recall / reminders<br/>Prep uses local keyword mining"]
+    B["Manual JSON backup / restore"]
+  end
+
+  subgraph server["Next.js server route"]
+    K["OPENAI_API_KEY<br/>server environment only"]
+    A["POST /api/remember<br/>validate key, JSON, and note length"]
+    P["System rules and Zod schema<br/>facts from note only / preserve language<br/>store:false / low reasoning"]
+    V["Validate parsed draft<br/>seven strings and a required name"]
+  end
+
+  subgraph openai["OpenAI"]
+    M["Responses API<br/>GPT-5.6 Terra<br/>note to structured recall-card draft"]
+  end
+
+  T["Vercel Analytics<br/>component mounted globally"]
+
+  Q -->|"Explicit submit: this note only"| A
+  K --> A
+  A --> P
+  P -->|"Prompt, schema, and current note"| M
+  M -->|"Structured candidate"| V
+  V -->|"Draft JSON or error"| R
+  R -->|"User chooses Save"| S
+  G --> S
+  S --> L
+  L --> F
+  L <--> B
+  F -.->|"Root-layout analytics; live payload not audited here"| T
+```
+
+The seven generated fields are `name`, `oneLiner`, `where`, `impression`,
+`talkedAbout`, `memorableDetail`, and `nextTimeAsk`. The server asks the model
+to use only facts in the note, avoid sensitive inference, preserve the note's
+language, and leave missing fields empty. These instructions and the schema
+reduce unwanted output; they do not guarantee factual accuracy.
+
+---
+
+## Current limitations
+
+- **GPT-5.6 has a narrow role.** Only Quick Remember calls it. Guided capture,
+  Recall, reminders, sorting, sample data, and Prep topic mining are local,
+  deterministic application logic. There is no realtime voice conversation,
+  autonomous social assistant, or model access to a person's saved history.
+- **Generated drafts can still be wrong.** A prompt and Zod schema constrain
+  structure, not truth. Users must review the card before saving and use
+  `Adjust the details` when the draft is incomplete or inaccurate.
+- **Quick Remember is intentionally limited.** Notes need at least 20 characters
+  beyond inserted starter labels, no more than 1,200 total characters, and a
+  name. The quick path always creates a new person,
+  does not deduplicate existing people, and records the encounter time as the
+  save time rather than extracting a meeting date. Its preview does not display
+  the generated `impression` field unless the user enters the adjustment flow.
+- **Saved data belongs to one browser profile.** There is no account, cloud
+  database, or cross-device sync. Clearing site data, using private browsing, or
+  losing the device can remove records. Backup and restore are manual JSON
+  actions and cover people, encounters, and reminders, not every UI preference.
+- **Local-first does not mean zero external data flow.** The explicitly
+  submitted note passes through the Vercel server route to OpenAI. The request
+  sets `store:false`, and the route sends `Cache-Control: no-store`, but this
+  repository does not prove end-to-end encryption or zero provider retention.
+  Vercel Analytics is also mounted globally; its live configuration and payload
+  were not audited for this diagram.
+- **Availability depends on external services.** Quick Remember needs the
+  server-side API key, network access, the deployed route, and OpenAI. The client
+  stops waiting after 45 seconds and shows an error; guided capture remains the
+  non-AI fallback.
+- **Abuse and cost controls are not implemented in the route.** The endpoint is
+  unauthenticated and has no repository-level rate limiter. Any Vercel WAF rule,
+  provider budget, or billing cap is deployment configuration and was not
+  verified by this code audit.
+- **PWA does not mean offline.** The repository has PWA manifest metadata but no
+  service worker or Workbox implementation. Offline loading is not promised,
+  and GPT shaping always requires a network request.
+- **Language support is partial.** The model prompt requests output in the
+  note's language, but the application interface and error messages are mainly
+  English and have no complete localization system.
+- **Verification coverage is limited.** CI runs lint and production build only.
+  No unit or end-to-end test scripts or conventional test files were found in
+  the checked repository, and this
+  documentation task did not verify a physical phone, installed PWA, live WAF,
+  analytics payload, or production API call.
 
 ---
 
