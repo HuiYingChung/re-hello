@@ -19,7 +19,7 @@ import {
   getPerson,
   todayDateInputValue,
 } from "@/lib/storage";
-import { Person } from "@/lib/types";
+import type { Person, QuickMemoryDraft } from "@/lib/types";
 
 type Step = {
   key: string;
@@ -99,6 +99,24 @@ const moodOptions: { value: MoodValue; label: string }[] = [
   { value: 5, label: "Lifted" },
 ];
 
+const QUICK_MEMORY_EXAMPLE =
+  "I met Maya at the neighborhood book club. We talked about Taiwanese cooking and her sourdough experiments. She said she might bring starter next time. It felt easy and warm.";
+
+function isQuickMemoryDraft(value: unknown): value is QuickMemoryDraft {
+  if (!value || typeof value !== "object") return false;
+
+  const draft = value as Partial<QuickMemoryDraft>;
+  return [
+    draft.name,
+    draft.oneLiner,
+    draft.where,
+    draft.impression,
+    draft.talkedAbout,
+    draft.memorableDetail,
+    draft.nextTimeAsk,
+  ].every((field) => typeof field === "string");
+}
+
 function RememberInner() {
   const router = useRouter();
   const params = useSearchParams();
@@ -115,6 +133,13 @@ function RememberInner() {
   const [avatarStyle, setAvatarStyle] = useState<AvatarStyle | undefined>();
   const [done, setDone] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [captureMode, setCaptureMode] = useState<"quick" | "guided">(
+    existingPersonId ? "guided" : "quick"
+  );
+  const [quickMemory, setQuickMemory] = useState("");
+  const [quickDraft, setQuickDraft] = useState<QuickMemoryDraft | null>(null);
+  const [quickError, setQuickError] = useState<string | null>(null);
+  const [isShaping, setIsShaping] = useState(false);
 
   // If editing/adding to existing person, skip the personOnly steps
   const steps = existingPersonId
@@ -124,8 +149,6 @@ function RememberInner() {
   useEffect(() => {
     if (existingPersonId) {
       const p = getPerson(existingPersonId);
-      // Intentional client-only hydration from localStorage.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (p) setPerson(p);
       else router.replace("/remember");
     }
@@ -208,6 +231,132 @@ function RememberInner() {
     }
   }
 
+  async function shapeQuickMemory() {
+    const memory = quickMemory.trim();
+    if (memory.length < 20) {
+      setQuickError("Add a little more detail so we have something to shape.");
+      return;
+    }
+
+    setQuickError(null);
+    setIsShaping(true);
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 45_000);
+
+    try {
+      const response = await fetch("/api/remember", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ memory }),
+        signal: controller.signal,
+      });
+      const payload: unknown = await response.json();
+
+      if (!response.ok) {
+        const message =
+          payload &&
+          typeof payload === "object" &&
+          "error" in payload &&
+          typeof payload.error === "string"
+            ? payload.error
+            : "We couldn't shape that memory. Try once more.";
+        throw new Error(message);
+      }
+
+      const draft =
+        payload && typeof payload === "object" && "draft" in payload
+          ? payload.draft
+          : null;
+      if (!isQuickMemoryDraft(draft)) {
+        throw new Error("We couldn't read that memory card. Try once more.");
+      }
+
+      setAvatarStyle((current) => current ?? randomAvatarStyle());
+      setQuickDraft(draft);
+    } catch (error) {
+      setQuickError(
+        error instanceof DOMException && error.name === "AbortError"
+          ? "That took too long. Try again in a moment."
+          : error instanceof Error
+            ? error.message
+            : "We couldn't shape that memory. Try once more."
+      );
+    } finally {
+      window.clearTimeout(timeout);
+      setIsShaping(false);
+    }
+  }
+
+  function saveQuickDraft() {
+    if (!quickDraft) return;
+
+    try {
+      setSaveError(null);
+      const now = new Date().toISOString();
+      const personId = generateId();
+      const personName = quickDraft.name.trim();
+
+      savePerson({
+        id: personId,
+        name: personName,
+        oneLiner: quickDraft.oneLiner.trim(),
+        color: randomColor(),
+        avatarStyle,
+        createdAt: now,
+        updatedAt: now,
+      });
+      saveEncounter({
+        id: generateId(),
+        personId,
+        where: quickDraft.where.trim() || undefined,
+        date: now,
+        impression: quickDraft.impression.trim() || undefined,
+        talkedAbout: quickDraft.talkedAbout.trim() || undefined,
+        memorableDetail: quickDraft.memorableDetail.trim() || undefined,
+        nextTimeAsk: quickDraft.nextTimeAsk.trim() || undefined,
+        createdAt: now,
+      });
+
+      setAnswers({
+        name: personName,
+        oneLiner: quickDraft.oneLiner,
+        where: quickDraft.where,
+        impression: quickDraft.impression,
+        talkedAbout: quickDraft.talkedAbout,
+        memorableDetail: quickDraft.memorableDetail,
+        nextTimeAsk: quickDraft.nextTimeAsk,
+      });
+      setSavedPersonId(personId);
+      setSavedPersonName(personName);
+      setQuickDraft(null);
+      setStayInTouchStep(true);
+    } catch (error) {
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "We couldn't save this memory."
+      );
+    }
+  }
+
+  function adjustQuickDraft() {
+    if (!quickDraft) return;
+
+    setAnswers({
+      name: quickDraft.name,
+      oneLiner: quickDraft.oneLiner,
+      where: quickDraft.where,
+      impression: quickDraft.impression,
+      talkedAbout: quickDraft.talkedAbout,
+      memorableDetail: quickDraft.memorableDetail,
+      nextTimeAsk: quickDraft.nextTimeAsk,
+    });
+    setCurrentStep(0);
+    setCaptureMode("guided");
+    setQuickDraft(null);
+    setQuickError(null);
+  }
+
   function finish() {
     setStayInTouchStep(false);
     setDone(true);
@@ -224,6 +373,11 @@ function RememberInner() {
     setSavedPersonName("");
     setDone(false);
     setSaveError(null);
+    setCaptureMode("quick");
+    setQuickMemory("");
+    setQuickDraft(null);
+    setQuickError(null);
+    setIsShaping(false);
   }
 
   if (done) {
@@ -342,6 +496,193 @@ function RememberInner() {
     );
   }
 
+  if (!existingPersonId && quickDraft) {
+    return (
+      <AppShell>
+        <div className="space-y-5 py-4">
+          <button
+            onClick={() => setQuickDraft(null)}
+            className="text-sm text-[var(--muted)]"
+          >
+            &larr; Edit my note
+          </button>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-strong)]">
+              Your Rehello card
+            </p>
+            <h1 className="mt-2 text-balance font-serif text-2xl text-[var(--foreground)]">
+              Here&apos;s what stood out.
+            </h1>
+            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+              Keep it as-is, or adjust anything that doesn&apos;t feel like you.
+            </p>
+          </div>
+
+          <div className="rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-6 text-center shadow-[0_20px_50px_rgba(55,36,24,0.08)]">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent-soft)] font-serif text-xl text-[var(--accent-strong)]">
+              {quickDraft.name.slice(0, 1).toUpperCase()}
+            </div>
+            <h2 className="mt-3 font-serif text-3xl text-[var(--foreground)]">
+              {quickDraft.name}
+            </h2>
+            {quickDraft.oneLiner && (
+              <p className="text-sm text-[var(--muted)]">
+                {quickDraft.oneLiner}
+              </p>
+            )}
+
+            <div className="mt-6 space-y-5 text-left">
+              {quickDraft.where && (
+                <p className="text-center text-xs text-[var(--muted)]">
+                  You met at {quickDraft.where}
+                </p>
+              )}
+              {quickDraft.talkedAbout && (
+                <div>
+                  <p className="detail-label text-center">You talked about</p>
+                  <p className="text-center text-sm leading-7 text-[var(--foreground)]">
+                    {quickDraft.talkedAbout}
+                  </p>
+                </div>
+              )}
+              {quickDraft.memorableDetail && (
+                <div>
+                  <p className="detail-label text-center">Remember this</p>
+                  <p className="text-center text-sm leading-7 text-[var(--foreground)]">
+                    {quickDraft.memorableDetail}
+                  </p>
+                </div>
+              )}
+              {quickDraft.nextTimeAsk && (
+                <div className="rounded-[20px] bg-[var(--accent-soft)] p-5 text-center">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-strong)]">
+                    You could ask
+                  </p>
+                  <p className="text-pretty font-serif text-2xl leading-9 text-[var(--foreground)]">
+                    &ldquo;{quickDraft.nextTimeAsk}&rdquo;
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {saveError && (
+            <p className="text-center text-sm text-[#c47b7b]">{saveError}</p>
+          )}
+
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={saveQuickDraft}
+              className="primary-button justify-center"
+            >
+              Save this memory
+            </button>
+            <button
+              onClick={adjustQuickDraft}
+              className="secondary-button justify-center"
+            >
+              Adjust the details
+            </button>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (!existingPersonId && captureMode === "quick") {
+    const canShape = quickMemory.trim().length >= 20 && !isShaping;
+
+    return (
+      <AppShell>
+        <div className="space-y-6 py-4">
+          <button
+            onClick={() => router.push("/")}
+            className="text-sm text-[var(--muted)]"
+          >
+            &larr; Home
+          </button>
+
+          <div className="space-y-3 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent-strong)]">
+              <Icon as={Sparkles} size={26} />
+            </div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-strong)]">
+              Powered by GPT-5.6
+            </p>
+            <h1 className="text-balance font-serif text-3xl leading-tight text-[var(--foreground)]">
+              Tell me what you remember.
+            </h1>
+            <p className="text-pretty text-sm leading-6 text-[var(--muted)]">
+              A messy note is perfect. We&apos;ll shape it into something useful for next time.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <textarea
+              autoFocus
+              value={quickMemory}
+              onChange={(event) => {
+                setQuickMemory(event.target.value);
+                if (quickError) setQuickError(null);
+              }}
+              placeholder="Their name, where you met, what you talked about, and anything you don't want to forget..."
+              rows={8}
+              maxLength={1200}
+              aria-label="What you remember"
+            />
+            <div className="flex items-center justify-between gap-3 text-xs text-[var(--muted)]">
+              <button
+                type="button"
+                onClick={() => setQuickMemory(QUICK_MEMORY_EXAMPLE)}
+                className="font-semibold text-[var(--accent-strong)]"
+              >
+                Try an example
+              </button>
+              <span>{quickMemory.length}/1200</span>
+            </div>
+          </div>
+
+          {quickError && (
+            <p
+              role="alert"
+              className="rounded-[14px] bg-[#f8e5e2] px-4 py-3 text-sm text-[#9b5c55]"
+            >
+              {quickError}
+            </p>
+          )}
+
+          <button
+            type="button"
+            onClick={shapeQuickMemory}
+            disabled={!canShape}
+            className="primary-button w-full justify-center disabled:opacity-40"
+          >
+            {isShaping ? "Shaping your memory..." : "Shape my memory"}
+          </button>
+
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-[var(--border)]" />
+            <span className="text-xs text-[var(--muted)]">or</span>
+            <div className="h-px flex-1 bg-[var(--border)]" />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setCaptureMode("guided")}
+            className="secondary-button w-full justify-center"
+          >
+            One question at a time
+          </button>
+
+          <p className="text-center text-[11px] leading-5 text-[var(--muted)]">
+            Only this note is sent to OpenAI to shape your card. Saved people stay on this device.
+          </p>
+        </div>
+      </AppShell>
+    );
+  }
+
   if (!step) return null;
 
   return (
@@ -434,15 +775,20 @@ function RememberInner() {
               <button onClick={back} className="text-sm text-[var(--muted)]">
           &larr; Back
               </button>
-            ) : (
-              existingPersonId && (
+            ) : existingPersonId ? (
                 <button
                   onClick={() => router.push(`/people/${existingPersonId}`)}
                   className="text-sm text-[var(--muted)]"
                 >
                   Cancel
                 </button>
-              )
+              ) : (
+                <button
+                  onClick={() => setCaptureMode("quick")}
+                  className="text-sm text-[var(--muted)]"
+                >
+                  &larr; Quick remember
+                </button>
             )}
           </div>
           <div className="flex gap-3">

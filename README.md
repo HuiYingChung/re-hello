@@ -1,4 +1,4 @@
-nn# Rehello
+# Rehello
 
 > A gentle place for the people you meet.
 
@@ -7,8 +7,10 @@ socially anxious. It helps you capture someone right after you meet
 them, refresh your memory before you see them again, and stay in
 touch — without the pressure of a CRM.
 
-This repo is the working portfolio build: a fully client-side
-Next.js app with no backend, no accounts, and no tracking.
+This repo is the working portfolio build: a local-first Next.js app
+with no accounts and no tracking. Saved people and moments stay in
+the browser; one server-side route uses GPT-5.6 to shape an optional
+Quick Remember note into a recall card.
 
 ---
 
@@ -61,7 +63,7 @@ left on your desk — quiet, warm, never nagging.
 | **Home** | Greeting that adapts to time of day, a featured person worth refreshing, recall preview, recent people, "worth a quick refresh", and upcoming reminders. Each section can be hidden. |
 | **People** | Sortable list (Recent / A–Z / Last met / Custom drag-to-reorder) with search. |
 | **Person profile** | Name, tags, color, encounter history, "Stay in touch" picker with reminder list. |
-| **Remember flow** | Multi-step capture: name → context → details → mood → stay in touch. Each step is one decision. |
+| **Remember flow** | Paste one messy note and let GPT-5.6 shape a recall card, or use the original prompt-by-prompt capture flow. |
 | **Recall** | Spaced-review card that surfaces what to ask about next time, plus an inline Stay in touch picker. |
 | **Prep** | Pick an event type (social mixer / work / class / coffee), get starters tuned to that context plus topics mined from your own conversation history. |
 | **Settings** | Restore hidden sections, load sample data, clear all data, view storage size. |
@@ -76,7 +78,12 @@ left on your desk — quiet, warm, never nagging.
 - **Tailwind CSS 4**
 - **lucide-react** for icons
 - **@dnd-kit** for drag-to-reorder
-- **localStorage** for everything (no backend, no auth, no network)
+- **localStorage** for people, encounters, and reminders
+- **OpenAI Responses API** with GPT-5.6 Terra for optional Quick Remember
+
+People, encounters, and reminders still persist in `localStorage`.
+Quick Remember sends only the note a user explicitly submits to the
+server-side API route; the OpenAI key is never exposed to the browser.
 
 The whole app is statically prerendered where possible. Anything
 that depends on local data hydrates on the client.
@@ -89,9 +96,13 @@ display mode, themed splash, and a serif-monogram icon.
 ## Running it
 
 ```bash
+cd web
 npm install
 npm run dev
 ```
+
+To use Quick Remember locally, copy `.env.example` to `.env.local`
+and set `OPENAI_API_KEY`. Never commit `.env.local`.
 
 Open <http://localhost:3000>. On first load you can choose to seed
 sample data from Settings — it creates five people with
@@ -103,27 +114,43 @@ npm run build   # production build
 npm run lint    # eslint
 ```
 
+GitHub Actions runs `npm ci`, `npm run lint`, and `npm run build`
+on every push and pull request using Node.js 24. The CI workflow does
+not receive `OPENAI_API_KEY` and does not make a live OpenAI request.
+
+---
+
+## Documentation
+
+- [`docs/README.md`](docs/README.md) — documentation map and source-of-truth rules
+- [`docs/decisions/`](docs/decisions/) — detailed architecture and product decisions
+- [`docs/engineering-log/`](docs/engineering-log/) — timestamped engineering evidence
+- [`docs/product/`](docs/product/) — product specifications
+- [`docs/research/`](docs/research/) — historical feedback and research
+- [`docs/prototypes/`](docs/prototypes/) — archived standalone explorations
+
 ---
 
 ## Project structure
 
-```
-src/
-├── app/                    # Next.js routes
-│   ├── page.tsx            # Home
-│   ├── people/             # People list, profile, recall
-│   ├── remember/           # Capture flow
-│   ├── prep/               # Pre-event helper
-│   ├── settings/           # Sort, hidden sections, data tools
-│   ├── welcome/            # First-run intro
-│   ├── icon.svg            # Favicon + PWA source
-│   └── manifest.ts         # PWA manifest
-├── components/             # Shared UI (StayInTouchPicker, Logo, …)
-└── lib/
-    └── storage.ts          # All localStorage reads/writes + types
+```text
+re-hello/
+├── docs/
+│   ├── decisions/          # ADRs: why a direction was chosen
+│   ├── engineering-log/    # Timestamped work and verification records
+│   ├── product/            # Product specifications
+│   ├── research/           # Historical feedback
+│   └── prototypes/         # Early standalone explorations, not deployed
+├── web/                    # Current Next.js application
+│   ├── public/             # PWA icons and static assets
+│   └── src/
+│       ├── app/            # Routes and server Route Handlers
+│       ├── components/     # Shared interface components
+│       └── lib/            # Storage, types, and client utilities
+└── README.md
 ```
 
-All persistence flows through `src/lib/storage.ts`. There are no
+All persistence flows through `web/src/lib/storage.ts`. There are no
 other places that touch `localStorage` directly, which keeps the
 data shape easy to evolve.
 
@@ -133,7 +160,8 @@ data shape easy to evolve.
 
 This is a portfolio project, not a shipping product. It exists to
 explore what a softer, less-instrumented people tool could feel
-like. There is no backend, no sync, and no plan to add one — the
-honesty of "everything stays on this device" is part of the point.
+like. There are no accounts or sync; saved people remain on the
+device, while the optional Quick Remember note is processed through
+the OpenAI API.
 
 Feedback and conversation welcome.

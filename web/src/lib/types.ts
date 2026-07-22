@@ -33,3 +33,13 @@ export type Reminder = {
   message?: string;
   dismissed: boolean;
 };
+
+export type QuickMemoryDraft = {
+  name: string;
+  oneLiner: string;
+  where: string;
+  impression: string;
+  talkedAbout: string;
+  memorableDetail: string;
+  nextTimeAsk: string;
+};

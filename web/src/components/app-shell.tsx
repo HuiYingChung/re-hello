@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect } from "react";
 import { Home, NotebookPen, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { hasOnboarded } from "@/lib/storage";
 import { Icon } from "@/components/icon";
+import { useHydrated } from "@/lib/use-hydrated";
 
 type NavItem = {
   href: string;
@@ -25,22 +26,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const isWelcomeRoute = pathname === "/welcome";
-  const [canRender, setCanRender] = useState(isWelcomeRoute);
+  const hydrated = useHydrated();
+  const canRender = isWelcomeRoute || (hydrated && hasOnboarded());
 
   useEffect(() => {
-    if (isWelcomeRoute) {
-      setCanRender(true);
-      return;
-    }
-
-    if (!hasOnboarded()) {
-      setCanRender(false);
+    if (hydrated && !canRender) {
       router.replace("/welcome");
-      return;
     }
-
-    setCanRender(true);
-  }, [isWelcomeRoute, pathname, router]);
+  }, [canRender, hydrated, router]);
 
   if (!canRender && !isWelcomeRoute) {
     return null;

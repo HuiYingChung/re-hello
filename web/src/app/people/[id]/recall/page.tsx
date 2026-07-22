@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { Avatar } from "@/components/person-card";
@@ -11,28 +11,39 @@ import {
   markPersonReviewed,
 } from "@/lib/storage";
 import { Person, Encounter } from "@/lib/types";
+import { useHydrated } from "@/lib/use-hydrated";
 
 function RecallFlow() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("returnTo");
-  const [person, setPerson] = useState<Person | null>(null);
-  const [encounter, setEncounter] = useState<Encounter | null>(null);
+  const hydrated = useHydrated();
+  const { person, encounter } = useMemo<{
+    person: Person | null;
+    encounter: Encounter | null;
+  }>(() => {
+    if (!hydrated) return { person: null, encounter: null };
+
+    return {
+      person: getPerson(id) || null,
+      encounter: getLatestEncounter(id) || null,
+    };
+  }, [hydrated, id]);
   const [showPicker, setShowPicker] = useState(false);
   const [reminderSet, setReminderSet] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const p = getPerson(id);
-    if (!p) {
+    if (!hydrated) return;
+
+    if (!person) {
       router.replace("/");
       return;
     }
-    setPerson(p);
-    setEncounter(getLatestEncounter(id) || null);
+
     markPersonReviewed(id);
-  }, [id, router]);
+  }, [hydrated, id, person, router]);
 
   function handleReady() {
     if (returnTo) {

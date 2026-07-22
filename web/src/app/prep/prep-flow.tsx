@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
@@ -21,6 +21,7 @@ import {
   getEncounters,
 } from "@/lib/storage";
 import { Person, Encounter } from "@/lib/types";
+import { useHydrated } from "@/lib/use-hydrated";
 
 export type EventType = "social" | "work" | "learning" | "casual";
 
@@ -169,40 +170,36 @@ export function PrepFlow({
   initialEventType,
 }: PrepFlowProps) {
   const router = useRouter();
-  const [step, setStep] = useState(() =>
-    clampStep(initialStep, initialEventType !== null)
-  );
-  const [eventType, setEventType] = useState<EventType | null>(initialEventType);
-  const [people, setPeople] = useState<{ person: Person; encounter: Encounter }[]>(
-    []
-  );
-  const [topics, setTopics] = useState<string[]>([]);
-  const [encouragement] = useState(
-    () => encouragements[Math.floor(Math.random() * encouragements.length)]
-  );
+  const hydrated = useHydrated();
+  const eventType = initialEventType;
+  const step = clampStep(initialStep, eventType !== null);
+  const { people, topics } = useMemo<{
+    people: { person: Person; encounter: Encounter }[];
+    topics: string[];
+  }>(() => {
+    if (!hydrated) return { people: [], topics: [] };
 
-  useEffect(() => {
     const allPeople = getPeople();
     const latestEncounters = getLatestEncountersMap();
     const allEncounters = getEncounters();
-    const withEnc = allPeople.flatMap((person) => {
+    const peopleWithEncounters = allPeople.flatMap((person) => {
       const encounter = latestEncounters.get(person.id);
       return encounter ? [{ person, encounter }] : [];
     });
 
-    setPeople(withEnc);
-    setTopics(extractTopics(allEncounters));
-  }, []);
-
-  useEffect(() => {
-    setEventType(initialEventType);
-    setStep(clampStep(initialStep, initialEventType !== null));
-  }, [initialEventType, initialStep]);
+    return {
+      people: peopleWithEncounters,
+      topics: extractTopics(allEncounters),
+    };
+  }, [hydrated]);
+  const [encouragement] = useState(
+    () => encouragements[Math.floor(Math.random() * encouragements.length)]
+  );
 
   const starters = useMemo(() => {
     if (!eventType) return [];
     return pickRandom(STARTER_POOL[eventType], 3);
-  }, [eventType, step]);
+  }, [eventType]);
 
   const starterHeading =
     EVENT_TYPES.find((item) => item.id === eventType)?.starterHeading ||
@@ -218,8 +215,6 @@ export function PrepFlow({
     }
 
     const href = params.toString() ? `/prep?${params.toString()}` : "/prep";
-    setEventType(nextEventType);
-    setStep(safeStep);
     router.replace(href, { scroll: false });
   }
 
@@ -409,9 +404,9 @@ export function PrepFlow({
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
                 {starterHeading}
               </p>
-              {starters.map((starter, index) => (
+              {starters.map((starter) => (
                 <div
-                  key={index}
+                  key={starter}
                   className="rounded-[16px] border border-[var(--border)] bg-[var(--surface)] px-4 py-3"
                 >
                   <p className="text-sm text-[var(--foreground)]">&ldquo;{starter}&rdquo;</p>
