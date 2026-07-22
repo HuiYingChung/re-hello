@@ -219,3 +219,11 @@ Review this decision if:
 ## Amendment policy
 
 Future changes should append a dated amendment or create a superseding ADR. Do not rewrite this record to imply that later AI features, voice behavior, publication, rate limits, or production results were known on 2026-07-22.
+
+## Amendment: Local feature commit verified on 2026-07-22
+
+The launch-framing implementation and initial decision records were committed locally as `872135f863fbb9ea8dcad9491079cbd14379f081` at 2026-07-22 14:53:10 -05:00.
+
+The first production-build attempt against that exact commit failed from 14:53:21 through 14:53:27 -05:00 because the restricted environment could not fetch the two existing Google Fonts. ESLint then passed from 14:53:39 through 14:53:46 -05:00. The production build was retried with network access and passed from 14:54:02 through 14:54:15 -05:00, including compilation, TypeScript, page-data collection, and all 16 routes.
+
+This resolves the original local-commit and exact-commit local-verification items. It does not resolve push, pull-request, exact-head GitHub Actions, Vercel deployment, production smoke testing, Product Hunt preview, rate limiting, real-device verification, or the deferred Prep and voice work.

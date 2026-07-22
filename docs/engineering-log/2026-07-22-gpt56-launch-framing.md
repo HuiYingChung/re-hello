@@ -154,3 +154,12 @@ These are local browser checks against a production build. They are not real-dev
 3. Add exact commit-verification evidence in a documentation-only follow-up commit.
 4. Push only when requested.
 5. After merge and deployment, run a minimal production UI smoke test without submitting a GPT request unless a live model check is explicitly authorized.
+
+## Subsequent committed state
+
+- At 2026-07-22 14:53:10 -05:00, the implementation, ADR-0004, documentation index update, and initial version of this log were committed locally as `872135f863fbb9ea8dcad9491079cbd14379f081` (`feat: sharpen GPT-5.6 launch framing`).
+- The first exact-commit production build ran from 2026-07-22 14:53:21 through 14:53:27 -05:00 and failed because the restricted environment could not fetch the existing Instrument Serif and Noto Sans TC Google Fonts. The failure reported no application source or TypeScript error.
+- ESLint was re-run against exact commit `872135f863fbb9ea8dcad9491079cbd14379f081` from 2026-07-22 14:53:39 through 14:53:46 -05:00 and passed with exit 0.
+- The production build was retried against that exact commit with network access from 2026-07-22 14:54:02 through 14:54:15 -05:00 and passed with exit 0. Compilation, TypeScript, page-data collection, and generation of all 16 routes succeeded.
+- This subsequent-state addition changes documentation only. It does not change the source that passed exact-commit lint and build or the source used by the earlier local browser flows.
+- The branch remains local and has not been pushed, merged, deployed, or verified by GitHub Actions or the public production URL.
