@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted and implemented locally on 2026-07-22. The implementation preserves individual product pages and changes only the shared shell CSS plus browser-artifact hygiene.
+Accepted, with a physical-device correction implemented locally on 2026-07-22. The implementation preserves individual product pages and changes only the shared shell CSS plus browser-artifact hygiene.
 
 ## Context
 
@@ -91,3 +91,19 @@ The accepted implementation is recorded in [the mobile viewport shell stabilizat
 Local browser verification passed 17 geometry cases covering all seven representative routes at 390 by 653 pixels plus `/people` and `/remember` at 320, 360, 375, 390, and 430 pixels. In every case, document and inner-scroller widths matched, attempted horizontal movement remained zero, and navigation stayed inside the visual viewport before and after vertical scrolling. The desktop shell remained exactly 390 by 820 pixels.
 
 Physical iOS Safari, installed iOS PWA, Android Chrome browser-bar behavior, and an actual software-keyboard viewport remain required manual checks. No CI, deployment, or production verification is implied by the local evidence.
+
+## Physical-device correction - 2026-07-22
+
+A subsequent production screenshot from a physical iPhone 14 in portrait orientation showed the shared notch, page content, and bottom navigation shifted left together on every route. That evidence corrected the earlier acceptance conclusion: the product pages were not individually too wide, but the shared document and shell could still acquire a left visual offset in physical Safari.
+
+The decision is amended as follows:
+
+- retain `overflow-x: hidden` on the document and the existing vertical-only inner-scroller containment;
+- remove the redundant root `overflow-x: clip` declarations, which did not prevent the physical offset and can interact differently with WebKit's visual viewport;
+- give `html` and `body` explicit 100% width, zero minimum width, and a zero body margin;
+- give the shared stage and phone shell explicit shrink bounds;
+- continue to avoid product-page-specific layout changes.
+
+After rebuilding a stale local `.next` cache, WebKit with the iPhone 14 device descriptor passed six representative routes at a 390-by-664 visual viewport. Every available document, stage, shell, scroller, and navigation box measured from left 0 to right 390; document and scroller scroll widths matched their client widths; forced horizontal scroll remained zero. A local People screenshot with sample data showed the intended 16-pixel content inset on both sides.
+
+This is local correction evidence only. The supplied screenshot is production evidence of the pre-correction defect; it is not evidence that the correction has been deployed. A refreshed physical-iPhone Safari check remains required after an authorized deployment. No CI, deployment, or corrected-production verification has been performed.
