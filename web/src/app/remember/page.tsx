@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Sparkles } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
@@ -102,6 +102,23 @@ const moodOptions: { value: MoodValue; label: string }[] = [
 const QUICK_MEMORY_EXAMPLE =
   "I met Maya at the neighborhood book club. We talked about Taiwanese cooking and her sourdough experiments. She said she might bring starter next time. It felt easy and warm.";
 
+const QUICK_MEMORY_MIN_LENGTH = 20;
+
+const QUICK_MEMORY_PROMPTS = [
+  { label: "Where we met", starter: "Where we met: " },
+  { label: "What we talked about", starter: "We talked about: " },
+  { label: "What stood out", starter: "What stood out: " },
+] as const;
+
+function getQuickMemoryContentLength(memory: string) {
+  const content = QUICK_MEMORY_PROMPTS.reduce(
+    (note, prompt) => note.replace(prompt.starter, ""),
+    memory
+  );
+
+  return content.trim().length;
+}
+
 function isQuickMemoryDraft(value: unknown): value is QuickMemoryDraft {
   if (!value || typeof value !== "object") return false;
 
@@ -140,6 +157,7 @@ function RememberInner() {
   const [quickDraft, setQuickDraft] = useState<QuickMemoryDraft | null>(null);
   const [quickError, setQuickError] = useState<string | null>(null);
   const [isShaping, setIsShaping] = useState(false);
+  const quickMemoryInputRef = useRef<HTMLTextAreaElement>(null);
 
   // If editing/adding to existing person, skip the personOnly steps
   const steps = existingPersonId
@@ -233,7 +251,7 @@ function RememberInner() {
 
   async function shapeQuickMemory() {
     const memory = quickMemory.trim();
-    if (memory.length < 20) {
+    if (getQuickMemoryContentLength(memory) < QUICK_MEMORY_MIN_LENGTH) {
       setQuickError("Add a little more detail so we have something to shape.");
       return;
     }
@@ -285,6 +303,23 @@ function RememberInner() {
       window.clearTimeout(timeout);
       setIsShaping(false);
     }
+  }
+
+  function addQuickMemoryPrompt(starter: string) {
+    setQuickMemory((current) => {
+      if (current.includes(starter)) return current;
+
+      const note = current.trimEnd();
+      return note ? `${note}\n${starter}` : starter;
+    });
+    setQuickError(null);
+    window.requestAnimationFrame(() => {
+      const input = quickMemoryInputRef.current;
+      if (!input) return;
+
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+    });
   }
 
   function saveQuickDraft() {
@@ -591,7 +626,13 @@ function RememberInner() {
   }
 
   if (!existingPersonId && captureMode === "quick") {
-    const canShape = quickMemory.trim().length >= 20 && !isShaping;
+    const quickMemoryContentLength = getQuickMemoryContentLength(quickMemory);
+    const charactersNeeded = Math.max(
+      QUICK_MEMORY_MIN_LENGTH - quickMemoryContentLength,
+      0
+    );
+    const canShape =
+      quickMemoryContentLength >= QUICK_MEMORY_MIN_LENGTH && !isShaping;
 
     return (
       <AppShell>
@@ -619,7 +660,50 @@ function RememberInner() {
           </div>
 
           <div className="space-y-2">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-semibold text-[var(--foreground)]">
+                  Not sure where to start?
+                </p>
+                {quickMemory.length === 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQuickMemory(QUICK_MEMORY_EXAMPLE);
+                      setQuickError(null);
+                    }}
+                    className="text-xs font-semibold text-[var(--accent-strong)]"
+                  >
+                    Try an example
+                  </button>
+                )}
+              </div>
+              <div
+                className="flex flex-wrap gap-2"
+                role="group"
+                aria-label="Memory note starters"
+              >
+                {QUICK_MEMORY_PROMPTS.map((prompt) => {
+                  const isUsed = quickMemory.includes(prompt.starter);
+
+                  return (
+                    <button
+                      key={prompt.label}
+                      type="button"
+                      onClick={() => addQuickMemoryPrompt(prompt.starter)}
+                      disabled={isUsed}
+                      className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-xs font-semibold text-[var(--accent-strong)] transition-colors hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] disabled:cursor-default disabled:border-transparent disabled:bg-[var(--accent-soft)] disabled:opacity-60"
+                    >
+                      + {prompt.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <textarea
+              id="quick-memory-note"
+              ref={quickMemoryInputRef}
               autoFocus
               value={quickMemory}
               onChange={(event) => {
@@ -630,15 +714,22 @@ function RememberInner() {
               rows={8}
               maxLength={1200}
               aria-label="What you remember"
+              aria-describedby="quick-memory-status"
             />
             <div className="flex items-center justify-between gap-3 text-xs text-[var(--muted)]">
-              <button
-                type="button"
-                onClick={() => setQuickMemory(QUICK_MEMORY_EXAMPLE)}
-                className="font-semibold text-[var(--accent-strong)]"
+              <span
+                id="quick-memory-status"
+                aria-live="polite"
+                className={
+                  charactersNeeded === 0
+                    ? "font-semibold text-[var(--accent-strong)]"
+                    : undefined
+                }
               >
-                Try an example
-              </button>
+                {charactersNeeded > 0
+                  ? `Add ${charactersNeeded} more ${charactersNeeded === 1 ? "character" : "characters"} to continue`
+                  : "Ready to shape"}
+              </span>
               <span>{quickMemory.length}/1200</span>
             </div>
           </div>
