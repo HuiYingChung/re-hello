@@ -71,6 +71,48 @@ left on your desk — quiet, warm, never nagging.
 
 ---
 
+## User flow
+
+Only an explicit Quick Remember submission crosses the server boundary. Guided
+capture, saved records, reminders, sample data, and Prep topic mining stay in
+the browser.
+
+```mermaid
+flowchart TD
+  A(["Open Rehello"]) --> B{"First visit?"}
+  B -->|Yes| C["Welcome"]
+  B -->|No| H["Home"]
+
+  C -->|Explore ready-made demo| D["Seed 5 sample people, moments, and reminders locally"]
+  D --> H
+  C -->|Shape my first memory| Q["Quick Remember"]
+  H -->|Remember someone| Q
+
+  Q --> E{"Capture method"}
+  E -->|Messy note| F["Use an example and starter prompts"]
+  E -->|One question at a time| G["Guided capture"]
+  F -->|Explicit submit| API["/api/remember to OpenAI Responses API"]
+  API --> AI["GPT-5.6 returns a structured draft"]
+  AI --> R["Review and edit recall card"]
+  G --> R
+  R --> S["Save person and moment in browser localStorage"]
+  S --> T{"Set a reminder?"}
+  T -->|Yes| U["Choose 1 week, 2 weeks, 1 month, or a date"]
+  T -->|Not now| DONE(["Return Home"])
+  U --> DONE
+
+  H -->|Open a person| V["Person profile"]
+  V --> W["Recall card and optional reminder"]
+
+  H -->|Prep for an event| X["Choose social, work, class, or coffee"]
+  X --> Y["Review people you may see"]
+  Y --> Z["See context starters and topics mined locally"]
+
+  H -->|Settings| AA["Backup or restore, sample data, restore sections, or clear data"]
+```
+
+---
+
 ## Tech stack
 
 - **Next.js 16** (App Router, Turbopack)

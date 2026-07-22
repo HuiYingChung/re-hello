@@ -25,6 +25,7 @@ This directory separates current engineering evidence from historical product ma
 - [Engineering Log: Quick Remember Entry Prompts](engineering-log/2026-07-22-quick-remember-entry-prompts.md)
 - [Engineering Log: GPT-5.6 Launch Framing and Demo Entry](engineering-log/2026-07-22-gpt56-launch-framing.md)
 - [Engineering Log: Rehello Favicon Repair](engineering-log/2026-07-22-rehello-favicon-repair.md)
+- [Engineering Log: README User Flow Diagram](engineering-log/2026-07-22-readme-user-flow.md)
 - [Failure Lessons and Prevention Playbook](../lessons.md)
 - [MVP Specification](product/mvp-spec.md)
 - [GPT Prototype Feedback](research/gpt-feedback.md)
