@@ -142,10 +142,10 @@ No ESLint rule was disabled or suppressed.
 | Final repository-structure check | 2026-07-22 13:00:31 | 2026-07-22 13:00:31 | PASS | Zero missing local Markdown links, zero CJK lines in the English ADR/engineering log, and `git diff --check` exit 0. |
 | Production route-presence probe | 2026-07-22 13:13:45 | 2026-07-22 13:13:45 | FAIL | `POST https://re-hello.vercel.app/api/remember` with an intentionally invalid short note returned `404 text/html`. The deployed artifact is older than the local Quick Remember implementation. The probe could not exercise or confirm the Vercel `OPENAI_API_KEY`. |
 
-## Honest current state
+## Honest state at 2026-07-22 13:13:45 CT
 
-- The implementation is present only in the local working tree.
-- No commit was created during this work.
+- At this timestamp, the implementation was present only in the local working tree.
+- At this timestamp, no commit had been created for this work.
 - No branch was pushed.
 - The user reported adding the Vercel environment variable, but its remote presence and value have not been independently verified.
 - The user reported redeploying through Vercel. The production probe at 2026-07-22 13:13:45 returned 404 for the new route, so that redeployment used an older code artifact.
@@ -159,7 +159,7 @@ No ESLint rule was disabled or suppressed.
 - User: product direction, time/budget constraints, OpenAI credential setup, and approval of the Quick Remember direction.
 - Codex: repository inspection, implementation, lint repair, API/browser/build verification, privacy documentation, and this engineering record.
 
-## Next actions requiring user authorization
+## Next actions recorded at 2026-07-22 13:13:45 CT
 
 1. Review and commit the intended working-tree files.
 2. Add `OPENAI_API_KEY` as a Sensitive variable for Production and Preview in the linked Vercel project without exposing its value.
@@ -167,3 +167,9 @@ No ESLint rule was disabled or suppressed.
 4. Defer Upstash unless the product later needs durable application-level quotas, per-user limits, or usage records.
 5. Deploy to Vercel.
 6. Run a production smoke test on the deployed URL and append its exact timestamp, deployment identifier, commit SHA, and result to this log.
+
+## Subsequent repository state
+
+- At 2026-07-22 13:16:59 CT, the implementation, repository organization, ADR-0001, and this engineering log were committed on `codex/quick-remember-gpt56` as `cd9d50a1fe6bae4b63d7431d42011d1e5000dab4` (`feat: add GPT-5.6 quick remember flow`).
+- The branch had not been pushed when this update was written.
+- CI baseline work after that commit is recorded separately in `2026-07-22-github-actions-ci-baseline.md` and ADR-0002.

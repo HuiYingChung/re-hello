@@ -114,6 +114,10 @@ npm run build   # production build
 npm run lint    # eslint
 ```
 
+GitHub Actions runs `npm ci`, `npm run lint`, and `npm run build`
+on every push and pull request using Node.js 24. The CI workflow does
+not receive `OPENAI_API_KEY` and does not make a live OpenAI request.
+
 ---
 
 ## Documentation

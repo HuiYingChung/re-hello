@@ -15,7 +15,9 @@ This directory separates current engineering evidence from historical product ma
 ## Current records
 
 - [ADR-0001: Add GPT-5.6 Quick Remember Without Replacing the Existing Flow](decisions/ADR-0001-gpt56-quick-remember.md)
+- [ADR-0002: Establish a Secret-Free GitHub Actions CI Baseline](decisions/ADR-0002-github-actions-ci-baseline.md)
 - [Engineering Log: GPT-5.6 Quick Remember](engineering-log/2026-07-22-gpt56-quick-remember.md)
+- [Engineering Log: GitHub Actions CI Baseline](engineering-log/2026-07-22-github-actions-ci-baseline.md)
 - [MVP Specification](product/mvp-spec.md)
 - [GPT Prototype Feedback](research/gpt-feedback.md)
 
