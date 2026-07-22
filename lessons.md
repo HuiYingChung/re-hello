@@ -66,6 +66,8 @@ Before changing code or publication state:
 | L19 | The original disabled `Shape my memory` action did not explain its 20-character requirement. | Every disabled primary action must expose the unmet prerequisite; test empty, boundary-minus-one, and boundary states. |
 | L20 | GPT-5.6 was described as optional even though the contest required a clear model-centered story. | Before launch, map the claim to the strongest real model transformation and show it in the first-run and social-preview surfaces. |
 | L21 | A staged diff check found a blank line at EOF, but a composite shell command continued and obscured the check's exit status. | Run integrity gates as standalone commands or capture and propagate their exit codes immediately. |
+| L52 | A Windows PowerShell production probe tried to construct `HttpClient` before loading its assembly. | Load `System.Net.Http` explicitly before constructing `HttpClient` in Windows PowerShell 5.1. |
+| L53 | A lesson patch reused feature-branch context after the user switched the worktree to `main`. | Re-read the exact target region after every branch switch before creating a patch. |
 
 ## Detailed lessons
 
@@ -636,3 +638,35 @@ These items remain open and must not be described as fixed:
 **Next-time rule:** When a sandbox denies `.git/index.lock`, verify that staging did not partially occur, request permission for the same path-limited Git mutation, and never broaden the file list or use a blanket add.
 
 **Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)
+
+### L52. Load the HTTP assembly explicitly in Windows PowerShell
+
+**Observed at:** Exact time not captured; after the user confirmed the iPhone 14 issue affected every page in portrait orientation and before the corrected production CSS probe on 2026-07-22.
+
+**Failure:** The first read-only production CSS probe stopped before making an HTTP request because Windows PowerShell could not resolve `[System.Net.Http.HttpClient]`.
+
+**Evidence:** PowerShell returned `Unable to find type [System.Net.Http.HttpClient]` at the constructor line. No production response or application behavior was measured by that attempt.
+
+**Root cause:** The installed Windows PowerShell session had not loaded the `System.Net.Http` assembly automatically before the type was referenced.
+
+**Recovery:** The unchanged read-only probe was rerun after `Add-Type -AssemblyName System.Net.Http`. It fetched two production CSS assets and confirmed that the deployed application contained the grid shell, safe-area rules, and vertical-touch containment.
+
+**Next-time rule:** In Windows PowerShell 5.1, run `Add-Type -AssemblyName System.Net.Http` before constructing `HttpClient`. Treat a missing type as a local runtime setup failure and zero network evidence.
+
+**Source:** Current iPhone 14 production follow-up; no separate engineering log was created.
+
+### L53. Re-read patch context after a branch switch
+
+**Observed at:** Exact time not captured; during the worktree cleanup requested after the iPhone 14 production follow-up on 2026-07-22.
+
+**Failure:** The first attempt to record L52 failed verification because its patch expected L50 and L51 ledger rows that existed on `codex/mobile-shell-investigation-record` but not on the current `main` branch.
+
+**Evidence:** `apply_patch` reported that it could not find the expected L50 and L51 lines. The failed atomic patch changed nothing, and `git status -sb` remained clean on `main`.
+
+**Root cause:** The patch reused target context read before the user switched branches instead of re-reading `lessons.md` from the current worktree.
+
+**Recovery:** The current branch, lesson headings, ledger, and final L44 block were inspected again. The replacement patch used the current L44 tail as its unique insertion anchor and retained L52-L53 numbers to avoid colliding with L45-L51 already present on the feature branch.
+
+**Next-time rule:** After any branch switch or user-directed worktree change, re-read the exact target region immediately before applying a patch. Never reuse a patch anchor from a previous branch snapshot.
+
+**Source:** Current worktree cleanup; no separate engineering log was created.
