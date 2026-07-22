@@ -227,3 +227,43 @@ The launch-framing implementation and initial decision records were committed lo
 The first production-build attempt against that exact commit failed from 14:53:21 through 14:53:27 -05:00 because the restricted environment could not fetch the two existing Google Fonts. ESLint then passed from 14:53:39 through 14:53:46 -05:00. The production build was retried with network access and passed from 14:54:02 through 14:54:15 -05:00, including compilation, TypeScript, page-data collection, and all 16 routes.
 
 This resolves the original local-commit and exact-commit local-verification items. It does not resolve push, pull-request, exact-head GitHub Actions, Vercel deployment, production smoke testing, Product Hunt preview, rate limiting, real-device verification, or the deferred Prep and voice work.
+
+## Amendment: Remaining boundary copy corrected on 2026-07-22
+
+### Amendment metadata
+
+- Amendment drafting started: 2026-07-22 16:48:16 -05:00
+- Decision owner: User
+- Implementation and audit: Codex
+- Branch: `codex/add-readme-user-flow`
+- Starting commit: `74ae935caeaefe859776504c2d6ab85657de3f1b`
+- Related engineering log: [`2026-07-22-honest-boundary-copy.md`](../engineering-log/2026-07-22-honest-boundary-copy.md)
+
+### Finding
+
+The source audit for the README architecture diagram found that D6's intended removal of the blanket `no tracking` statement was incomplete. `web/src/app/settings/page.tsx` still displayed `No accounts or tracking`, while `web/src/app/layout.tsx` mounted Vercel Analytics globally. The same audit confirmed that reminders are local records surfaced inside Rehello; there is no push, email, SMS, calendar, or operating-system notification implementation.
+
+### Accepted corrections
+
+1. Replace the contradictory Settings statement with friendly, literal copy: no account; people and moments stay in the current browser; only a Quick Remember note chosen for shaping is sent to OpenAI; Rehello also includes Vercel Analytics.
+2. Clarify on the remember, person-profile, and recall surfaces that reminders wait inside Rehello and do not create push notifications.
+3. Tell users that downloaded backups are readable JSON files and should be kept private.
+4. Correct the README User flow so Guided Capture saves browser data after prompts and optional mood without passing through GPT draft review.
+5. Identify reminders as in-app, add Vercel Analytics to the technology list, and remove the stale `less-instrumented` and `optional Quick Remember` status framing.
+
+### Wording principle
+
+Boundary copy should sound like product guidance, not a compliance notice. It should lead with what the user can expect, use familiar words, and state absences only where they affect the user's decision. Friendly language does not permit deleting material facts.
+
+### Consequences and unchanged behavior
+
+- These corrections change copy and documentation only; they do not add analytics, notifications, encryption, accounts, synchronization, or another OpenAI request.
+- Vercel Analytics remains mounted exactly as before.
+- Reminder storage and display logic remain browser-local and unchanged.
+- JSON export remains manual and unencrypted by the application.
+- No current Vercel Analytics payload, production deployment, or physical-device behavior is inferred by this amendment.
+
+### Verification state at amendment creation
+
+- Source and documentation edits exist only in the local working tree.
+- Lint, production build, Mermaid render, browser verification, commit, push, CI, deployment, and production smoke testing have not yet been completed for this amendment.

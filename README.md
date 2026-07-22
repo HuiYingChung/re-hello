@@ -29,7 +29,7 @@ Rehello is the opposite shape:
   spaced so you do not over-rehearse.
 - **Stay in touch** — a single chip-based picker (a week, two weeks,
   a month, or pick a date) that turns "I should reach out" into a
-  one-tap reminder.
+  one-tap in-app reminder.
 - **Prep** — for events, mixers, and coffee chats: a small set of
   conversation starters tuned to the kind of event, plus topics
   mined from your own past encounters.
@@ -88,9 +88,9 @@ focused on the real usage environment.
 | --- | --- |
 | **Home** | Greeting that adapts to time of day, a featured person worth refreshing, recall preview, recent people, "worth a quick refresh", and upcoming reminders. Each section can be hidden. |
 | **People** | Sortable list (Recent / A–Z / Last met / Custom drag-to-reorder) with search. |
-| **Person profile** | Name, tags, color, encounter history, "Stay in touch" picker with reminder list. |
+| **Person profile** | Name, tags, color, encounter history, and a "Stay in touch" picker with in-app reminder list. |
 | **Remember flow** | Paste one messy note and let GPT-5.6 shape a recall card, or use the original prompt-by-prompt capture flow. |
-| **Recall** | Spaced-review card that surfaces what to ask about next time, plus an inline Stay in touch picker. |
+| **Recall** | Spaced-review card that surfaces what to ask about next time, plus an inline in-app reminder picker. |
 | **Prep** | Pick an event type (social mixer / work / class / coffee), get starters tuned to that context plus topics mined from your own conversation history. |
 | **Settings** | Back up or restore people, moments, and reminders; restore hidden sections; load sample data; replay Welcome; or clear local data. |
 
@@ -118,16 +118,19 @@ flowchart TD
   E -->|One question at a time| G["Guided capture"]
   F -->|Explicit submit| API["/api/remember to OpenAI Responses API"]
   API --> AI["GPT-5.6 returns a structured draft"]
-  AI --> R["Review and edit recall card"]
-  G --> R
-  R --> S["Save person and moment in browser localStorage"]
-  S --> T{"Set a reminder?"}
+  AI --> R["Review GPT draft"]
+  R -->|Adjust details| G
+  G --> G2["Answer prompts and optional mood"]
+  R -->|Save as-is| S["Save person and moment in browser localStorage"]
+  G2 --> S
+  S --> T{"Set an in-app reminder?"}
   T -->|Yes| U["Choose 1 week, 2 weeks, 1 month, or a date"]
-  T -->|Not now| DONE(["Return Home"])
-  U --> DONE
+  T -->|Not now| C2["Confirmation"]
+  U --> C2
+  C2 --> DONE(["Return Home"])
 
   H -->|Open a person| V["Person profile"]
-  V --> W["Recall card and optional reminder"]
+  V --> W["Recall card and optional in-app reminder"]
 
   H -->|Prep for an event| X["Choose social, work, class, or coffee"]
   X --> Y["Review people you may see"]
@@ -153,7 +156,7 @@ flowchart TD
     R["Review GPT draft<br/>save as-is or adjust"]
     S["Browser save logic"]
     L[("localStorage<br/>people / encounters / reminders")]
-    F["Rendered app surfaces<br/>Home / People / Recall / reminders<br/>Prep uses local keyword mining"]
+    F["Rendered app surfaces<br/>Home / People / Recall / in-app reminders<br/>Prep uses local keyword mining"]
     B["Manual JSON backup / restore"]
   end
 
@@ -211,6 +214,10 @@ reduce unwanted output; they do not guarantee factual accuracy.
   database, or cross-device sync. Clearing site data, using private browsing, or
   losing the device can remove records. Backup and restore are manual JSON
   actions and cover people, encounters, and reminders, not every UI preference.
+  The downloaded JSON is not encrypted by Rehello and should be stored privately.
+- **Reminders are visible only inside Rehello.** They do not create push, email,
+  SMS, calendar, or operating-system notifications. The user must reopen the app
+  to see due or upcoming reminders.
 - **Local-first does not mean zero external data flow.** The explicitly
   submitted note passes through the Vercel server route to OpenAI. The request
   sets `store:false`, and the route sends `Cache-Control: no-store`, but this
@@ -247,6 +254,7 @@ reduce unwanted output; they do not guarantee factual accuracy.
 - **Tailwind CSS 4**
 - **lucide-react** for icons
 - **@dnd-kit** for drag-to-reorder
+- **Vercel Analytics** through `@vercel/analytics`
 - **localStorage** for people, encounters, and reminders
 - **OpenAI Responses API** with GPT-5.6 Terra for the Quick Remember core
 
@@ -327,10 +335,10 @@ data shape easy to evolve.
 
 ## Status
 
-This is a portfolio project, not a shipping product. It exists to
-explore what a softer, less-instrumented people tool could feel
-like. There are no accounts or sync; saved people remain on the
-device, while the optional Quick Remember note is processed through
-the OpenAI API.
+This is a launch-stage portfolio project, not a production-grade
+service. It explores what a softer people tool could feel like.
+There are no accounts or sync; saved people remain in the current
+browser. An explicitly submitted Quick Remember note is processed
+through the OpenAI API, and Vercel Analytics is enabled for the app.
 
 Feedback and conversation welcome.

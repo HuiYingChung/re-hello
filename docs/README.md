@@ -29,6 +29,7 @@ This directory separates current engineering evidence from historical product ma
 - [Engineering Log: README User Flow Diagram](engineering-log/2026-07-22-readme-user-flow.md)
 - [Engineering Log: Mobile-First README Rationale](engineering-log/2026-07-22-mobile-first-rationale.md)
 - [Engineering Log: Product Architecture and Limitations](engineering-log/2026-07-22-product-architecture-limitations.md)
+- [Engineering Log: Honest Boundary Copy](engineering-log/2026-07-22-honest-boundary-copy.md)
 - [Failure Lessons and Prevention Playbook](../lessons.md)
 - [MVP Specification](product/mvp-spec.md)
 - [GPT Prototype Feedback](research/gpt-feedback.md)

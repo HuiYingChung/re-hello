@@ -508,3 +508,131 @@ These items remain open and must not be described as fixed:
 **Next-time rule:** When a pinned documentation renderer fails only with `ENOTCACHED`, preserve the failure, retry the identical version and source with narrowly scoped network access, and do not modify the diagram unless the renderer or visual inspection reports an actual content problem.
 
 **Source:** [Product architecture and limitations engineering log](docs/engineering-log/2026-07-22-product-architecture-limitations.md)
+
+### L37. Never use a HOME variable variant for PowerShell scratch data
+
+**Observed at:** Failure time not captured; recovery began at 2026-07-22 16:45:26 -05:00
+
+**Failure:** A reminder-boundary audit stopped after its early file reads because it assigned Home-page source to `$home`. PowerShell variable names are case-insensitive, so `$home` collided with the read-only `$HOME` variable and raised `Cannot overwrite variable HOME because it is read-only or constant`.
+
+**Evidence:** The command emitted the reminder component and storage output, then terminated at the `$home=Get-Content web/src/app/page.tsx` assignment. The Home, Settings, and notification-reference checks after that assignment did not run.
+
+**Root cause:** A prohibited system-variable name was repurposed as a scratch variable despite the repository workflow rule to avoid every HOME variant.
+
+**Recovery:** Re-ran the incomplete portion with `$homePage`, completed the Home and Settings reads, and explicitly counted notification, push, service-worker, and calendar references.
+
+**Next-time rule:** Never declare `$HOME`, `$home`, or any case variant. Use task-specific names such as `$homePage`, and treat all output after a failed variable assignment as not executed.
+
+**Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)
+
+### L38. Do not repeat a known mojibake patch-anchor failure
+
+**Observed at:** Failure confirmed at 2026-07-22 16:46:59 -05:00
+
+**Failure:** The first combined copy-correction patch repeated L33 by using the terminal-rendered mojibake form of the README em dash as exact context. The patch tool rejected the complete patch before writing any application or documentation file.
+
+**Evidence:** `apply_patch` reported that it could not find the `Stay in touch` README lines. An immediate status and text search showed a clean working tree and all original product strings still present.
+
+**Root cause:** A large patch reused corrupted terminal text instead of the stable ASCII-only anchor mandated by L33.
+
+**Recovery:** Split application and README edits into smaller patches, anchored the README changes on nearby ASCII-only lines, and rechecked each result.
+
+**Next-time rule:** L33 is mandatory, not advisory. For any file containing non-ASCII punctuation, patch only the minimum ASCII line or stable heading unless the exact source bytes were read through a verified encoding path.
+
+**Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)
+
+### L39. Distinguish a restricted font fetch from a source build failure
+
+**Observed at:** 2026-07-22 16:52:56.623 -05:00 to 16:53:04.853 -05:00
+
+**Failure:** The first production build stopped while Next.js tried to fetch the configured Instrument Serif and Noto Sans TC stylesheets from Google Fonts.
+
+**Evidence:** `next build` reported connection failures for `fonts.googleapis.com` and named only the two `next/font` imports from `web/src/app/layout.tsx`. It did not report a TypeScript, application, or route error.
+
+**Root cause:** The restricted execution environment could not reach the external font host during build-time asset resolution.
+
+**Recovery:** Re-ran the identical `npm run build` command against unchanged source with narrowly approved network access. The second attempt completed compilation, TypeScript checking, page-data collection, and generation of all 17 static pages.
+
+**Next-time rule:** When a build fails only at an existing `next/font` network fetch, preserve the exact error, retry the unchanged build with narrowly scoped network access, and do not edit application code unless the network-enabled build exposes a source defect.
+
+**Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)
+
+### L40. Use a unique anchor when appending an ordered record
+
+**Observed at:** Failure confirmed at 2026-07-22 16:54:20.318 -05:00
+
+**Failure:** The patch that added L39 matched the first repeated `Source` line in `lessons.md`, so the new entry was inserted between L37 and L38 and broke ascending lesson order.
+
+**Evidence:** The immediate heading scan reported L37, L39, then L38 at lines 512, 528, and 544.
+
+**Root cause:** The patch used a non-unique link line as its insertion anchor and assumed the patcher would select the final occurrence.
+
+**Recovery:** Removed the misplaced block, reinserted it after the unique L38 prevention text, added this failure record, and reran the numeric-order validator.
+
+**Next-time rule:** Before appending to an ordered document, anchor on a unique final sentence or explicit end marker. Immediately validate both content and order; never assume a repeated context line selects the intended occurrence.
+
+**Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)
+
+### L41. Delimit PowerShell variables before adjacent punctuation
+
+**Observed at:** Exact time not captured; confirmed after 2026-07-22 16:54:20 and before 16:56:17 -05:00
+
+**Failure:** The first composite truth validator did not parse because an interpolated error message contained `$index:`. PowerShell interpreted the colon as part of a scoped variable reference.
+
+**Evidence:** PowerShell raised `Variable reference is not valid` at the lesson-order error string before any validation statement ran.
+
+**Root cause:** The script placed punctuation immediately after an unbraced variable inside a double-quoted string.
+
+**Recovery:** Replaced the interpolated message with PowerShell's `-f` format operator and reran the validator from the beginning.
+
+**Next-time rule:** In PowerShell diagnostics, prefer `-f` formatting or `${variable}` whenever punctuation follows a variable. A parser error means the entire composite validation is unexecuted.
+
+**Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)
+
+### L42. Keep validators independent of JSX line wrapping and shell-expression shortcuts
+
+**Observed at:** Exact time not captured; confirmed before 2026-07-22 16:56:17 -05:00
+
+**Failure:** The second composite validator emitted repeated errors because `if` was placed where PowerShell expected a command, and its exact full-sentence assertion for the readable-JSON copy failed because JSX split the sentence across a line break.
+
+**Evidence:** PowerShell repeatedly reported `if` as an unrecognized term, then named only `Settings warns readable JSON` as the failed truth assertion. Source inspection showed the intended sentence across two adjacent JSX lines.
+
+**Root cause:** The reporting loop relied on an invalid expression shortcut, while the content check was more sensitive to formatting than to meaning.
+
+**Recovery:** Replaced the shortcut with a normal `foreach` plus statement-level `if`, and checked two stable semantic fragments instead of one whitespace-sensitive sentence.
+
+**Next-time rule:** Write validator reporting as ordinary statements, and make copy assertions tolerant of source-only line wrapping while still requiring the important user-facing phrases.
+
+**Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)
+
+### L43. Validate the repository's actual numbering contract
+
+**Observed at:** Failure confirmed before 2026-07-22 16:56:53.332 -05:00
+
+**Failure:** The third validator required every lesson number to be contiguous and therefore failed at the historical jump from L21 to L26 even though the headings remained strictly increasing and the current L37-L40 additions were correctly ordered.
+
+**Evidence:** All 13 product truth checks passed, then the script reported `expected L22, found L26`. A full heading scan confirmed that L22-L25 were historically absent rather than misplaced by this change.
+
+**Root cause:** The validator strengthened the documented requirement from unique, increasing numbers to a contiguous sequence without checking the existing file convention.
+
+**Recovery:** Changed the contract to unique lesson numbers, globally increasing order, and an exact current tail sequence. The replacement validator was rerun against the whole file.
+
+**Next-time rule:** Derive structural validators from both the written requirement and the existing baseline. Do not introduce a stronger invariant unless the repository already satisfies it or the task explicitly requires migration.
+
+**Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)
+
+### L44. Retry only the explicit Git mutation after a sandbox index-lock denial
+
+**Observed at:** Exact time not captured; recovery confirmed by 2026-07-22 16:58:59.249 -05:00
+
+**Failure:** The first explicit nine-file staging command could not create `.git/index.lock` and exited with permission denied.
+
+**Evidence:** Git returned `fatal: Unable to create .../.git/index.lock: Permission denied` before the staged-path and status checks ran. The repository had not been partially staged.
+
+**Root cause:** The default workspace sandbox allowed source writes but denied this Git metadata mutation.
+
+**Recovery:** Re-ran only the same path-limited `git add --` operation with approved Git-write permission, then passed `git diff --cached --check` and confirmed exactly the intended nine staged paths.
+
+**Next-time rule:** When a sandbox denies `.git/index.lock`, verify that staging did not partially occur, request permission for the same path-limited Git mutation, and never broaden the file list or use a blanket add.
+
+**Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)
