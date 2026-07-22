@@ -182,13 +182,28 @@ Completed at 2026-07-22 16:42:31 -05:00:
 - `git diff --check`: pass, with informational LF-to-CRLF working-copy warnings;
 - application lint, test, and build: not run because this change modifies documentation only.
 
-Exact staged-path and committed-state validation remains pending until the reviewed files are staged and committed.
+Exact staged-path validation passed: only `README.md`, `docs/README.md`, `lessons.md`, and this engineering log were staged. Staged `git diff --check` also passed.
 
 ## Honest state at record creation
 
 - The diagram, limitations, correction, lessons, index entry, and this log exist only in the local working tree.
 - Mermaid and documentation validation have not yet been completed.
 - No commit, push, pull request, GitHub Actions run, Vercel deployment, or production README update exists for this addition.
+
+## Committed feature state
+
+At 2026-07-22 16:43:36 -05:00:
+
+- feature commit: `61208443f438e46fb9b15f77fc5d25695a5ab9e0` (`docs: document product architecture and limits`);
+- committed scope: the four explicitly staged documentation paths, 347 insertions, one stale Settings claim removed, and no application files;
+- exact-commit README Mermaid block count: two;
+- exact-commit architecture required-label check: pass;
+- exact-commit limitation count: ten;
+- exact-commit stale `view storage size` claim: absent;
+- working tree immediately after the feature commit: clean;
+- push, pull request, CI, deployment, production API call, and production README update: not performed.
+
+This verification update is a documentation-only follow-up and cannot contain its own eventual commit hash. That final local commit is reported in the handoff.
 
 ## Collaboration attribution
 
