@@ -267,3 +267,11 @@ Boundary copy should sound like product guidance, not a compliance notice. It sh
 
 - Source and documentation edits exist only in the local working tree.
 - Lint, production build, Mermaid render, browser verification, commit, push, CI, deployment, and production smoke testing have not yet been completed for this amendment.
+
+### Amendment verification result
+
+The bounded correction was committed locally as `863f0949cae365b656fcff8b5f64cec34a94d180` at 2026-07-22 16:59:41 -05:00 with subject `fix: clarify privacy and reminder boundaries`.
+
+Against that exact feature commit, ESLint passed from 16:59:57.019 to 17:00:03.670 -05:00, and the production build passed from 17:00:16.750 to 17:00:29.581 -05:00, including compilation, TypeScript, page-data collection, and all 17 static pages. `git show --check` and the exact-commit truth check passed at 17:00:42.554 -05:00.
+
+The updated User flow had already been rendered from the exact README Mermaid source with Mermaid CLI 11.16.0 and visually inspected as readable and unclipped. No browser acceptance run, physical-device test, OpenAI request, push, CI run, deployment, or production smoke test was performed for this amendment.

@@ -168,6 +168,17 @@ Excluded:
 - Final diff review completed by 2026-07-22 16:58:21.917 -05:00 with exactly the nine files listed in this record modified or untracked.
 - No OpenAI request, browser acceptance run, physical-device test, CI run, push, deployment, or production smoke test was performed.
 
+## Feature commit and exact-commit verification
+
+- Feature commit: `863f0949cae365b656fcff8b5f64cec34a94d180`
+- Commit created: 2026-07-22 16:59:41 -05:00
+- Commit subject: `fix: clarify privacy and reminder boundaries`
+- The working tree was clean before both exact-commit executable checks.
+- ESLint passed against exact feature commit `863f094` from 2026-07-22 16:59:57.019 -05:00 to 17:00:03.670 -05:00.
+- The production build passed against exact feature commit `863f094` from 2026-07-22 17:00:16.750 -05:00 to 17:00:29.581 -05:00, including compilation, TypeScript, page-data collection, and all 17 static pages.
+- `git show --check` and the exact-commit truth check passed at 2026-07-22 17:00:42.554 -05:00.
+- This commit remains local. It has not been pushed, reviewed by CI, deployed, or tested on production.
+
 ## Collaboration attribution
 
 - User: authorized the additional recommended corrections and required user-friendly product language.
