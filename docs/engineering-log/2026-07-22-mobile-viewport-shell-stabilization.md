@@ -7,7 +7,7 @@
 - Repository: `C:\Users\Winnie\Dropbox\PC\Documents\Playground\re-hello`
 - Branch: `codex/mobile-shell-investigation-record`
 - Starting commit: `d2b594f`
-- Implementation commit: pending local commit
+- Implementation commit: `7e97de4ae605994ed08ceb2bc3ed7f97a7be351c`
 - CI, deployment, and production verification: not requested and not performed
 
 ## Authorized scope
@@ -37,7 +37,7 @@ Implement the shared-shell decision proposed by ADR-0007 without redesigning ind
 
 - Post-change CSS contract assertions: passed.
 - Post-change `npm run lint`: passed.
-- Post-change production build and exact-commit verification: pending local commit.
+- Post-change network-enabled `npm run build`: passed with all 17 routes generated or classified successfully.
 
 ## Failed attempt: strict Welcome snapshot parser
 
@@ -91,3 +91,17 @@ Headless Chrome did not open a real mobile software keyboard. This result proves
 - No physical iPhone, iPad, or Android device was available in this local run.
 - Retractable Safari or Chrome browser bars, iOS rubber-band physics, display cutouts, home-indicator clearance, installed PWA mode, and a real software keyboard remain manual-device acceptance items.
 - No CI workflow, push, Vercel deployment, or production smoke test was requested or performed.
+
+## Exact implementation commit verification
+
+Commit `7e97de4ae605994ed08ceb2bc3ed7f97a7be351c` (`fix: stabilize mobile viewport shell`) contains the runtime CSS change, ADR acceptance, browser-artifact cleanup, failure lessons, and this implementation record as it stood before exact-commit verification.
+
+Against that exact commit:
+
+- working tree before verification: clean;
+- `git show --check --oneline --stat HEAD`: passed;
+- `npm run lint`: passed;
+- network-enabled `npm run build`: passed with Next.js 16.2.2;
+- production build route result: all 17 routes generated or classified successfully.
+
+Publication state remains local only. The commit was not pushed, checked by CI, deployed, or tested in production.
