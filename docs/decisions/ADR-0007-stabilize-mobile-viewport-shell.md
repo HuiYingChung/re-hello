@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed on 2026-07-22. No runtime implementation has been authorized or completed in this record.
+Accepted and implemented locally on 2026-07-22. The implementation preserves individual product pages and changes only the shared shell CSS plus browser-artifact hygiene.
 
 ## Context
 
@@ -26,7 +26,7 @@ See [the investigation log](../engineering-log/2026-07-22-mobile-viewport-shell-
 - The correction should be centralized instead of changing every product page.
 - Layout behavior should be explainable through CSS rather than a JavaScript viewport event loop.
 
-## Proposed decision
+## Decision
 
 Refactor the shared mobile shell as a three-row CSS Grid:
 
@@ -83,3 +83,11 @@ A JavaScript resize listener could write a custom viewport-height variable, but 
 - No physical iPhone, iPad, or Android device was tested.
 - Headless Playwright did not emulate retractable browser chrome or iOS rubber-band physics.
 - No implementation, deployment, CI run, or production smoke test exists for this proposal.
+
+## Local implementation evidence
+
+The accepted implementation is recorded in [the mobile viewport shell stabilization log](../engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md).
+
+Local browser verification passed 17 geometry cases covering all seven representative routes at 390 by 653 pixels plus `/people` and `/remember` at 320, 360, 375, 390, and 430 pixels. In every case, document and inner-scroller widths matched, attempted horizontal movement remained zero, and navigation stayed inside the visual viewport before and after vertical scrolling. The desktop shell remained exactly 390 by 820 pixels.
+
+Physical iOS Safari, installed iOS PWA, Android Chrome browser-bar behavior, and an actual software-keyboard viewport remain required manual checks. No CI, deployment, or production verification is implied by the local evidence.

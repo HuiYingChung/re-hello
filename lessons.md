@@ -66,6 +66,8 @@ Before changing code or publication state:
 | L19 | The original disabled `Shape my memory` action did not explain its 20-character requirement. | Every disabled primary action must expose the unmet prerequisite; test empty, boundary-minus-one, and boundary states. |
 | L20 | GPT-5.6 was described as optional even though the contest required a clear model-centered story. | Before launch, map the claim to the strongest real model transformation and show it in the first-run and social-preview surfaces. |
 | L21 | A staged diff check found a blank line at EOF, but a composite shell command continued and obscured the check's exit status. | Run integrity gates as standalone commands or capture and propagate their exit codes immediately. |
+| L50 | A strict Welcome snapshot regex rejected a valid button ref when Playwright inserted an `active` attribute. | Parse the ref from the remainder of the matching snapshot line instead of assuming it immediately follows the accessible name. |
+| L51 | A textarea-ref parser assumed every Playwright ref used the simple `e39` form and rejected a valid frame-prefixed ref. | Capture the complete bracketed ref token; treat ref values as opaque identifiers. |
 
 ## Detailed lessons
 
@@ -716,3 +718,35 @@ These items remain open and must not be described as fixed:
 **Next-time rule:** Add `.playwright-cli/` to `.gitignore` before further CLI browser work and deliberately remove any tracked session snapshot in a scoped commit. During cleanup, enumerate only untracked files and never delete the directory recursively when tracked evidence is present.
 
 **Source:** [Mobile viewport shell investigation](docs/engineering-log/2026-07-22-mobile-viewport-shell-investigation.md)
+
+### L50. Treat Playwright snapshot attributes as variable metadata
+
+**Observed at:** The final Welcome snapshot was created at 2026-07-22 17:43:22.902 -05:00; the harness failure followed immediately, but its exact time was not captured.
+
+**Failure:** The first mobile-shell browser matrix stopped before loading sample data because its snapshot parser did not find the visible `Explore a ready-made demo` button.
+
+**Evidence:** The fresh snapshot contained `button "Explore a ready-made demo" [active] [ref=e40]`, while the parser required `[ref=...]` to appear immediately after the accessible name. The server and browser cleanup still completed, and `LISTENER_REMAINS=False` confirmed that port 3174 was released.
+
+**Root cause:** The harness treated Playwright's optional state attributes as a fixed snapshot grammar. The button was present and active; this was not an application rendering or navigation failure.
+
+**Recovery:** The parser was changed to accept same-line metadata between the accessible name and ref. A standalone check against the captured fresh snapshot returned `RECOVERED_REF=e40` before the browser matrix was retried.
+
+**Next-time rule:** When extracting a ref from a fresh Playwright snapshot, match the accessible role and name, then allow variable same-line attributes before `[ref=...]`. Preserve the snapshot and classify a parser mismatch separately from application behavior.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L51. Treat Playwright ref values as opaque identifiers
+
+**Observed at:** The Remember snapshot was created at 2026-07-22 17:49:19.354 -05:00; the harness failure followed immediately, but its exact time was not captured.
+
+**Failure:** The corrected browser matrix passed all 17 mobile geometry cases and the desktop-frame assertion, then stopped before the focused-textarea check because the parser did not recognize the textarea ref.
+
+**Evidence:** The fresh Remember snapshot contained `textbox "What you remember" [active] [ref=f20e39]`. The parser allowed only refs matching `e` followed by digits. Browser and listener cleanup again completed with `LISTENER_REMAINS=False`.
+
+**Root cause:** Playwright generated a frame-prefixed ref after repeated navigations, but the harness treated the earlier short `e40` form as the ref schema. The textarea was already rendered and active; this was not an application focus failure.
+
+**Recovery:** The parser was changed to capture the entire non-closing-bracket token after `ref=` and to treat it as opaque. A standalone check against the captured snapshot returned `RECOVERED_TEXTAREA_REF=f20e39` before retrying the focused-input verification.
+
+**Next-time rule:** Never validate Playwright ref syntax beyond its enclosing `[ref=...]` marker. Capture and reuse the complete token from the latest snapshot because navigation and frame context can change its prefix.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
