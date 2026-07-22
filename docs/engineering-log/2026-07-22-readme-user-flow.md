@@ -109,7 +109,8 @@ Documentation checks completed at 2026-07-22 16:24:17 -05:00:
 - lesson numbering through L32: pass;
 - relative links in all four changed documents: pass;
 - `git diff --check`: pass, with informational LF-to-CRLF working-copy warnings;
-- exact staged-path and staged-diff checks: pending until the reviewed files are staged.
+- exact staged-path check: pass; only `README.md`, `docs/README.md`, this engineering log, and `lessons.md` were staged;
+- staged `git diff --check`: pass.
 
 ## Honest state at record creation
 
@@ -118,6 +119,18 @@ Documentation checks completed at 2026-07-22 16:24:17 -05:00:
 - Mermaid rendering and visual inspection were still pending at the instant this record was created; both subsequently passed as recorded above.
 - Markdown integrity and relative links were still pending at record creation.
 - No commit, push, GitHub Actions run, Vercel deployment, or production README update exists for this change.
+
+## Committed feature state
+
+At 2026-07-22 16:25:02 -05:00:
+
+- feature commit: `560678920967dab0e2783478b890eaf49ae7efae` (`docs: add README user flow diagram`);
+- committed scope: the four explicitly staged documentation paths, 221 insertions, no application files;
+- exact-commit README check: pass; one Mermaid block contains all required flow and server-boundary labels;
+- working tree immediately after the feature commit: clean;
+- push, pull request, CI, deployment, and production README update: not performed.
+
+This state update is a documentation-only follow-up and therefore cannot contain its own eventual commit hash. That final local commit is reported in the handoff.
 
 ## Collaboration attribution
 
