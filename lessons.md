@@ -81,6 +81,7 @@ Before changing code or publication state:
 | L62 | Expired or detached Next dev children caused a navigation timeout, stale listeners, and misleading readiness failures. | Verify server readiness immediately before browsing and inspect exact child PIDs when a managed parent ends. |
 | L63 | The browser first loaded non-hydrated SSR through `127.0.0.1`, then a stale `.next` stylesheet from before the shell fix. | Use the server-declared origin and prove the served CSS contract before trusting browser assertions. |
 | L64 | The first two `.next` cleanup attempts failed because surviving Next child processes still held Turbopack files. | Stop every command-line-confirmed repo Next child before deleting the validated untracked cache path. |
+| L65 | The final status probe repeated the invalid direct pipe after a PowerShell `foreach` statement. | Always assign `foreach` output to a variable before piping it to a formatter. |
 
 ## Detailed lessons
 
@@ -969,5 +970,21 @@ These items remain open and must not be described as fixed:
 **Recovery:** Stopped only those three confirmed repo processes, waited for them to disappear, and reran the same validated removal. `web/.next` then reported `Exists:false` before the fresh server was started.
 
 **Next-time rule:** If a generated Next cache resists deletion, do not retry broad filesystem commands. Inspect command lines, stop only the confirmed repo Next process tree, revalidate the exact untracked target, and then retry once.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L65. Collect PowerShell foreach output before piping
+
+**Observed at:** During the final clean-worktree check after commit `b50258d` on 2026-07-22.
+
+**Failure:** The final composite status probe placed a pipe directly after `foreach (...) { ... }` and failed at parse time with `An empty pipe element is not allowed`.
+
+**Evidence:** The command returned exit code 1 before reporting Git status, listener state, or artifact existence. This repeated the same grammar class already encountered during L62.
+
+**Root cause:** The probe did not apply the recovery already used earlier in the same task: statement-form `foreach` output cannot be piped directly without being collected or wrapped.
+
+**Recovery:** Assigned the loop output to a task-specific `$portResults` variable, piped that variable to `ConvertTo-Json`, and reran the entire status check. The branch was clean and ahead by one commit, ports 3182-3184 had no listeners, and `.playwright-cli` did not exist.
+
+**Next-time rule:** In Windows PowerShell status probes, always write `$results = foreach (...) { ... }` and pipe `$results` afterward. A parser failure invalidates every sibling check in the composite command.
 
 **Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
