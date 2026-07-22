@@ -398,3 +398,241 @@ These items remain open and must not be described as fixed:
 **Next-time rule:** When an exact-commit build fails only on existing Google Font downloads, preserve the failure output, confirm the source SHA is unchanged, and retry with network access before touching application code. Keep the restricted-network failure and the successful retry as separate results.
 
 **Source:** [Rehello favicon repair engineering log](docs/engineering-log/2026-07-22-rehello-favicon-repair.md)
+
+### L30. Run Git fetch as a standalone gate before trusting later ref checks
+
+**Observed at:** Exact time not captured; before 2026-07-22 16:07:31 -05:00
+
+**Failure:** The first pre-branch command could not write `.git/FETCH_HEAD`, but later status and ref-comparison commands succeeded and left the composite shell invocation with exit 0. The output therefore contained a real fetch failure even though the final command status looked successful.
+
+**Root cause:** The restricted environment denied the Git metadata write, and the composite command did not capture or immediately propagate the fetch exit code before running later read-only checks.
+
+**Recovery:** Re-ran `git fetch origin --prune` as a standalone narrowly approved command, then created the documentation branch from the confirmed `main` commit.
+
+**Next-time rule:** Run `git fetch` alone when it is a branch-base precondition. Treat any fetch error as a failed gate regardless of later output, retry only the narrow Git command with the required authority, and compare refs only after that standalone command succeeds.
+
+**Source:** [README user-flow engineering log](docs/engineering-log/2026-07-22-readme-user-flow.md)
+
+### L31. Validate SVG visuals through an explicit raster artifact and file check
+
+**Observed at:** Exact time not captured; after 2026-07-22 16:07:31 and before 16:22:08 -05:00
+
+**Failure:** The first visual-inspection tool could not process the successfully rendered SVG. A subsequent headless Chrome command could not write a relative screenshot path, and the next command created the requested absolute-path PNG but still reported failure because PowerShell exposed a null `$LASTEXITCODE`. The first rendered layout was also rejected because long return edges crossed too many branches.
+
+**Evidence:** Mermaid CLI 11.16.0 rendered the exact README source to SVG. Chrome reported `Access is denied` for the relative output. The absolute-path attempt wrote a 148,834-byte PNG despite the nullable exit-code signal. After simplifying the chart, the final attempt wrote a 91,503-byte PNG that the image viewer opened successfully with readable, unclipped labels.
+
+**Root cause:** The image viewer did not support that SVG input path, Chrome could not use the relative screenshot destination in this environment, and the process-launch behavior did not reliably populate `$LASTEXITCODE`. The initial diagram also encoded too many cross-chart returns for a compact README layout.
+
+**Recovery:** Simplified the diagram, retained SVG rendering as the syntax gate, rasterized it to an explicit absolute temporary path, polled for the PNG, asserted its existence and non-zero length, and visually inspected that PNG. All generated validation artifacts were then removed.
+
+**Next-time rule:** For Mermaid visual review, render the exact fenced source to SVG, rasterize to an explicit absolute temporary PNG, and trust file existence and byte length instead of a nullable launcher exit code. Inspect the PNG for edge crossings, clipping, and readability before accepting the diagram.
+
+**Source:** [README user-flow engineering log](docs/engineering-log/2026-07-22-readme-user-flow.md)
+
+### L32. Distinguish unresolved placeholders from historical status prose
+
+**Observed at:** 2026-07-22 16:23:20 -05:00
+
+**Failure:** The first placeholder scan failed the engineering log because two honest historical-state sentences used the ordinary word `pending`, even though both sentences immediately recorded that the checks subsequently passed.
+
+**Evidence:** The only matches were `still pending at the instant this record was created` and `still pending at record creation`; no `TODO`, `TBD`, bracketed placeholder, or unresolved pending field existed.
+
+**Root cause:** The validator treated every occurrence of `pending` as a placeholder without considering sentence context or placeholder syntax.
+
+**Recovery:** Preserved the accurate historical wording and narrowed the automated check to explicit placeholder forms such as angle-bracketed or bracketed markers and values left unresolved at the end of a field.
+
+**Next-time rule:** Placeholder validation must target placeholder syntax and unresolved fields, not ordinary words inside dated historical evidence. Inspect matches before editing accurate records to satisfy an overbroad regex.
+
+**Source:** [README user-flow engineering log](docs/engineering-log/2026-07-22-readme-user-flow.md)
+
+### L33. Use stable source text as a patch anchor when terminal output is mojibake
+
+**Observed at:** 2026-07-22 16:28:42 -05:00
+
+**Failure:** The first combined documentation patch did not apply because its README context copied the terminal-rendered mojibake sequence `â€”` instead of matching the UTF-8 em dash stored in the file. The patch tool rejected the complete patch, so no partial edits were written.
+
+**Evidence:** The patch reported `Failed to find expected lines` around the sentence ending in `quiet, warm, never nagging`. A subsequent status check was clean, and neither proposed new record file existed.
+
+**Root cause:** The PowerShell output encoding distorted a non-ASCII character, and that rendered text was used as an exact patch anchor.
+
+**Recovery:** Re-anchored the README insertion on the unique ASCII heading `## Design principles`, split the large patch into smaller operations, and rechecked repository state before continuing.
+
+**Next-time rule:** When terminal output displays suspicious encoding, never reuse the corrupted characters as exact patch context. Anchor on nearby stable ASCII text and verify that a rejected multi-file patch left no partial changes.
+
+**Source:** [Mobile-first rationale engineering log](docs/engineering-log/2026-07-22-mobile-first-rationale.md)
+
+### L34. Discover feature files before assuming a dedicated module exists
+
+**Observed at:** 2026-07-22 16:33:43 -05:00
+
+**Failure:** The first architecture-audit command successfully read the API route and produced search evidence, then failed when it tried to read nonexistent `web/src/lib/quick-remember.ts` and `web/src/app/quick-remember/page.tsx` paths. Quick Remember is integrated into `web/src/app/remember/page.tsx` instead of having a dedicated module or route page.
+
+**Evidence:** PowerShell returned `Cannot find path` for `web/src/lib/quick-remember.ts`. A subsequent `rg --files` search listed the actual remember, storage, type, Prep, and Settings files and no dedicated Quick Remember file.
+
+**Root cause:** The audit inferred file organization from the feature name before enumerating repository paths.
+
+**Recovery:** Used `rg --files` to locate the implementation and read focused ranges from `web/src/app/remember/page.tsx`, the API route, storage, types, Prep, and Settings.
+
+**Next-time rule:** Before a multi-file feature audit, enumerate matching tracked paths first. Treat any later missing-file error as an incomplete composite audit even when earlier commands emitted valid output.
+
+**Source:** [Product architecture and limitations engineering log](docs/engineering-log/2026-07-22-product-architecture-limitations.md)
+
+### L35. Handle ripgrep's zero-match exit code explicitly in absence checks
+
+**Observed at:** 2026-07-22 16:35:05 -05:00
+
+**Failure:** A second composite audit read the intended source ranges but ended with exit 1 because its final `rg` filename filter found no service-worker, Workbox, or matching test file. The zero-match result obscured the successful reads and did not produce an explicit absence assertion.
+
+**Evidence:** The command returned source content followed by an overall exit 1. A corrected scan collected all paths into arrays, reported zero offline-worker files and zero test/spec files, and exited 0.
+
+**Root cause:** Ripgrep correctly uses exit 1 for no matches, while the audit treated every nonzero code as an operational failure without distinguishing the expected absence case.
+
+**Recovery:** Replaced the pipeline with an explicit tracked-path collection, counted matching arrays, and emitted a named confirmation when the count was zero.
+
+**Next-time rule:** For absence checks, convert zero matches into a deliberate counted result and an explicit success condition. Do not leave `rg` as the final unhandled command in a composite validation step.
+
+**Source:** [Product architecture and limitations engineering log](docs/engineering-log/2026-07-22-product-architecture-limitations.md)
+
+### L36. Retry the same pinned renderer when restricted npm cache blocks validation
+
+**Observed at:** Exact time not captured; after 2026-07-22 16:36:25 and before 16:41:12 -05:00
+
+**Failure:** The first Mermaid CLI render could not start because the restricted npm environment used `only-if-cached` mode and had no cached response for `@mermaid-js/mermaid-cli`. The exact README source comparison passed, but no diagram image was produced.
+
+**Evidence:** npm returned `ENOTCACHED` for the registry request, reported that it could not write an npm log in the cache directory, and the wrapper raised `Mermaid CLI exited 1`.
+
+**Root cause:** The pinned renderer package was unavailable in the restricted npm cache, and network access was disabled for that attempt. This was a tooling-availability failure, not Mermaid syntax evidence.
+
+**Recovery:** Re-ran the unchanged Mermaid CLI 11.16.0 command with narrowly approved npm network access. It rendered the exact second README Mermaid block to a 58,766-byte PNG, which was visually inspected before all temporary artifacts were removed.
+
+**Next-time rule:** When a pinned documentation renderer fails only with `ENOTCACHED`, preserve the failure, retry the identical version and source with narrowly scoped network access, and do not modify the diagram unless the renderer or visual inspection reports an actual content problem.
+
+**Source:** [Product architecture and limitations engineering log](docs/engineering-log/2026-07-22-product-architecture-limitations.md)
+
+### L37. Never use a HOME variable variant for PowerShell scratch data
+
+**Observed at:** Failure time not captured; recovery began at 2026-07-22 16:45:26 -05:00
+
+**Failure:** A reminder-boundary audit stopped after its early file reads because it assigned Home-page source to `$home`. PowerShell variable names are case-insensitive, so `$home` collided with the read-only `$HOME` variable and raised `Cannot overwrite variable HOME because it is read-only or constant`.
+
+**Evidence:** The command emitted the reminder component and storage output, then terminated at the `$home=Get-Content web/src/app/page.tsx` assignment. The Home, Settings, and notification-reference checks after that assignment did not run.
+
+**Root cause:** A prohibited system-variable name was repurposed as a scratch variable despite the repository workflow rule to avoid every HOME variant.
+
+**Recovery:** Re-ran the incomplete portion with `$homePage`, completed the Home and Settings reads, and explicitly counted notification, push, service-worker, and calendar references.
+
+**Next-time rule:** Never declare `$HOME`, `$home`, or any case variant. Use task-specific names such as `$homePage`, and treat all output after a failed variable assignment as not executed.
+
+**Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)
+
+### L38. Do not repeat a known mojibake patch-anchor failure
+
+**Observed at:** Failure confirmed at 2026-07-22 16:46:59 -05:00
+
+**Failure:** The first combined copy-correction patch repeated L33 by using the terminal-rendered mojibake form of the README em dash as exact context. The patch tool rejected the complete patch before writing any application or documentation file.
+
+**Evidence:** `apply_patch` reported that it could not find the `Stay in touch` README lines. An immediate status and text search showed a clean working tree and all original product strings still present.
+
+**Root cause:** A large patch reused corrupted terminal text instead of the stable ASCII-only anchor mandated by L33.
+
+**Recovery:** Split application and README edits into smaller patches, anchored the README changes on nearby ASCII-only lines, and rechecked each result.
+
+**Next-time rule:** L33 is mandatory, not advisory. For any file containing non-ASCII punctuation, patch only the minimum ASCII line or stable heading unless the exact source bytes were read through a verified encoding path.
+
+**Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)
+
+### L39. Distinguish a restricted font fetch from a source build failure
+
+**Observed at:** 2026-07-22 16:52:56.623 -05:00 to 16:53:04.853 -05:00
+
+**Failure:** The first production build stopped while Next.js tried to fetch the configured Instrument Serif and Noto Sans TC stylesheets from Google Fonts.
+
+**Evidence:** `next build` reported connection failures for `fonts.googleapis.com` and named only the two `next/font` imports from `web/src/app/layout.tsx`. It did not report a TypeScript, application, or route error.
+
+**Root cause:** The restricted execution environment could not reach the external font host during build-time asset resolution.
+
+**Recovery:** Re-ran the identical `npm run build` command against unchanged source with narrowly approved network access. The second attempt completed compilation, TypeScript checking, page-data collection, and generation of all 17 static pages.
+
+**Next-time rule:** When a build fails only at an existing `next/font` network fetch, preserve the exact error, retry the unchanged build with narrowly scoped network access, and do not edit application code unless the network-enabled build exposes a source defect.
+
+**Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)
+
+### L40. Use a unique anchor when appending an ordered record
+
+**Observed at:** Failure confirmed at 2026-07-22 16:54:20.318 -05:00
+
+**Failure:** The patch that added L39 matched the first repeated `Source` line in `lessons.md`, so the new entry was inserted between L37 and L38 and broke ascending lesson order.
+
+**Evidence:** The immediate heading scan reported L37, L39, then L38 at lines 512, 528, and 544.
+
+**Root cause:** The patch used a non-unique link line as its insertion anchor and assumed the patcher would select the final occurrence.
+
+**Recovery:** Removed the misplaced block, reinserted it after the unique L38 prevention text, added this failure record, and reran the numeric-order validator.
+
+**Next-time rule:** Before appending to an ordered document, anchor on a unique final sentence or explicit end marker. Immediately validate both content and order; never assume a repeated context line selects the intended occurrence.
+
+**Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)
+
+### L41. Delimit PowerShell variables before adjacent punctuation
+
+**Observed at:** Exact time not captured; confirmed after 2026-07-22 16:54:20 and before 16:56:17 -05:00
+
+**Failure:** The first composite truth validator did not parse because an interpolated error message contained `$index:`. PowerShell interpreted the colon as part of a scoped variable reference.
+
+**Evidence:** PowerShell raised `Variable reference is not valid` at the lesson-order error string before any validation statement ran.
+
+**Root cause:** The script placed punctuation immediately after an unbraced variable inside a double-quoted string.
+
+**Recovery:** Replaced the interpolated message with PowerShell's `-f` format operator and reran the validator from the beginning.
+
+**Next-time rule:** In PowerShell diagnostics, prefer `-f` formatting or `${variable}` whenever punctuation follows a variable. A parser error means the entire composite validation is unexecuted.
+
+**Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)
+
+### L42. Keep validators independent of JSX line wrapping and shell-expression shortcuts
+
+**Observed at:** Exact time not captured; confirmed before 2026-07-22 16:56:17 -05:00
+
+**Failure:** The second composite validator emitted repeated errors because `if` was placed where PowerShell expected a command, and its exact full-sentence assertion for the readable-JSON copy failed because JSX split the sentence across a line break.
+
+**Evidence:** PowerShell repeatedly reported `if` as an unrecognized term, then named only `Settings warns readable JSON` as the failed truth assertion. Source inspection showed the intended sentence across two adjacent JSX lines.
+
+**Root cause:** The reporting loop relied on an invalid expression shortcut, while the content check was more sensitive to formatting than to meaning.
+
+**Recovery:** Replaced the shortcut with a normal `foreach` plus statement-level `if`, and checked two stable semantic fragments instead of one whitespace-sensitive sentence.
+
+**Next-time rule:** Write validator reporting as ordinary statements, and make copy assertions tolerant of source-only line wrapping while still requiring the important user-facing phrases.
+
+**Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)
+
+### L43. Validate the repository's actual numbering contract
+
+**Observed at:** Failure confirmed before 2026-07-22 16:56:53.332 -05:00
+
+**Failure:** The third validator required every lesson number to be contiguous and therefore failed at the historical jump from L21 to L26 even though the headings remained strictly increasing and the current L37-L40 additions were correctly ordered.
+
+**Evidence:** All 13 product truth checks passed, then the script reported `expected L22, found L26`. A full heading scan confirmed that L22-L25 were historically absent rather than misplaced by this change.
+
+**Root cause:** The validator strengthened the documented requirement from unique, increasing numbers to a contiguous sequence without checking the existing file convention.
+
+**Recovery:** Changed the contract to unique lesson numbers, globally increasing order, and an exact current tail sequence. The replacement validator was rerun against the whole file.
+
+**Next-time rule:** Derive structural validators from both the written requirement and the existing baseline. Do not introduce a stronger invariant unless the repository already satisfies it or the task explicitly requires migration.
+
+**Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)
+
+### L44. Retry only the explicit Git mutation after a sandbox index-lock denial
+
+**Observed at:** Exact time not captured; recovery confirmed by 2026-07-22 16:58:59.249 -05:00
+
+**Failure:** The first explicit nine-file staging command could not create `.git/index.lock` and exited with permission denied.
+
+**Evidence:** Git returned `fatal: Unable to create .../.git/index.lock: Permission denied` before the staged-path and status checks ran. The repository had not been partially staged.
+
+**Root cause:** The default workspace sandbox allowed source writes but denied this Git metadata mutation.
+
+**Recovery:** Re-ran only the same path-limited `git add --` operation with approved Git-write permission, then passed `git diff --cached --check` and confirmed exactly the intended nine staged paths.
+
+**Next-time rule:** When a sandbox denies `.git/index.lock`, verify that staging did not partially occur, request permission for the same path-limited Git mutation, and never broaden the file list or use a blanket add.
+
+**Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)

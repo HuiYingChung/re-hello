@@ -462,8 +462,8 @@ function RememberInner() {
               When do you want to think of {savedPersonName} again?
             </h1>
             <p className="mt-2 text-pretty text-sm leading-6 text-[var(--muted)]">
-              We&apos;ll quietly nudge you so they don&apos;t fade away.
-              No pressure - pick a time, or skip.
+              Your reminder will be waiting here next time you open Rehello.
+              We won&apos;t send a push notification. Pick a time, or skip.
             </p>
           </div>
 

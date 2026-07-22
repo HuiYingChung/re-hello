@@ -172,9 +172,10 @@ export default function SettingsPage() {
             Your data
           </h3>
           <p className="text-xs leading-6 text-[var(--muted)]">
-            Your saved people and moments live only on this device. Quick
+            Your saved people and moments live only in this browser. Quick
             Remember sends only the note you submit to OpenAI to shape your
-            card. Save a backup so you don&apos;t lose it.
+            card. Save a backup so you don&apos;t lose it. Backups are readable
+            JSON files, so keep yours somewhere private.
           </p>
 
           <div className="space-y-2">
@@ -300,8 +301,9 @@ export default function SettingsPage() {
             Version 0.1 · Made with care
           </p>
           <p className="mx-auto max-w-[260px] pt-2 text-xs leading-6 text-[var(--muted)]">
-            Your saved people stay on this device. Quick Remember sends only
-            the note you submit to OpenAI. No accounts or tracking.
+            No accounts. Your people and moments stay in this browser. Only a
+            Quick Remember note you choose to shape is sent to OpenAI. Rehello
+            also includes Vercel Analytics.
           </p>
         </section>
       </div>

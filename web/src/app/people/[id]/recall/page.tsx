@@ -133,7 +133,7 @@ function RecallFlow() {
 
         {reminderSet && (
           <p className="text-center text-xs text-[var(--accent-strong)]">
-            Set. We&apos;ll quietly nudge you.
+            Set. It&apos;ll be waiting in Rehello &mdash; no push notification.
           </p>
         )}
 

@@ -274,7 +274,8 @@ export default function PersonDetailPage() {
             </h3>
             <p className="mt-1 text-pretty text-xs leading-6 text-[var(--muted)]">
               Set a quiet nudge for when you want to think of {person.name}{" "}
-              again. No pressure - just a safety net so they don&apos;t fade away.
+              again. It&apos;ll be waiting here in Rehello &mdash; no push
+              notifications, no pressure.
             </p>
           </div>
 
