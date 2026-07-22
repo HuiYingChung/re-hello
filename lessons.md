@@ -382,3 +382,19 @@ These items remain open and must not be described as fixed:
 **Next-time rule:** A repository-wide relative-link validator must explicitly handle root-level documents. Treat a validator crash as no result, never as evidence that links passed or failed.
 
 **Source:** [Rehello favicon repair engineering log](docs/engineering-log/2026-07-22-rehello-favicon-repair.md)
+
+### L29. Classify exact-commit font-fetch failures before changing application code
+
+**Observed at:** 2026-07-22 15:37:27-15:40:57 -05:00
+
+**Failure:** The first production build against exact feature commit `755f59677f5e09c8688be87e5c84f1cf4adb4687` failed because the restricted environment could not connect to Google Fonts for the existing Instrument Serif and Noto Sans TC imports.
+
+**Evidence:** The failed build reported only font resource connection errors from `next/font`. The same commit built successfully with network access from 15:40:44 through 15:40:57, including compilation, TypeScript, page-data collection, and all 17 routes.
+
+**Root cause:** Network access was unavailable to the first build process. No favicon, TypeScript, route, or application-source defect was reported.
+
+**Recovery:** Re-ran the unchanged exact commit with the network access required by the existing remote-font configuration.
+
+**Next-time rule:** When an exact-commit build fails only on existing Google Font downloads, preserve the failure output, confirm the source SHA is unchanged, and retry with network access before touching application code. Keep the restricted-network failure and the successful retry as separate results.
+
+**Source:** [Rehello favicon repair engineering log](docs/engineering-log/2026-07-22-rehello-favicon-repair.md)

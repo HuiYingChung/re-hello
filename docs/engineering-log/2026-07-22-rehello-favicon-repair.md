@@ -183,3 +183,13 @@ The accepted image was visually inspected at original screenshot resolution. The
 3. Add exact commit-verification evidence in a documentation-only follow-up commit.
 4. Push only when requested.
 5. After merge and deployment, inspect the production head and icon responses, then refresh browser cache if a stale tab icon remains.
+
+## Subsequent committed state
+
+- At 2026-07-22 15:37:04 -05:00, the implementation, ADR-0005, documentation index update, initial lessons, and initial version of this log were committed locally as `755f59677f5e09c8688be87e5c84f1cf4adb4687` (`fix: restore Rehello favicon`).
+- ESLint ran against exact feature commit `755f59677f5e09c8688be87e5c84f1cf4adb4687` from 2026-07-22 15:37:16 through 15:37:22 -05:00 and passed with exit 0.
+- The first exact-commit production build ran from 15:37:27 through 15:37:34 and failed because the restricted environment could not connect to Google Fonts for the existing Instrument Serif and Noto Sans TC imports. It reported no favicon, route, TypeScript, or other application-source error.
+- The unchanged exact feature commit was rebuilt with network access from 15:40:44 through 15:40:57. Compilation, TypeScript, page-data collection, and generation of all 17 routes passed with exit 0.
+- The initial restricted-network failure and successful retry are separately recorded in L29 of `lessons.md`.
+- This subsequent-state addition changes documentation only. It does not change the source that passed exact-commit lint and build or the source used by the earlier local browser verification.
+- The branch remains local and has not been pushed, merged, deployed, verified by GitHub Actions, or smoke-tested at the public production URL.

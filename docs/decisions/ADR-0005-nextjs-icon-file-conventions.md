@@ -176,3 +176,11 @@ Review this decision if:
 ## Amendment policy
 
 Future icon ownership changes should append a dated amendment or create a superseding ADR. Do not rewrite this record to imply that deployment, production cache behavior, or device testing was known on 2026-07-22.
+
+## Amendment: Local feature commit verified on 2026-07-22
+
+The favicon implementation and initial records were committed locally as `755f59677f5e09c8688be87e5c84f1cf4adb4687` at 2026-07-22 15:37:04 -05:00.
+
+ESLint passed against that exact commit from 15:37:16 through 15:37:22. The first production-build attempt failed from 15:37:27 through 15:37:34 because the restricted environment could not fetch the two existing Google Fonts. The unchanged commit was retried with network access and passed from 15:40:44 through 15:40:57, including compilation, TypeScript, page-data collection, and all 17 routes.
+
+This resolves the original local-commit and exact-commit local-verification items. It does not resolve push, pull request, exact-head GitHub Actions, Vercel deployment, production smoke testing, browser-cache behavior, physical-device testing, or installed-PWA verification.
