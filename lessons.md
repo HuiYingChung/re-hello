@@ -444,3 +444,19 @@ These items remain open and must not be described as fixed:
 **Next-time rule:** Placeholder validation must target placeholder syntax and unresolved fields, not ordinary words inside dated historical evidence. Inspect matches before editing accurate records to satisfy an overbroad regex.
 
 **Source:** [README user-flow engineering log](docs/engineering-log/2026-07-22-readme-user-flow.md)
+
+### L33. Use stable source text as a patch anchor when terminal output is mojibake
+
+**Observed at:** 2026-07-22 16:28:42 -05:00
+
+**Failure:** The first combined documentation patch did not apply because its README context copied the terminal-rendered mojibake sequence `â€”` instead of matching the UTF-8 em dash stored in the file. The patch tool rejected the complete patch, so no partial edits were written.
+
+**Evidence:** The patch reported `Failed to find expected lines` around the sentence ending in `quiet, warm, never nagging`. A subsequent status check was clean, and neither proposed new record file existed.
+
+**Root cause:** The PowerShell output encoding distorted a non-ASCII character, and that rendered text was used as an exact patch anchor.
+
+**Recovery:** Re-anchored the README insertion on the unique ASCII heading `## Design principles`, split the large patch into smaller operations, and rechecked repository state before continuing.
+
+**Next-time rule:** When terminal output displays suspicious encoding, never reuse the corrupted characters as exact patch context. Anchor on nearby stable ASCII text and verify that a rejected multi-file patch left no partial changes.
+
+**Source:** [Mobile-first rationale engineering log](docs/engineering-log/2026-07-22-mobile-first-rationale.md)

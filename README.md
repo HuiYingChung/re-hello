@@ -39,6 +39,31 @@ left on your desk — quiet, warm, never nagging.
 
 ---
 
+## Why mobile first
+
+Rehello deliberately ships as one phone-sized, touch-first experience instead
+of a separate desktop dashboard. The useful moments rarely happen while someone
+is sitting at a desk:
+
+- **Right after meeting someone**, when a few messy details need to be captured
+  before they fade.
+- **On the way to the next event**, when a short recall card is more useful than
+  a large contact database.
+- **In the moment someone thinks "I should reach out"**, when setting a gentle
+  reminder should take only a few taps.
+
+In those situations, the phone is already with the user and a home-screen PWA
+can open without changing context. A desktop-first layout would optimize for
+managing records later; Rehello optimizes for remembering and acting while the
+social context is still present.
+
+The web app still opens in a desktop browser, but it intentionally keeps the
+same narrow phone surface. A separate desktop information architecture is out
+of scope for the current MVP so the interaction, copy, and testing can stay
+focused on the real usage environment.
+
+---
+
 ## Design principles
 
 1. **Low blank-page anxiety.** Every input has a placeholder, an
