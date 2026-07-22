@@ -17,11 +17,11 @@ const instrumentSerif = Instrument_Serif({
 export const metadata: Metadata = {
   metadataBase: new URL("https://re-hello.vercel.app"),
   title: {
-    default: "Rehello | A gentle place for the people you meet",
+    default: "Rehello | GPT-5.6 for easier next conversations",
     template: "%s | Rehello",
   },
   description:
-    "A warm social memory app for remembering people, refreshing recall before you see them again, and staying in touch without the pressure.",
+    "GPT-5.6 turns a messy memory into a thoughtful recall card so the next conversation feels easier.",
   applicationName: "Rehello",
   keywords: [
     "social memory app",
@@ -52,23 +52,23 @@ export const metadata: Metadata = {
     type: "website",
     url: "/",
     siteName: "Rehello",
-    title: "Rehello | A gentle place for the people you meet",
+    title: "Rehello | GPT-5.6 for easier next conversations",
     description:
-      "Remember people, refresh recall before you see them again, and stay in touch without the pressure.",
+      "Turn a messy memory into a thoughtful recall card: who they are, what mattered, and what to ask next.",
     images: [
       {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Rehello social preview",
+        alt: "Rehello uses GPT-5.6 to turn messy memories into recall cards",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Rehello | A gentle place for the people you meet",
+    title: "Rehello | GPT-5.6 for easier next conversations",
     description:
-      "Remember people, refresh recall before you see them again, and stay in touch without the pressure.",
+      "Turn a messy memory into a thoughtful recall card: who they are, what mattered, and what to ask next.",
     images: ["/twitter-image"],
   },
   appleWebApp: {

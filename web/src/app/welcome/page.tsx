@@ -27,7 +27,7 @@ const slides: Slide[] = [
   {
     icon: Sprout,
     title: "No pressure",
-    body: "You don't have to write a lot. One sentence is enough. You can always add more later.",
+    body: "Drop in the messy details. GPT-5.6 shapes them into something useful for the next conversation.",
   },
 ];
 
@@ -62,8 +62,8 @@ function WelcomeInner() {
         <div className="phone-status">
           <div className="phone-notch" />
         </div>
-        <div className="phone-scroll" style={{ height: "calc(820px - 28px)" }}>
-          <div className="flex min-h-full flex-col justify-between gap-8 px-6 pb-10 pt-16" style={{ minHeight: "calc(820px - 28px)" }}>
+        <div className="phone-scroll welcome-scroll">
+          <div className="flex min-h-full flex-col justify-between gap-8 px-6 pb-10 pt-16">
             <div className="flex flex-1 flex-col items-center justify-center gap-6 text-center">
               <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent-strong)]">
                 <Icon as={slide.icon} size={40} />
@@ -109,13 +109,13 @@ function WelcomeInner() {
                     onClick={() => start(false)}
                     className="primary-button w-full justify-center"
                   >
-                    {isReplay ? "Back home" : "Remember my first person"}
+                    {isReplay ? "Back home" : "Shape my first memory"}
                   </button>
                   <button
                     onClick={() => start(true)}
-                    className="block w-full text-center text-xs text-[var(--muted)]"
+                    className="secondary-button w-full justify-center"
                   >
-                    {isReplay ? "Or load sample data" : "Or explore with sample data"}
+                    {isReplay ? "Load sample data" : "Explore a ready-made demo"}
                   </button>
                 </>
               )}
