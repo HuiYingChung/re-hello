@@ -338,3 +338,47 @@ These items remain open and must not be described as fixed:
 
 **Source:** Relative link to the detailed engineering log or decision record.
 ```
+
+### L26. Do not mix manual icon metadata with Next.js icon file conventions
+
+**Observed at:** 2026-07-22 15:25:05-15:27:48 -05:00
+
+**Failure:** Two local browser checks found that `app/icon.svg` was not emitted in the document head while any `metadata.icons` configuration remained. Removing only the manual favicon, shortcut, and SVG entries did not make the file-convention SVG reappear; even an `icons` object containing only the Apple icon still suppressed it.
+
+**Root cause:** In this Next.js 16.2.2 build, the explicit `metadata.icons` value acted as the icon metadata source instead of being merged with all colocated icon file conventions.
+
+**Recovery:** The existing Apple PNG was copied byte-for-byte to `app/apple-icon.png`, and the explicit `metadata.icons` object was removed. The final design uses app file conventions for `favicon.ico`, `icon.svg`, and `apple-icon.png`, while the web manifest continues to own the PWA PNG declarations.
+
+**Next-time rule:** Choose one source of truth for each icon surface. When using Next.js app icon file conventions, put favicon, SVG icon, and Apple icon in `app/` and do not add a parallel `metadata.icons` object. Verify the actual emitted head instead of assuming manual and file-based metadata will merge.
+
+**Source:** Local favicon browser verification; the favicon engineering log records the complete sequence and final output.
+
+### L27. Corroborate native image-viewer screenshots before declaring an asset broken
+
+**Observed at:** 2026-07-22 15:29:31-15:30:39 -05:00
+
+**Failure:** A direct-browser screenshot of the rebuilt ICO appeared completely black even though the favicon response was HTTP 200 with the expected MIME type and byte length. Treating that single capture as authoritative would have incorrectly rejected a valid asset.
+
+**Evidence:** The black capture was followed by a fresh browser session using a cache-busting query. The browser reported one complete image with natural dimensions 256 by 256, and the second screenshot visibly showed the cream Rehello tile with the copper `R` and dot.
+
+**Root cause:** The exact screenshot-rendering cause is unknown. The observed boundary is a transient native image-viewer or capture artifact, not an ICO byte, decode, or route failure.
+
+**Recovery:** Closed the first browser and server, opened a fresh session and port, added a cache-busting query, waited two seconds, checked the image element's completion and natural dimensions, and visually inspected a second screenshot.
+
+**Next-time rule:** Never fail an image asset on one native image-viewer screenshot alone. Corroborate the response status, content type, byte length, decoder output, DOM natural dimensions, and a fresh-session visual capture before changing the asset.
+
+**Source:** [Rehello favicon repair engineering log](docs/engineering-log/2026-07-22-rehello-favicon-repair.md)
+
+### L28. Resolve repository-root documents before joining relative links
+
+**Observed at:** Exact time not captured; after 2026-07-22 15:34:16 and before 15:35:06 -05:00
+
+**Failure:** The first local Markdown-link validation stopped with `Join-Path: Cannot bind argument to parameter 'Path' because it is an empty string` when it reached root-level `lessons.md`. No complete link result was produced.
+
+**Root cause:** PowerShell `Split-Path lessons.md -Parent` returns an empty string for a repository-root file, and the validator passed that empty value directly to `Join-Path`.
+
+**Recovery:** Use the resolved repository root when a document has no parent component, then rerun the complete relative-link scan.
+
+**Next-time rule:** A repository-wide relative-link validator must explicitly handle root-level documents. Treat a validator crash as no result, never as evidence that links passed or failed.
+
+**Source:** [Rehello favicon repair engineering log](docs/engineering-log/2026-07-22-rehello-favicon-repair.md)
