@@ -93,13 +93,26 @@ Documentation validation completed at 2026-07-22 16:31:09 -05:00:
 - application lint, test, and build: not run because no executable source or configuration changed;
 - paid OpenAI request: not run.
 
-Exact staged-path and committed-state evidence remains pending until the reviewed files are staged and committed.
+Exact staged-path validation passed: only `README.md`, `docs/README.md`, `lessons.md`, ADR-0006, and this engineering log were staged. Staged `git diff --check` also passed.
 
 ## Honest state at record creation
 
 - The README, ADR, index, lesson, and this record exist only in the local working tree.
 - Documentation validation has not yet been run.
 - No commit, push, pull request, GitHub Actions run, Vercel deployment, or production README update exists for this addition.
+
+## Committed feature state
+
+At 2026-07-22 16:32:25 -05:00:
+
+- feature commit: `fd296daf3e00f79db6a9b68fe1f881376e40c3ef` (`docs: explain Rehello mobile-first focus`);
+- committed scope: the five explicitly staged documentation paths, 299 insertions, no application files;
+- exact-commit README rationale check: pass;
+- exact-commit ADR accuracy-boundary check: pass;
+- working tree immediately after the feature commit: clean;
+- push, pull request, CI, deployment, and production README update: not performed.
+
+This verification update is a documentation-only follow-up and cannot contain its own eventual commit hash. That final local commit is reported in the handoff.
 
 ## Collaboration attribution
 
