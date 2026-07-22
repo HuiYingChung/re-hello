@@ -17,9 +17,11 @@ This directory separates current engineering evidence from historical product ma
 - [ADR-0001: Add GPT-5.6 Quick Remember Without Replacing the Existing Flow](decisions/ADR-0001-gpt56-quick-remember.md)
 - [ADR-0002: Establish a Secret-Free GitHub Actions CI Baseline](decisions/ADR-0002-github-actions-ci-baseline.md)
 - [ADR-0003: Add User-Authored Entry Prompts to Quick Remember](decisions/ADR-0003-quick-remember-entry-prompts.md)
+- [ADR-0004: Make the GPT-5.6 Memory Transformation the Launch Story](decisions/ADR-0004-gpt56-launch-framing.md)
 - [Engineering Log: GPT-5.6 Quick Remember](engineering-log/2026-07-22-gpt56-quick-remember.md)
 - [Engineering Log: GitHub Actions CI Baseline](engineering-log/2026-07-22-github-actions-ci-baseline.md)
 - [Engineering Log: Quick Remember Entry Prompts](engineering-log/2026-07-22-quick-remember-entry-prompts.md)
+- [Engineering Log: GPT-5.6 Launch Framing and Demo Entry](engineering-log/2026-07-22-gpt56-launch-framing.md)
 - [MVP Specification](product/mvp-spec.md)
 - [GPT Prototype Feedback](research/gpt-feedback.md)
 

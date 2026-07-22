@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Rehello | A gentle place for the people you meet",
+    name: "Rehello | GPT-5.6 for easier next conversations",
     short_name: "Rehello",
     description:
-      "A warm social memory app for remembering people, refreshing recall before you see them again, and staying in touch without the pressure.",
+      "GPT-5.6 turns a messy memory into a thoughtful recall card so the next conversation feels easier.",
     start_url: "/",
     display: "standalone",
     orientation: "portrait",

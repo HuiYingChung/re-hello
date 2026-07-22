@@ -45,7 +45,7 @@ export default function OpenGraphImage() {
               lineHeight: 1.02,
             }}
           >
-            A gentle place for the people you meet.
+            GPT-5.6 turns messy memories into easier next conversations.
           </div>
           <div
             style={{
@@ -56,7 +56,7 @@ export default function OpenGraphImage() {
               maxWidth: 760,
             }}
           >
-            Remember people, refresh recall before you see them again, and stay in touch without the pressure.
+            Drop in a rough note. Rehello shapes a recall card with who they are, what mattered, and what to ask next.
           </div>
         </div>
 
@@ -69,9 +69,9 @@ export default function OpenGraphImage() {
             color: "#b16e46",
           }}
         >
+          <span>Powered by GPT-5.6</span>
           <span>Remember</span>
           <span>Recall</span>
-          <span>Stay in touch</span>
         </div>
       </div>
     ),

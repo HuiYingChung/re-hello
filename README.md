@@ -1,16 +1,17 @@
 # Rehello
 
-> A gentle place for the people you meet.
+> GPT-5.6 turns messy memories into easier next conversations.
 
 Rehello is a personal social memory web app for introverts and the
-socially anxious. It helps you capture someone right after you meet
-them, refresh your memory before you see them again, and stay in
-touch — without the pressure of a CRM.
+socially anxious. At its heart is a GPT-5.6 transformation: drop in
+the messy fragments you remember after meeting someone, and Quick
+Remember shapes them into a recall card with who they are, what
+mattered, and what you could ask next.
 
-This repo is the working portfolio build: a local-first Next.js app
-with no accounts and no tracking. Saved people and moments stay in
-the browser; one server-side route uses GPT-5.6 to shape an optional
-Quick Remember note into a recall card.
+The rest of Rehello stays deliberately local-first. There are no
+accounts, and saved people, moments, and reminders stay in the
+browser. Only a Quick Remember note that the user explicitly submits
+is sent through the server-side OpenAI route for shaping.
 
 ---
 
@@ -79,7 +80,7 @@ left on your desk — quiet, warm, never nagging.
 - **lucide-react** for icons
 - **@dnd-kit** for drag-to-reorder
 - **localStorage** for people, encounters, and reminders
-- **OpenAI Responses API** with GPT-5.6 Terra for optional Quick Remember
+- **OpenAI Responses API** with GPT-5.6 Terra for the Quick Remember core
 
 People, encounters, and reminders still persist in `localStorage`.
 Quick Remember sends only the note a user explicitly submits to the
@@ -104,10 +105,10 @@ npm run dev
 To use Quick Remember locally, copy `.env.example` to `.env.local`
 and set `OPENAI_API_KEY`. Never commit `.env.local`.
 
-Open <http://localhost:3000>. On first load you can choose to seed
-sample data from Settings — it creates five people with
-intentionally overlapping conversation themes so the topic miner
-in Prep has something interesting to surface.
+Open <http://localhost:3000>. On first load, advance to the final
+Welcome screen and choose **Explore a ready-made demo** to seed five
+sample people with intentionally overlapping conversation themes so
+Prep has something interesting to surface.
 
 ```bash
 npm run build   # production build
