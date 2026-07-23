@@ -83,6 +83,18 @@ Before changing code or publication state:
 | L64 | The first two `.next` cleanup attempts failed because surviving Next child processes still held Turbopack files. | Stop every command-line-confirmed repo Next child before deleting the validated untracked cache path. |
 | L65 | The final status probe repeated the invalid direct pipe after a PowerShell `foreach` statement. | Always assign `foreach` output to a variable before piping it to a formatter. |
 | L66 | A combined prerequisite read ended nonzero because its guessed Next documentation glob matched no files. | List the installed documentation tree first and handle an expected zero-match search explicitly. |
+| L67 | Repeated mobile-width browser attempts targeted expired or lock-holding Next dev children and produced no page evidence. | Clear only command-line-confirmed repo dev children, then require HTTP 200 immediately before a browser matrix with enough server lifetime for approvals. |
+| L68 | Long Playwright CLI evaluation expressions were split by Windows native argument handling, while npm also intermittently returned `ENOTCACHED`. | Prove one short CLI expression, then move a long multi-route measurement into one workspace-owned Playwright Core program. |
+| L69 | The first direct Playwright Core WebKit launch failed with sandbox `spawn EPERM`. | Retry only the exact browser-launch command with narrow execution approval and treat the denied launch as zero application evidence. |
+| L70 | The first direct harness assumed an exact URL wait and later assumed every shell route had `.screen-content` and bottom navigation. | Poll observable route state and make route-specific shell regions optional while keeping shared-boundary assertions mandatory. |
+| L71 | The first repo-process command-line inspection was denied by the default sandbox. | After read access is denied, request narrow read-only process inspection before stopping any exact repo-owned PID. |
+| L72 | The Chromium mobile matrix could not launch because Playwright's bundled Chromium executable was absent. | Check for an installed system Chrome and reuse it with the same mobile descriptor before downloading another browser runtime. |
+| L73 | Post-change lint scanned the temporary Playwright Core CommonJS script and failed on `no-require-imports`. | Remove ignored browser scripts and screenshots before running repository lint. |
+| L74 | A parallel CSS-contract and lint wrapper returned only the lint failure, losing the sibling CSS result. | Run final gates separately or use an all-settled collector that always prints every result. |
+| L75 | The first production CSS inspection guessed the obsolete `.next/static/css` directory. | Enumerate the built `.next/static` tree before selecting CSS files for contract checks. |
+| L76 | The first L73-L75 detail patch reused a repeated source line and inserted the blocks before L52. | Append ordered records only after a unique final-entry sentence and validate heading order immediately. |
+| L77 | Windows CLI argument splitting created an unexpected untracked help-output file at the web root. | After any native-argument failure, inspect the complete untracked-file set, not only expected browser artifact directories. |
+| L78 | A final PowerShell status validator used `-like '??*'` and misclassified every modified line as untracked. | Use `StartsWith('?? ')` or escape wildcard metacharacters when parsing porcelain status. |
 
 ## Detailed lessons
 
@@ -1005,3 +1017,195 @@ These items remain open and must not be described as fixed:
 **Next-time rule:** After dependency upgrades or branch merges, enumerate the installed documentation tree before applying a filename filter. If a discovery search may legitimately find nothing, capture that result explicitly instead of letting it invalidate a successful prerequisite read.
 
 **Source:** Current merge cleanup; no separate engineering log was created.
+
+### L67. Clear repo dev children before starting a browser lifecycle
+
+**Observed at:** Exact times not captured; during the physical right-edge follow-up on 2026-07-22.
+
+**Failure:** Several verification launches produced no page evidence because a prior Next dev child still owned the repository lock or because the managed server lifetime expired before the approved browser command began. The first port-3190 launch reported existing PID 5380 on port 3184; a later port-3191 launch reported PID 19732 on port 3190; two WebKit navigations timed out after the corresponding managed server had ended. One readiness probe also printed a zero-valued result and exited 0 after `Invoke-WebRequest` had already reported that it could not connect.
+
+**Evidence:** Next printed `Another next dev server is already running` with the exact PIDs and repository directory. The expired managed cells returned exit 124 at 604 and 184 seconds, and Playwright returned 30-second `page.goto` timeouts. The misleading readiness composite included `Unable to connect to the remote server` despite its final exit code 0.
+
+**Root cause:** The workflow checked only the candidate port, not the repository-wide Next dev lock and surviving child tree. Approval latency also consumed server lifetimes that were too short for the planned matrix, and the first readiness probe did not throw after its HTTP failure.
+
+**Recovery:** Inspected command lines, stopped only confirmed `next dev` children, preserved the unrelated repo `next start -p 3105` process, started port 3193 with a ten-minute lifecycle, and required an actual HTTP 200 immediately before each browser run. Both final engine matrices completed inside that lifecycle.
+
+**Next-time rule:** Before starting Next dev, check for command-line-confirmed repo dev children as well as the requested port. Give the managed server enough time for approval latency, make readiness failure throw, and recheck HTTP 200 immediately before browser launch.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L68. Do not send a long Windows measurement through CLI argument parsing
+
+**Observed at:** Exact times not captured; during the physical right-edge follow-up on 2026-07-22.
+
+**Failure:** The Playwright CLI intermittently returned npm `ENOTCACHED` while reusing an existing session. After an approved retry, the long evaluation was split into too many native arguments. A short `() => document.title` probe passed through `npx.cmd`, but the full expression again failed as either `ENOTCACHED` or `too many arguments`.
+
+**Evidence:** npm named `@playwright/cli` and cache mode `only-if-cached`. The CLI then reported `expected 2, received 6` and later `expected 2, received 4`. None of those full-expression attempts returned DOM geometry.
+
+**Root cause:** Package resolution and PowerShell-to-native argument reconstruction were both on the critical path for a large expression containing many spaces and punctuation.
+
+**Recovery:** Closed the CLI session, located the already installed Playwright Core package through a focused cache-root check, and moved the full measurement into one ignored workspace script using one browser process per engine.
+
+**Next-time rule:** Use the CLI for the device gate and short interaction probes. Once a long expression or multi-route matrix is required on Windows, use one workspace-owned Playwright Core program instead of retrying native argument escaping.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L69. Escalate only the denied browser launch
+
+**Observed at:** Exact time not captured; during the first direct WebKit baseline on 2026-07-22.
+
+**Failure:** The workspace-owned Playwright Core program failed before navigation because the sandbox denied WebKit process creation with `spawn EPERM`.
+
+**Evidence:** The launch log named the installed WebKit executable and failed at `browserType.launch`; no page request, screenshot, or geometry result existed.
+
+**Root cause:** Browser process creation required execution authority outside the default workspace sandbox.
+
+**Recovery:** Re-ran only the exact Node verification program with narrow approval. WebKit launched successfully and subsequent device and page assertions supplied the application evidence.
+
+**Next-time rule:** Treat `spawn EPERM` at `browserType.launch` as a tool boundary and zero application evidence. Request approval for the exact verification executable instead of changing product code or broadening unrelated shell access.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L70. Model route-specific shell regions in the harness
+
+**Observed at:** Exact times not captured; during the cross-mobile geometry matrix on 2026-07-22.
+
+**Failure:** The first direct program stopped on a 30-second exact `waitForURL` after the demo action. After navigation recovery, the first complete WebKit route matrix reached `/welcome` and then threw while reading `.screen-content.left`, because Welcome intentionally uses `.welcome-scroll` and has no bottom navigation.
+
+**Evidence:** Playwright reported the exact URL wait timeout. The later stack pointed to the unconditional content assertion after the matrix had navigated to `/welcome`; source inspection confirmed Welcome shares `.app-stage`, `.phone-shell`, `.phone-status`, and `.phone-scroll` but not `.screen-content` or `.bottom-nav`.
+
+**Root cause:** The harness encoded two stronger assumptions than the product contract: an exact navigation primitive instead of observable route state, and identical inner regions for every shared-shell route.
+
+**Recovery:** Replaced the exact URL wait with bounded `location.pathname` polling. Kept document, shell, scroller, grid-column, descendant-bound, and horizontal-scroll assertions mandatory on every route, while applying content and navigation assertions only when those regions exist. Both final matrices then passed `/welcome` and the seven main routes.
+
+**Next-time rule:** Assert the shared contract at the shared boundary. Poll observable state after client navigation, and treat intentionally route-specific descendants as optional without weakening document, shell, or scroller bounds.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L71. Inspect command lines narrowly after process access is denied
+
+**Observed at:** Exact time not captured; during stale Next child cleanup on 2026-07-22.
+
+**Failure:** The first `Get-CimInstance Win32_Process` call returned `Access denied`, so it could not distinguish repo dev children from another repo-owned production server.
+
+**Evidence:** The default-sandbox call returned HRESULT `0x80041003` and no process list.
+
+**Root cause:** Windows process command-line inspection was outside the default sandbox's read authority.
+
+**Recovery:** Requested narrow read-only approval for Node command lines filtered to the exact repository. The result identified the dev tree on port 3192 separately from `next start -p 3105`; only the dev tree was stopped.
+
+**Next-time rule:** If command-line inspection is denied, do not guess from process names or stop broad Node groups. Request the narrow read-only inspection, filter to the repository, and mutate only the exact confirmed PIDs.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L72. Reuse installed Chrome when bundled Chromium is absent
+
+**Observed at:** Exact time not captured; during the Android mobile-width matrix on 2026-07-22.
+
+**Failure:** Playwright's first Chromium launch stopped before navigation because `chromium_headless_shell-1232` was not installed.
+
+**Evidence:** Playwright named the missing executable and suggested a browser download. No Rehello request or layout measurement occurred.
+
+**Root cause:** The Playwright Core package and WebKit runtime existed, but its separately managed Chromium runtime did not.
+
+**Recovery:** Verified that system Google Chrome existed, launched it through Playwright's `chrome` channel, and applied the Pixel 7 viewport, screen, DPR, touch, mobile, and user-agent descriptor. The full Android/Chromium matrix then passed without downloading a second browser.
+
+**Next-time rule:** Prove the requested engine binary before the matrix. If bundled Chromium is absent, prefer an already installed stable Chrome channel with an explicit mobile device gate before authorizing a new runtime download.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L73. Remove temporary browser programs before lint
+
+**Observed at:** Exact time not captured; after the successful WebKit and Chrome matrices on 2026-07-22.
+
+**Failure:** The first post-change `npm run lint` failed only on `web/output/playwright/measure-mobile-shell.cjs` with `@typescript-eslint/no-require-imports`.
+
+**Evidence:** ESLint reported one error at line 7 of the temporary CommonJS verification program and no application-source error.
+
+**Root cause:** The disposable browser program lived under the lint search root and had not yet been removed after evidence capture.
+
+**Recovery:** Verified that `web/output/playwright` and `web/.playwright-cli` contained no tracked files, removed the exact generated directories, and reran lint successfully.
+
+**Next-time rule:** Capture and inspect browser evidence, then remove ignored or disposable browser programs before repository lint. Do not change lint rules or product module style to accommodate a temporary harness.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L74. Preserve every result from parallel final gates
+
+**Observed at:** Exact time not captured; during the first post-change CSS-contract and lint run on 2026-07-22.
+
+**Failure:** The JavaScript orchestration used `Promise.all`; when lint returned nonzero, the tool surfaced only lint output and did not print the sibling CSS-contract result.
+
+**Evidence:** The combined call contained only the ESLint error even though both nested commands had been launched.
+
+**Root cause:** The orchestration repeated L18 by using fail-fast aggregation for independent final gates.
+
+**Recovery:** Removed the temporary harness and reran the CSS contract and lint as standalone commands. Both produced their own passing output.
+
+**Next-time rule:** Final verification outcomes must be independently observable. Run them separately or use an all-settled collector that emits every exit code and output before deciding overall status.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L75. Discover the production CSS output directory before checking it
+
+**Observed at:** Exact time not captured; immediately after the successful production build on 2026-07-22.
+
+**Failure:** The first built-CSS contract check targeted `.next/static/css`, which did not exist, and therefore falsely reported that the bounded grid column was missing.
+
+**Evidence:** Ripgrep returned an OS error for the nonexistent directory. Listing `.next/static` then showed `chunks`, the build ID directory, and `media`; six CSS files existed across production and development chunk trees.
+
+**Root cause:** The check reused an older Next.js output-path assumption instead of applying L66 to the current 16.2.2 build artifact.
+
+**Recovery:** Enumerated the tree, selected the two production CSS files under `.next/static/chunks`, joined their content, and confirmed the grid-column, `100dvw`, scroller-width, and screen-content-width markers.
+
+**Next-time rule:** After every Next.js build, enumerate `.next/static` and derive the CSS file set from actual output. Never make a missing guessed directory double as a failed CSS-content assertion.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L76. Anchor ordered append-only records on unique tail text
+
+**Observed at:** Exact time not captured; while recording L73-L75 on 2026-07-22.
+
+**Failure:** The first detail patch matched a repeated mobile-log `Source` line and inserted L73-L75 between L51 and L52 instead of after L72.
+
+**Evidence:** The immediate heading scan showed L73-L75 near line 778, followed by L52, while the ledger remained ordered.
+
+**Root cause:** The patch repeated the non-unique-anchor mistake already documented by L40.
+
+**Recovery:** Removed the misplaced blocks, re-anchored them on L72's unique final prevention sentence, added this correction, and reran the heading-order scan.
+
+**Next-time rule:** For append-only ordered records, use the unique title or prevention sentence of the actual final entry, then scan all affected heading numbers immediately. A generic repeated source link is never a valid tail anchor.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L77. Scan the full untracked set after native argument splitting
+
+**Observed at:** Exact time not captured; during the final working-tree check on 2026-07-22.
+
+**Failure:** A long Playwright CLI argument failure had created the unexpected untracked file `web/div), box(.screen-content` outside both known browser artifact directories.
+
+**Evidence:** `git status -sb` reported the quoted path after `web/output/playwright` and `web/.playwright-cli` had already been removed. The 434-byte file was untracked and contained Playwright CLI `eval` help output, confirming that split arguments had been interpreted as an output filename.
+
+**Root cause:** The Windows native-argument reconstruction failure from L68 had side effects beyond the expected CLI session directory, and the first artifact cleanup only targeted known locations.
+
+**Recovery:** Resolved the exact path, proved it stayed under `web`, confirmed Git tracked zero matching files, read its content, removed only that file, and reran full status.
+
+**Next-time rule:** After any native CLI parsing or `--filename` ambiguity, inspect `git status --short -uall` across the entire repository before cleanup. Known artifact directories are not a sufficient scope check.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L78. Do not parse porcelain question marks as PowerShell wildcards
+
+**Observed at:** Exact time not captured; during the final repository hygiene validation on 2026-07-22.
+
+**Failure:** The first validator used `Where-Object { $_ -like '??*' }` to detect untracked paths and therefore classified all four normal ` M` status lines as untracked, then failed the hygiene gate.
+
+**Evidence:** Its JSON output listed the ADR, engineering log, lessons file, and shared CSS under `Untracked` even though every line began with ` M`. The corrected status still contained exactly those four modified files and zero `?? ` lines.
+
+**Root cause:** In PowerShell wildcard matching, each `?` means any single character; the pattern did not represent literal Git porcelain question marks.
+
+**Recovery:** Replaced the wildcard expression with `StartsWith('?? ')` and reran the entire validation. Lesson order, conflict scan, artifact absence, and zero-untracked status then passed.
+
+**Next-time rule:** Parse fixed Git porcelain prefixes with exact string methods such as `StartsWith`. If `-like` is unavoidable, escape every wildcard metacharacter explicitly.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
