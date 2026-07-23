@@ -8,6 +8,7 @@ import type { LucideIcon } from "lucide-react";
 import { hasOnboarded } from "@/lib/storage";
 import { Icon } from "@/components/icon";
 import { useHydrated } from "@/lib/use-hydrated";
+import { CloudDataGate } from "@/components/cloud-data-gate";
 
 type NavItem = {
   href: string;
@@ -17,9 +18,9 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/remember", label: "Remember", icon: NotebookPen, accent: true },
-  { href: "/people", label: "People", icon: Users },
+  { href: "/", label: "Start", icon: Home },
+  { href: "/remember", label: "Merken", icon: NotebookPen, accent: true },
+  { href: "/people", label: "Menschen", icon: Users },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -39,7 +40,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return null;
   }
 
-  return (
+  const content = (
     <div className="app-stage">
       <div className="phone-shell">
         <div className="phone-status">
@@ -71,4 +72,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
     </div>
   );
+
+  return isWelcomeRoute ? content : <CloudDataGate>{content}</CloudDataGate>;
 }

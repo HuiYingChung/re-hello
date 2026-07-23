@@ -41,78 +41,78 @@ type Step = {
 const allSteps: Step[] = [
   {
     key: "name",
-    question: "What's their name?",
-    placeholder: "First name is enough",
+    question: "Wie heisst die Person?",
+    placeholder: "Der Vorname genügt",
     type: "input",
     required: true,
     personOnly: true,
   },
   {
     key: "oneLiner",
-    question: "One word or phrase to remember them by?",
-    placeholder: "e.g. Book club friend, Google recruiter",
+    question: "Welcher kurze Satz hilft dir beim Erinnern?",
+    placeholder: "z. B. Freundin aus dem Buchclub",
     type: "input",
     personOnly: true,
   },
   {
     key: "avatarStyle",
-    question: "Want a tiny avatar for them?",
+    question: "Möchtest du einen kleinen Avatar wählen?",
     placeholder: "",
     type: "avatar",
     personOnly: true,
   },
   {
     key: "where",
-    question: "Where did you meet?",
-    placeholder: "e.g. ASU career fair, coffee shop on Mill Ave",
+    question: "Wo habt ihr euch getroffen?",
+    placeholder: "z. B. im Café oder an einer Veranstaltung",
     type: "input",
   },
   {
     key: "when",
-    question: "When was it?",
+    question: "Wann war das?",
     placeholder: "",
     type: "date",
   },
   {
     key: "impression",
-    question: "How did it feel?",
-    placeholder: "What stood out about them?",
+    question: "Wie hat es sich angefühlt?",
+    placeholder: "Was ist dir aufgefallen?",
     type: "textarea",
   },
   {
     key: "talkedAbout",
-    question: "What did you talk about?",
-    placeholder: "Topics, stories, anything you remember...",
+    question: "Worüber habt ihr gesprochen?",
+    placeholder: "Themen, Geschichten und alles, woran du dich erinnerst …",
     type: "textarea",
   },
   {
     key: "memorableDetail",
-    question: "Anything you want to remember?",
-    placeholder: "A detail, a joke, something they shared...",
+    question: "Was möchtest du dir merken?",
+    placeholder: "Ein Detail, ein Witz oder etwas Persönliches …",
     type: "textarea",
   },
   {
     key: "nextTimeAsk",
-    question: "Next time, you could ask...",
-    placeholder: "A question to pick up the conversation naturally",
+    question: "Beim nächsten Mal könntest du fragen …",
+    placeholder: "Eine natürliche Frage zum Anknüpfen",
     type: "textarea",
   },
 ];
 
 const moodOptions: { value: MoodValue; label: string }[] = [
-  { value: 1, label: "Drained" },
-  { value: 2, label: "Off" },
+  { value: 1, label: "Erschöpft" },
+  { value: 2, label: "Unruhig" },
   { value: 3, label: "Okay" },
-  { value: 4, label: "Good" },
-  { value: 5, label: "Lifted" },
+  { value: 4, label: "Gut" },
+  { value: 5, label: "Belebt" },
 ];
 
 const QUICK_MEMORY_MIN_LENGTH = 20;
 
 const QUICK_MEMORY_PROMPTS = [
-  { label: "Where we met", starter: "Where we met: " },
-  { label: "What we talked about", starter: "We talked about: " },
-  { label: "What stood out", starter: "What stood out: " },
+  { label: "Wo wir uns trafen", starter: "Wo wir uns trafen: " },
+  { label: "Worüber wir sprachen", starter: "Worüber wir sprachen: " },
+  { label: "Was auffiel", starter: "Was auffiel: " },
 ] as const;
 
 function getQuickMemoryContentLength(memory: string) {
@@ -156,7 +156,7 @@ function RememberInner() {
   const [done, setDone] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [captureMode, setCaptureMode] = useState<"quick" | "guided">(
-    existingPersonId ? "guided" : "quick"
+    "quick"
   );
   const [quickMemory, setQuickMemory] = useState("");
   const [quickDraft, setQuickDraft] = useState<QuickMemoryDraft | null>(null);
@@ -215,7 +215,7 @@ function RememberInner() {
 
       if (!personId) {
         personId = generateId();
-        personName = answers.name?.trim() || "Someone";
+        personName = answers.name?.trim() || "Jemand";
         savePerson({
           id: personId,
           name: personName,
@@ -252,7 +252,7 @@ function RememberInner() {
       setSaveError(
         error instanceof Error
           ? error.message
-          : "We couldn't save this moment."
+          : "Dieser Moment konnte nicht gespeichert werden."
       );
     }
   }
@@ -260,13 +260,13 @@ function RememberInner() {
   async function shapeQuickMemory(oneTimeApiKey: string) {
     const memory = quickMemory.trim();
     if (getQuickMemoryContentLength(memory) < QUICK_MEMORY_MIN_LENGTH) {
-      setQuickError("Add a little more detail so we have something to shape.");
+      setQuickError("Ergänze etwas mehr Inhalt, damit die Notiz strukturiert werden kann.");
       return;
     }
 
     const key = oneTimeApiKey.trim();
     if (!key || key.length > MAX_OPENAI_API_KEY_LENGTH) {
-      setQuickError("Enter a valid OpenAI API key.");
+      setQuickError("Gib einen gültigen OpenAI-API-Schlüssel ein.");
       return;
     }
 
@@ -294,7 +294,7 @@ function RememberInner() {
           "error" in payload &&
           typeof payload.error === "string"
             ? payload.error
-            : "We couldn't shape that memory. Try once more.";
+            : "Die Notiz konnte nicht strukturiert werden. Versuche es erneut.";
         throw new Error(message);
       }
 
@@ -303,7 +303,7 @@ function RememberInner() {
           ? payload.draft
           : null;
       if (!isQuickMemoryDraft(draft)) {
-        throw new Error("We couldn't read that memory card. Try once more.");
+        throw new Error("Die strukturierte Notiz konnte nicht gelesen werden.");
       }
 
       setAvatarStyle((current) => current ?? randomAvatarStyle());
@@ -313,10 +313,10 @@ function RememberInner() {
     } catch (error) {
       setQuickError(
         error instanceof DOMException && error.name === "AbortError"
-          ? "That took too long. Try again in a moment."
+          ? "Das hat zu lange gedauert. Versuche es gleich nochmals."
           : error instanceof Error
             ? error.message
-            : "We couldn't shape that memory. Try once more."
+            : "Die Notiz konnte nicht strukturiert werden."
       );
     } finally {
       window.clearTimeout(timeout);
@@ -367,18 +367,20 @@ function RememberInner() {
     try {
       setSaveError(null);
       const now = new Date().toISOString();
-      const personId = generateId();
-      const personName = quickDraft.name.trim();
+      const personId = existingPersonId || generateId();
+      const personName = person?.name || quickDraft.name.trim();
 
-      savePerson({
-        id: personId,
-        name: personName,
-        oneLiner: quickDraft.oneLiner.trim(),
-        color: randomColor(),
-        avatarStyle,
-        createdAt: now,
-        updatedAt: now,
-      });
+      if (!existingPersonId) {
+        savePerson({
+          id: personId,
+          name: personName,
+          oneLiner: quickDraft.oneLiner.trim(),
+          color: randomColor(),
+          avatarStyle,
+          createdAt: now,
+          updatedAt: now,
+        });
+      }
       saveEncounter({
         id: generateId(),
         personId,
@@ -408,7 +410,7 @@ function RememberInner() {
       setSaveError(
         error instanceof Error
           ? error.message
-          : "We couldn't save this memory."
+          : "Die Erinnerung konnte nicht gespeichert werden."
       );
     }
   }
@@ -470,18 +472,18 @@ function RememberInner() {
           </div>
           <div>
             <h1 className="font-serif text-2xl text-[var(--foreground)]">
-              {existingPersonId ? "Saved." : "Remembered!"}
+              {existingPersonId ? "Gespeichert." : "Festgehalten!"}
             </h1>
             <p className="mt-2 text-sm text-[var(--muted)]">
               {existingPersonId
-                ? `Another moment with ${displayName} is in your pocket.`
-                : `Next time you see ${displayName}, you'll know what to say.`}
+                ? `Ein weiterer Moment mit ${displayName} ist gespeichert.`
+                : `Beim nächsten Treffen mit ${displayName} hast du einen guten Anknüpfungspunkt.`}
             </p>
           </div>
           <div className="flex flex-wrap justify-center gap-3">
             {!existingPersonId && (
               <button onClick={reset} className="secondary-button">
-                Remember another
+                Weitere Person
               </button>
             )}
             <button
@@ -490,7 +492,7 @@ function RememberInner() {
               }
               className="primary-button"
             >
-              {existingPersonId ? "Back to profile" : "Back home"}
+              {existingPersonId ? "Zurück zum Profil" : "Zurück zum Start"}
             </button>
           </div>
         </div>
@@ -504,11 +506,11 @@ function RememberInner() {
         <div className="flex flex-col gap-8 py-8">
           <div className="text-center">
             <h1 className="text-balance font-serif text-2xl text-[var(--foreground)]">
-              When do you want to think of {savedPersonName} again?
+              Wann möchtest du wieder an {savedPersonName} denken?
             </h1>
             <p className="mt-2 text-pretty text-sm leading-6 text-[var(--muted)]">
-              Your reminder will be waiting here next time you open Rehello.
-              We won&apos;t send a push notification. Pick a time, or skip.
+              Die Erinnerung wartet beim nächsten Öffnen von Helloagain. Es
+              gibt keine Push-Nachricht. Wähle einen Zeitpunkt oder überspringe.
             </p>
           </div>
 
@@ -518,7 +520,7 @@ function RememberInner() {
             onDone={finish}
             onSkip={finish}
             onError={setSaveError}
-            skipLabel="Skip for now"
+            skipLabel="Vorerst überspringen"
           />
           {saveError && (
             <p className="text-center text-xs text-[#c47b7b]">{saveError}</p>
@@ -534,10 +536,10 @@ function RememberInner() {
         <div className="flex flex-col gap-8 py-8">
           <div className="text-center">
             <h1 className="font-serif text-2xl text-[var(--foreground)]">
-              How did this feel?
+              Wie hat sich das angefühlt?
             </h1>
             <p className="mt-2 text-sm text-[var(--muted)]">
-              No right answer. Just for you.
+              Es gibt keine richtige Antwort. Das ist nur für dich.
             </p>
           </div>
 
@@ -568,7 +570,7 @@ function RememberInner() {
               onClick={save}
               className="text-sm text-[var(--muted)]"
             >
-              Skip
+              Überspringen
             </button>
           </div>
         </div>
@@ -576,7 +578,8 @@ function RememberInner() {
     );
   }
 
-  if (!existingPersonId && quickDraft) {
+  if (quickDraft) {
+    const quickDraftName = person?.name || quickDraft.name;
     return (
       <AppShell>
         <div className="space-y-5 py-4">
@@ -584,29 +587,29 @@ function RememberInner() {
             onClick={() => setQuickDraft(null)}
             className="text-sm text-[var(--muted)]"
           >
-            &larr; Edit my note
+            &larr; Notiz bearbeiten
           </button>
 
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-strong)]">
-              {isDemoDraft ? "Demo result · No API request" : "Your Rehello card"}
+              {isDemoDraft ? "Beispiel · Keine API-Anfrage" : "Deine Helloagain-Karte"}
             </p>
             <h1 className="mt-2 text-balance font-serif text-2xl text-[var(--foreground)]">
-              Here&apos;s what stood out.
+              Das ist hängen geblieben.
             </h1>
             <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-              Keep it as-is, or adjust anything that doesn&apos;t feel like you.
+              Speichere es so oder passe die Details vorher an.
             </p>
           </div>
 
           <div className="rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-6 text-center shadow-[0_20px_50px_rgba(55,36,24,0.08)]">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent-soft)] font-serif text-xl text-[var(--accent-strong)]">
-              {quickDraft.name.slice(0, 1).toUpperCase()}
+              {quickDraftName.slice(0, 1).toUpperCase()}
             </div>
             <h2 className="mt-3 font-serif text-3xl text-[var(--foreground)]">
-              {quickDraft.name}
+              {quickDraftName}
             </h2>
-            {quickDraft.oneLiner && (
+            {!existingPersonId && quickDraft.oneLiner && (
               <p className="text-sm text-[var(--muted)]">
                 {quickDraft.oneLiner}
               </p>
@@ -615,12 +618,12 @@ function RememberInner() {
             <div className="mt-6 space-y-5 text-left">
               {quickDraft.where && (
                 <p className="text-center text-xs text-[var(--muted)]">
-                  You met at {quickDraft.where}
+                  Getroffen bei {quickDraft.where}
                 </p>
               )}
               {quickDraft.talkedAbout && (
                 <div>
-                  <p className="detail-label text-center">You talked about</p>
+                  <p className="detail-label text-center">Gesprächsthemen</p>
                   <p className="text-center text-sm leading-7 text-[var(--foreground)]">
                     {quickDraft.talkedAbout}
                   </p>
@@ -628,7 +631,7 @@ function RememberInner() {
               )}
               {quickDraft.memorableDetail && (
                 <div>
-                  <p className="detail-label text-center">Remember this</p>
+                  <p className="detail-label text-center">Merken</p>
                   <p className="text-center text-sm leading-7 text-[var(--foreground)]">
                     {quickDraft.memorableDetail}
                   </p>
@@ -637,7 +640,7 @@ function RememberInner() {
               {quickDraft.nextTimeAsk && (
                 <div className="rounded-[20px] bg-[var(--accent-soft)] p-5 text-center">
                   <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-strong)]">
-                    You could ask
+                    Du könntest fragen
                   </p>
                   <p className="text-pretty font-serif text-2xl leading-9 text-[var(--foreground)]">
                     &ldquo;{quickDraft.nextTimeAsk}&rdquo;
@@ -656,13 +659,13 @@ function RememberInner() {
               onClick={saveQuickDraft}
               className="primary-button justify-center"
             >
-              Save this memory
+              Erinnerung speichern
             </button>
             <button
               onClick={adjustQuickDraft}
               className="secondary-button justify-center"
             >
-              Adjust the details
+              Details anpassen
             </button>
           </div>
         </div>
@@ -670,7 +673,7 @@ function RememberInner() {
     );
   }
 
-  if (!existingPersonId && captureMode === "quick") {
+  if (captureMode === "quick") {
     const quickMemoryContentLength = getQuickMemoryContentLength(quickMemory);
     const charactersNeeded = Math.max(
       QUICK_MEMORY_MIN_LENGTH - quickMemoryContentLength,
@@ -686,7 +689,7 @@ function RememberInner() {
             onClick={() => router.push("/")}
             className="text-sm text-[var(--muted)]"
           >
-            &larr; Home
+            &larr; Start
           </button>
 
           <div className="space-y-3 text-center">
@@ -694,13 +697,16 @@ function RememberInner() {
               <Icon as={Sparkles} size={26} />
             </div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-strong)]">
-              Powered by GPT-5.6
+              {existingPersonId && person
+                ? `Neuer Moment mit ${person.name}`
+                : "Optional mit OpenAI strukturieren"}
             </p>
             <h1 className="text-balance font-serif text-3xl leading-tight text-[var(--foreground)]">
-              Tell me what you remember.
+              Was möchtest du festhalten?
             </h1>
             <p className="text-pretty text-sm leading-6 text-[var(--muted)]">
-              A messy note is perfect. We&apos;ll shape it into something useful for next time.
+              Eine ungeordnete Notiz genügt. Du kannst sie mit einem eigenen
+              API-Schlüssel strukturieren oder die Fragen einzeln beantworten.
             </p>
           </div>
 
@@ -708,22 +714,22 @@ function RememberInner() {
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-xs font-semibold text-[var(--foreground)]">
-                  Not sure where to start?
+                  Du weisst nicht, wo du beginnen sollst?
                 </p>
-                {quickMemory.length === 0 && (
+                {quickMemory.length === 0 && !existingPersonId && (
                   <button
                     type="button"
                     onClick={showQuickMemoryDemo}
                     className="text-xs font-semibold text-[var(--accent-strong)]"
                   >
-                    See a no-API example
+                    Beispiel ohne API ansehen
                   </button>
                 )}
               </div>
               <div
                 className="flex flex-wrap gap-2"
                 role="group"
-                aria-label="Memory note starters"
+                aria-label="Einstiegshilfen für die Notiz"
               >
                 {QUICK_MEMORY_PROMPTS.map((prompt) => {
                   const isUsed = quickMemory.includes(prompt.starter);
@@ -755,10 +761,10 @@ function RememberInner() {
                 setApiKey("");
                 if (quickError) setQuickError(null);
               }}
-              placeholder="Their name, where you met, what you talked about, and anything you don't want to forget..."
+              placeholder="Name, Treffpunkt, Gesprächsthemen und alles, was du nicht vergessen möchtest …"
               rows={8}
               maxLength={1200}
-              aria-label="What you remember"
+              aria-label="Deine Erinnerung"
               aria-describedby="quick-memory-status"
             />
             <div className="flex items-center justify-between gap-3 text-xs text-[var(--muted)]">
@@ -772,8 +778,8 @@ function RememberInner() {
                 }
               >
                 {charactersNeeded > 0
-                  ? `Add ${charactersNeeded} more ${charactersNeeded === 1 ? "character" : "characters"} to continue`
-                  : "Ready — your API key is required"}
+                  ? `Noch ${charactersNeeded} Zeichen ergänzen`
+                  : "Bereit – für die Strukturierung ist dein API-Schlüssel nötig"}
               </span>
               <span>{quickMemory.length}/1200</span>
             </div>
@@ -801,12 +807,12 @@ function RememberInner() {
                   htmlFor="openai-api-key"
                   className="text-sm font-semibold text-[var(--foreground)]"
                 >
-                  Use your OpenAI API key once
+                  Eigenen OpenAI-API-Schlüssel einmalig verwenden
                 </label>
                 <p className="text-xs leading-5 text-[var(--muted)]">
-                  Rehello sends this key and note through its server to OpenAI
-                  for this request. The key is cleared from this page after the
-                  attempt and is not saved by Rehello.
+                  Helloagain sendet den Schlüssel und die Notiz für diese eine
+                  Anfrage über den Server an OpenAI. Der Schlüssel wird danach
+                  aus der Seite entfernt und nicht gespeichert.
                 </p>
               </div>
               <input
@@ -821,22 +827,22 @@ function RememberInner() {
                   setApiKey(event.target.value);
                   if (quickError) setQuickError(null);
                 }}
-                placeholder="Paste a restricted project API key"
+                placeholder="Eingeschränkten Projekt-Schlüssel einfügen"
                 aria-describedby="openai-api-key-help"
               />
               <p
                 id="openai-api-key-help"
                 className="text-xs leading-5 text-[var(--muted)]"
               >
-                Use a dedicated, restricted project key. ChatGPT subscriptions
-                do not include API usage.{" "}
+                Verwende einen eigenen, eingeschränkten Projekt-Schlüssel. Ein
+                ChatGPT-Abo enthält keine API-Nutzung.{" "}
                 <a
                   href="https://platform.openai.com/api-keys"
                   target="_blank"
                   rel="noreferrer"
                   className="font-semibold text-[var(--accent-strong)] underline underline-offset-2"
                 >
-                  Manage API keys
+                  API-Schlüssel verwalten
                 </a>
               </p>
               <div className="flex flex-col gap-2">
@@ -849,7 +855,7 @@ function RememberInner() {
                   }
                   className="primary-button w-full justify-center disabled:opacity-40"
                 >
-                  {isShaping ? "Shaping your memory..." : "Use this key once"}
+                  {isShaping ? "Notiz wird strukturiert …" : "Schlüssel einmal verwenden"}
                 </button>
                 <button
                   type="button"
@@ -861,7 +867,7 @@ function RememberInner() {
                   disabled={isShaping}
                   className="text-xs font-semibold text-[var(--muted)] disabled:opacity-40"
                 >
-                  Cancel
+                  Abbrechen
                 </button>
               </div>
             </form>
@@ -875,13 +881,13 @@ function RememberInner() {
               disabled={!canShape}
               className="primary-button w-full justify-center disabled:opacity-40"
             >
-              Shape my memory
+              Notiz strukturieren
             </button>
           )}
 
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 bg-[var(--border)]" />
-            <span className="text-xs text-[var(--muted)]">or</span>
+            <span className="text-xs text-[var(--muted)]">oder</span>
             <div className="h-px flex-1 bg-[var(--border)]" />
           </div>
 
@@ -890,13 +896,14 @@ function RememberInner() {
             onClick={startGuidedCapture}
             className="secondary-button w-full justify-center"
           >
-            One question at a time
+            Frage für Frage
           </button>
 
           <p className="text-center text-[11px] leading-5 text-[var(--muted)]">
-            The ready-made example makes no API request. For your own note,
-            Rehello sends the note and your one-time key through its server to
-            OpenAI. Saved people stay on this device.
+            Das Beispiel stellt keine API-Anfrage. Bei deiner eigenen Notiz
+            sendet Helloagain nur nach deiner Bestätigung die Notiz und den
+            einmaligen Schlüssel an OpenAI. Gespeicherte Daten gehen nicht an
+            das Modell.
           </p>
         </div>
       </AppShell>
@@ -910,7 +917,7 @@ function RememberInner() {
       <div className="flex flex-col gap-6 py-4">
         {existingPersonId && person && (
           <p className="text-xs text-[var(--muted)]">
-            Adding a moment with{" "}
+            Neuer Moment mit{" "}
             <span className="font-semibold text-[var(--accent-strong)]">
               {person.name}
             </span>
@@ -959,13 +966,13 @@ function RememberInner() {
                 }
               />
               <p className="text-xs text-[var(--muted)]">
-                Backfill if you&apos;re catching up.
+                Du kannst auch einen früheren Tag nachtragen.
               </p>
             </>
           ) : step.type === "avatar" ? (
             <div className="space-y-3 rounded-[24px] border border-[var(--border)] bg-[var(--surface)] p-4">
               <p className="text-xs leading-6 text-[var(--muted)]">
-                Optional, but fun. Choose a pixel companion, randomize one, or keep the letter avatar.
+                Optional: Wähle einen Pixel-Avatar oder behalte den Buchstaben.
               </p>
               <AvatarPicker
                 value={avatarStyle}
@@ -993,28 +1000,28 @@ function RememberInner() {
           <div>
             {currentStep > 0 ? (
               <button onClick={back} className="text-sm text-[var(--muted)]">
-          &larr; Back
+          &larr; Zurück
               </button>
             ) : existingPersonId ? (
                 <button
                   onClick={() => router.push(`/people/${existingPersonId}`)}
                   className="text-sm text-[var(--muted)]"
                 >
-                  Cancel
+                  Abbrechen
                 </button>
               ) : (
                 <button
                   onClick={() => setCaptureMode("quick")}
                   className="text-sm text-[var(--muted)]"
                 >
-                  &larr; Quick remember
+                  &larr; Freie Notiz
                 </button>
             )}
           </div>
           <div className="flex gap-3">
             {!step.required && (
               <button onClick={skip} className="text-sm text-[var(--muted)]">
-                Skip
+                Überspringen
               </button>
             )}
             <button
@@ -1022,7 +1029,7 @@ function RememberInner() {
               disabled={!canProceed}
               className="primary-button text-sm disabled:opacity-40"
             >
-              {isLast ? "Done" : "Next"}
+              {isLast ? "Fertig" : "Weiter"}
             </button>
           </div>
         </div>
@@ -1041,7 +1048,4 @@ export default function RememberPage() {
     </Suspense>
   );
 }
-
-
-
 

@@ -7,6 +7,10 @@ export type Person = {
   color: string;
   avatarStyle?: AvatarStyle;
   contactInfo?: string; // free-form: phone, IG, email, whatever
+  relationship?: "family" | "friend" | "professional" | "acquaintance" | "other";
+  tags?: string[];
+  birthday?: string; // MM-DD
+  notes?: string;
   createdAt: string; // ISO date
   updatedAt: string; // ISO date
   lastReviewedAt?: string; // last time the user opened the recall card
@@ -32,6 +36,7 @@ export type Reminder = {
   triggerDate: string; // ISO date
   message?: string;
   dismissed: boolean;
+  repeat?: "none" | "monthly" | "quarterly" | "yearly";
 };
 
 export type QuickMemoryDraft = {

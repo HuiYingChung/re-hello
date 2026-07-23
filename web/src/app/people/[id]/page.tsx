@@ -18,6 +18,24 @@ import {
 import { Person, Encounter, Reminder } from "@/lib/types";
 import { Mood, MOOD_LABEL, type MoodValue } from "@/components/mood";
 import { StayInTouchPicker } from "@/components/stay-in-touch-picker";
+import { downloadReminderCalendar } from "@/lib/calendar";
+
+const RELATIONSHIP_LABELS: Record<
+  NonNullable<Person["relationship"]>,
+  string
+> = {
+  family: "Familie",
+  friend: "Freundschaft",
+  professional: "Beruflich",
+  acquaintance: "Bekanntschaft",
+  other: "Andere",
+};
+
+const REPEAT_LABELS: Record<Exclude<NonNullable<Reminder["repeat"]>, "none">, string> = {
+  monthly: "monatlich",
+  quarterly: "vierteljährlich",
+  yearly: "jährlich",
+};
 
 export default function PersonDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -29,6 +47,12 @@ export default function PersonDetailPage() {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
   const [editOneLiner, setEditOneLiner] = useState("");
+  const [editContactInfo, setEditContactInfo] = useState("");
+  const [editRelationship, setEditRelationship] =
+    useState<Person["relationship"]>();
+  const [editTags, setEditTags] = useState("");
+  const [editBirthday, setEditBirthday] = useState("");
+  const [editNotes, setEditNotes] = useState("");
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [showReminderPicker, setShowReminderPicker] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -65,16 +89,39 @@ export default function PersonDetailPage() {
   function startEdit() {
     setEditName(person!.name);
     setEditOneLiner(person!.oneLiner);
+    setEditContactInfo(person!.contactInfo || "");
+    setEditRelationship(person!.relationship);
+    setEditTags(person!.tags?.join(", ") || "");
+    setEditBirthday(person!.birthday || "");
+    setEditNotes(person!.notes || "");
     setEditing(true);
   }
 
   function saveEdit() {
     try {
       setErrorMessage(null);
+      const birthday = editBirthday.trim();
+      if (
+        birthday &&
+        !/^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(birthday)
+      ) {
+        setErrorMessage("Bitte gib den Geburtstag als MM-TT ein.");
+        return;
+      }
       savePerson({
         ...person!,
         name: editName.trim() || person!.name,
         oneLiner: editOneLiner.trim(),
+        contactInfo: editContactInfo.trim() || undefined,
+        relationship: editRelationship,
+        tags:
+          editTags
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter(Boolean)
+            .slice(0, 30) || undefined,
+        birthday: birthday || undefined,
+        notes: editNotes.trim() || undefined,
         updatedAt: new Date().toISOString(),
       });
       setEditing(false);
@@ -83,7 +130,7 @@ export default function PersonDetailPage() {
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : "We couldn't save this profile."
+          : "Das Profil konnte nicht gespeichert werden."
       );
     }
   }
@@ -102,7 +149,7 @@ export default function PersonDetailPage() {
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : "We couldn't remove this person."
+          : "Die Person konnte nicht entfernt werden."
       );
     }
   }
@@ -115,7 +162,7 @@ export default function PersonDetailPage() {
           onClick={() => router.back()}
           className="text-sm text-[var(--muted)]"
         >
-          &larr; Back
+          &larr; Zurück
         </button>
 
         {/* Header */}
@@ -146,18 +193,61 @@ export default function PersonDetailPage() {
                 <input
                   value={editOneLiner}
                   onChange={(e) => setEditOneLiner(e.target.value)}
-                  placeholder="One line about them"
+                  placeholder="Ein kurzer Merksatz"
+                  className="text-sm"
+                />
+                <select
+                  value={editRelationship || ""}
+                  onChange={(event) =>
+                    setEditRelationship(
+                      (event.target.value || undefined) as Person["relationship"]
+                    )
+                  }
+                  className="text-sm"
+                  aria-label="Beziehung"
+                >
+                  <option value="">Beziehung wählen</option>
+                  {Object.entries(RELATIONSHIP_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  value={editTags}
+                  onChange={(event) => setEditTags(event.target.value)}
+                  placeholder="Tags, mit Komma getrennt"
+                  className="text-sm"
+                />
+                <input
+                  value={editBirthday}
+                  onChange={(event) => setEditBirthday(event.target.value)}
+                  placeholder="Geburtstag, z. B. 05-21"
+                  pattern="(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])"
+                  className="text-sm"
+                />
+                <input
+                  value={editContactInfo}
+                  onChange={(event) => setEditContactInfo(event.target.value)}
+                  placeholder="Kontakt, z. B. Telefon oder E-Mail"
+                  className="text-sm"
+                />
+                <textarea
+                  value={editNotes}
+                  onChange={(event) => setEditNotes(event.target.value)}
+                  placeholder="Allgemeine Notizen"
+                  rows={3}
                   className="text-sm"
                 />
                 <div className="flex gap-2">
                   <button onClick={saveEdit} className="primary-button text-xs">
-                    Save
+                    Speichern
                   </button>
                   <button
                     onClick={() => setEditing(false)}
                     className="text-xs text-[var(--muted)]"
                   >
-                    Cancel
+                    Abbrechen
                   </button>
                 </div>
               </div>
@@ -170,7 +260,7 @@ export default function PersonDetailPage() {
                   {person.name}
                 </h1>
                 <p className="text-sm text-[var(--muted)]">
-                  {person.oneLiner || "Tap to add a one-liner"}
+                  {person.oneLiner || "Antippen, um Details zu ergänzen"}
                 </p>
               </button>
             )}
@@ -179,7 +269,7 @@ export default function PersonDetailPage() {
 
         {!editing ? (
           <p className="-mt-2 pl-1 text-[10px] text-[var(--muted)]/60">
-            Change avatar
+            Avatar ändern
           </p>
         ) : null}
 
@@ -189,14 +279,15 @@ export default function PersonDetailPage() {
               <div>
                 <p className="detail-label">Avatar</p>
                 <p className="text-xs leading-6 text-[var(--muted)]">
-                  Pick a tiny pixel companion for {person.name}, or keep the letter.
+                  Wähle einen kleinen Begleiter für {person.name} oder behalte den
+                  Buchstaben.
                 </p>
               </div>
               <button
                 onClick={() => setShowAvatarPicker(false)}
                 className="text-xs text-[var(--muted)]"
               >
-                Close
+                Schliessen
               </button>
             </div>
             <AvatarPicker
@@ -223,11 +314,51 @@ export default function PersonDetailPage() {
           </section>
         ) : null}
 
+        {!editing &&
+          (person.relationship ||
+            person.tags?.length ||
+            person.birthday ||
+            person.contactInfo ||
+            person.notes) && (
+            <section className="space-y-3 rounded-[20px] border border-[var(--border)] bg-[var(--surface)] p-4">
+              <div className="flex flex-wrap gap-2">
+                {person.relationship && (
+                  <span className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs text-[var(--accent-strong)]">
+                    {RELATIONSHIP_LABELS[person.relationship]}
+                  </span>
+                )}
+                {person.tags?.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full border border-[var(--border)] px-3 py-1 text-xs text-[var(--muted)]"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              {person.birthday && (
+                <p className="text-sm text-[var(--muted)]">
+                  Geburtstag: {person.birthday}
+                </p>
+              )}
+              {person.contactInfo && (
+                <p className="break-words text-sm text-[var(--muted)]">
+                  Kontakt: {person.contactInfo}
+                </p>
+              )}
+              {person.notes && (
+                <p className="whitespace-pre-wrap text-sm leading-6 text-[var(--foreground)]">
+                  {person.notes}
+                </p>
+              )}
+            </section>
+          )}
+
         {/* Aggregate mood insight */}
         {avgMood && moodsLogged.length >= 1 && (
           <div className="rounded-[16px] border border-[var(--border)] bg-[var(--surface-alt)] px-4 py-3 text-sm text-[var(--muted)]">
             <Mood value={avgMood as MoodValue} size="md" className="mr-2 align-middle" />
-            After meeting {person.name}, you usually feel{" "}
+            Nach Treffen mit {person.name} fühlst du dich meistens{" "}
             <span className="font-medium text-[var(--foreground)]">
               {MOOD_LABEL[avgMood as MoodValue]}
             </span>
@@ -239,7 +370,7 @@ export default function PersonDetailPage() {
         {latest?.nextTimeAsk && (
           <div className="rounded-[24px] bg-[var(--accent-soft)] p-5">
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-strong)]">
-              Next time, you could ask
+              Beim nächsten Mal könntest du fragen
             </p>
             <p className="text-pretty font-serif text-xl leading-8 text-[var(--foreground)]">
               &ldquo;{latest.nextTimeAsk}&rdquo;
@@ -252,13 +383,13 @@ export default function PersonDetailPage() {
             href={`/people/${person.id}/recall`}
             className="primary-button justify-center text-sm"
           >
-            Review card
+            Karte ansehen
           </Link>
           <Link
             href={`/remember?personId=${person.id}`}
             className="secondary-button justify-center text-sm"
           >
-            + New moment
+            + Neuer Moment
           </Link>
         </div>
 
@@ -270,12 +401,11 @@ export default function PersonDetailPage() {
         <section className="space-y-3 rounded-[24px] border border-[var(--border)] bg-[var(--surface-alt)] p-5">
           <div>
             <h3 className="font-serif text-lg text-[var(--foreground)]">
-              Stay in touch
+              In Verbindung bleiben
             </h3>
             <p className="mt-1 text-pretty text-xs leading-6 text-[var(--muted)]">
-              Set a quiet nudge for when you want to think of {person.name}{" "}
-              again. It&apos;ll be waiting here in Rehello &mdash; no push
-              notifications, no pressure.
+              Lege eine ruhige Erinnerung fest, wann du wieder an {person.name}{" "}
+              denken möchtest. Sie wartet hier auf dich, ohne Push-Nachricht.
             </p>
           </div>
 
@@ -291,13 +421,22 @@ export default function PersonDetailPage() {
                       {r.message}
                     </p>
                     <p className="text-xs text-[var(--muted)]">
-                      {new Date(r.triggerDate).toLocaleDateString("en-US", {
+                      {new Date(r.triggerDate).toLocaleDateString("de-CH", {
                         weekday: "short",
                         month: "short",
                         day: "numeric",
                       })}
+                      {r.repeat && r.repeat !== "none"
+                        ? ` · ${REPEAT_LABELS[r.repeat]}`
+                        : ""}
                     </p>
                   </div>
+                  <button
+                    onClick={() => downloadReminderCalendar(r, person)}
+                    className="text-xs text-[var(--accent-strong)]"
+                  >
+                    Kalender
+                  </button>
                   <button
                     onClick={() => {
                       try {
@@ -308,13 +447,13 @@ export default function PersonDetailPage() {
                         setErrorMessage(
                           error instanceof Error
                             ? error.message
-                            : "We couldn't update that reminder."
+                            : "Die Erinnerung konnte nicht aktualisiert werden."
                         );
                       }
                     }}
                     className="text-xs text-[var(--muted)] hover:text-[var(--foreground)]"
                   >
-                    Done
+                    Erledigt
                   </button>
                 </div>
               ))}
@@ -332,21 +471,23 @@ export default function PersonDetailPage() {
               }}
               onSkip={() => setShowReminderPicker(false)}
               onError={setErrorMessage}
-              skipLabel="Cancel"
+              skipLabel="Abbrechen"
             />
           ) : (
             <button
               onClick={() => setShowReminderPicker(true)}
               className="primary-button w-full justify-center text-sm"
             >
-              {reminders.length > 0 ? "Add another nudge" : "Remind me later"}
+              {reminders.length > 0
+                ? "Weitere Erinnerung"
+                : "Später erinnern"}
             </button>
           )}
         </section>
 
         {/* Encounters timeline */}
         <section className="space-y-3">
-          <h3 className="text-base font-semibold">Moments</h3>
+          <h3 className="text-base font-semibold">Momente</h3>
           {encounters.map((enc) => (
             <Link
               key={enc.id}
@@ -364,7 +505,7 @@ export default function PersonDetailPage() {
                 </div>
                 {enc.date && (
                   <p className="text-xs text-[var(--muted)]">
-                    {new Date(enc.date).toLocaleDateString("en-US", {
+                    {new Date(enc.date).toLocaleDateString("de-CH", {
                       month: "short",
                       day: "numeric",
                     })}
@@ -374,7 +515,7 @@ export default function PersonDetailPage() {
 
               {enc.impression && (
                 <div>
-                  <p className="detail-label text-[10px]">First impression</p>
+                  <p className="detail-label text-[10px]">Eindruck</p>
                   <p className="text-sm leading-7 text-[var(--foreground)]">
                     {enc.impression}
                   </p>
@@ -383,7 +524,7 @@ export default function PersonDetailPage() {
 
               {enc.talkedAbout && (
                 <div>
-                  <p className="detail-label text-[10px]">Talked about</p>
+                  <p className="detail-label text-[10px]">Gesprächsthemen</p>
                   <p className="text-sm leading-7 text-[var(--foreground)]">
                     {enc.talkedAbout}
                   </p>
@@ -392,7 +533,7 @@ export default function PersonDetailPage() {
 
               {enc.memorableDetail && (
                 <div>
-                  <p className="detail-label text-[10px]">Remember this</p>
+                  <p className="detail-label text-[10px]">Merken</p>
                   <p className="text-sm leading-7 text-[var(--foreground)]">
                     {enc.memorableDetail}
                   </p>
@@ -408,14 +549,14 @@ export default function PersonDetailPage() {
             onClick={handleDelete}
             className="text-xs text-[var(--muted)] transition-colors hover:text-[#c47b7b]"
           >
-            {confirmDelete ? "Tap again to confirm" : "Remove this person"}
+            {confirmDelete
+              ? "Zum Bestätigen nochmals tippen"
+              : "Diese Person entfernen"}
           </button>
         </div>
       </div>
     </AppShell>
   );
 }
-
-
 
 

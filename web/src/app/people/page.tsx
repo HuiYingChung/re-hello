@@ -36,17 +36,17 @@ import {
 import { Person, Encounter } from "@/lib/types";
 
 const SORT_OPTIONS: { mode: PeopleSortMode; label: string }[] = [
-  { mode: "recent", label: "Recent" },
+  { mode: "recent", label: "Aktuell" },
   { mode: "alphabetical", label: "A-Z" },
-  { mode: "lastMet", label: "Last met" },
-  { mode: "custom", label: "Custom" },
+  { mode: "lastMet", label: "Lange nicht gesehen" },
+  { mode: "custom", label: "Eigene Reihenfolge" },
 ];
 
 const SORT_HINT: Record<PeopleSortMode, string> = {
-  recent: "Most recently added or updated.",
-  alphabetical: "By first name, A to Z.",
-  lastMet: "Longest since you last met - gentle nudge for who's drifting.",
-  custom: "Drag to reorder. New people get added to the end.",
+  recent: "Zuletzt hinzugefügt oder aktualisiert.",
+  alphabetical: "Nach Vornamen von A bis Z.",
+  lastMet: "Wer am längsten nicht mehr getroffen wurde.",
+  custom: "Zum Sortieren ziehen. Neue Personen stehen am Ende.",
 };
 
 export default function PeoplePage() {
@@ -87,7 +87,7 @@ export default function PeoplePage() {
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : "We couldn't update the sort order."
+          : "Die Sortierung konnte nicht gespeichert werden."
       );
     }
   }
@@ -125,7 +125,7 @@ export default function PeoplePage() {
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : "We couldn't save that order."
+          : "Die Reihenfolge konnte nicht gespeichert werden."
       );
     }
   }
@@ -137,6 +137,9 @@ export default function PeoplePage() {
         return (
           p.name.toLowerCase().includes(q) ||
           p.oneLiner.toLowerCase().includes(q) ||
+          p.tags?.some((tag) => tag.toLowerCase().includes(q)) ||
+          p.notes?.toLowerCase().includes(q) ||
+          p.contactInfo?.toLowerCase().includes(q) ||
           enc?.where?.toLowerCase().includes(q) ||
           enc?.talkedAbout?.toLowerCase().includes(q) ||
           enc?.memorableDetail?.toLowerCase().includes(q)
@@ -153,11 +156,11 @@ export default function PeoplePage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="font-serif text-2xl text-[var(--foreground)]">
-            People
+            Menschen
           </h1>
           <Link
             href="/settings"
-            aria-label="Settings"
+            aria-label="Einstellungen"
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
           >
             <Icon as={SlidersHorizontal} size={16} flat />
@@ -167,7 +170,7 @@ export default function PeoplePage() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name, place, or topic..."
+          placeholder="Nach Name, Ort, Tag oder Thema suchen …"
           className="text-sm"
         />
 
@@ -195,7 +198,7 @@ export default function PeoplePage() {
             <p className="text-[11px] text-[var(--muted)]">
               {SORT_HINT[sortMode]}
               {sortMode === "custom" && search.trim() && (
-                <> Clear the search to drag.</>
+                <> Suche leeren, um zu sortieren.</>
               )}
             </p>
           </div>
@@ -210,17 +213,17 @@ export default function PeoplePage() {
             <p className="text-sm text-[var(--muted)]">
               {people.length === 0 ? (
                 <>
-                  No one here yet.{" "}
+                  Noch ist niemand hier.{" "}
                   <Link
                     href="/remember"
                     className="text-[var(--accent-strong)] underline"
                   >
-                    Remember someone
+                    Jemanden festhalten
                   </Link>
                   .
                 </>
               ) : (
-                "No matches found."
+                "Keine Treffer gefunden."
               )}
             </p>
           </div>
@@ -298,7 +301,7 @@ function SortablePersonCard({
         ref={setActivatorNodeRef}
         {...attributes}
         {...listeners}
-        aria-label={`Drag to reorder ${person.name}`}
+        aria-label={`${person.name} zum Sortieren ziehen`}
         className="flex w-7 shrink-0 cursor-grab items-center justify-center rounded-[14px] border border-dashed border-[var(--border)] text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent-strong)] active:cursor-grabbing"
       >
         <Icon as={GripVertical} size={16} flat />
@@ -309,4 +312,3 @@ function SortablePersonCard({
     </div>
   );
 }
-

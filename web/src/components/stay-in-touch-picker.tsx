@@ -21,11 +21,19 @@ import {
   saveReminder,
   todayDateInputValue,
 } from "@/lib/storage";
+import type { Reminder } from "@/lib/types";
 
 const PRESETS: { label: string; days: number }[] = [
-  { label: "In a week", days: 7 },
-  { label: "In 2 weeks", days: 14 },
-  { label: "In a month", days: 30 },
+  { label: "In einer Woche", days: 7 },
+  { label: "In 2 Wochen", days: 14 },
+  { label: "In einem Monat", days: 30 },
+];
+
+const REPEATS: { value: NonNullable<Reminder["repeat"]>; label: string }[] = [
+  { value: "none", label: "Einmalig" },
+  { value: "monthly", label: "Monatlich" },
+  { value: "quarterly", label: "Vierteljährlich" },
+  { value: "yearly", label: "Jährlich" },
 ];
 
 export function StayInTouchPicker({
@@ -34,7 +42,7 @@ export function StayInTouchPicker({
   onDone,
   onSkip,
   onError,
-  skipLabel = "Not now",
+  skipLabel = "Nicht jetzt",
   compact = false,
 }: {
   personId: string;
@@ -47,6 +55,8 @@ export function StayInTouchPicker({
 }) {
   const [customDate, setCustomDate] = useState("");
   const [showCustom, setShowCustom] = useState(false);
+  const [repeat, setRepeat] =
+    useState<NonNullable<Reminder["repeat"]>>("none");
 
   function commit(triggerDate: Date) {
     try {
@@ -54,15 +64,16 @@ export function StayInTouchPicker({
         id: generateId(),
         personId,
         triggerDate: triggerDate.toISOString(),
-        message: `Think of ${personName}`,
+        message: `An ${personName} denken`,
         dismissed: false,
+        repeat,
       });
       onDone();
     } catch (error) {
       onError?.(
         error instanceof Error
           ? error.message
-          : "We couldn't save that reminder."
+          : "Die Erinnerung konnte nicht gespeichert werden."
       );
     }
   }
@@ -79,13 +90,29 @@ export function StayInTouchPicker({
       commit(parseDateInputAsLocalDate(customDate));
     } catch (error) {
       onError?.(
-        error instanceof Error ? error.message : "Please pick a valid date."
+        error instanceof Error ? error.message : "Bitte wähle ein gültiges Datum."
       );
     }
   }
 
   return (
     <div className={compact ? "space-y-2" : "space-y-3"}>
+      <div className="flex flex-wrap gap-2" aria-label="Wiederholung">
+        {REPEATS.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => setRepeat(option.value)}
+            className={`rounded-full border px-3 py-1.5 text-xs font-medium ${
+              repeat === option.value
+                ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                : "border-[var(--border)] bg-[var(--surface)] text-[var(--muted)]"
+            }`}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
       <div className="flex flex-wrap gap-2">
         {PRESETS.map((p) => (
           <button
@@ -100,7 +127,7 @@ export function StayInTouchPicker({
           onClick={() => setShowCustom((s) => !s)}
           className="rounded-full border border-dashed border-[var(--border)] bg-transparent px-4 py-2 text-xs font-medium text-[var(--muted)] transition-colors hover:border-[var(--accent)] hover:text-[var(--foreground)]"
         >
-          Pick a date
+          Datum wählen
         </button>
       </div>
 
@@ -118,7 +145,7 @@ export function StayInTouchPicker({
             disabled={!customDate}
             className="primary-button text-xs disabled:opacity-40"
           >
-            Set
+            Speichern
           </button>
         </div>
       )}

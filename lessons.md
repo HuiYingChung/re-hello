@@ -1547,3 +1547,131 @@ These items remain open and must not be described as fixed:
 **Next-time rule:** An npm `ENOTCACHED` result from the Playwright wrapper is tool-availability evidence only. Do not infer browser or application state; retry the exact command once with narrow network approval and accept evidence only from the successful rerun.
 
 **Source:** [Bottom navigation height stability engineering log](docs/engineering-log/2026-07-23-bottom-nav-stability.md)
+
+### L99. Classify restricted temporary-directory errors before changing tests
+
+**Observed at:** Exact time not captured; during the private single-user baseline on 2026-07-23.
+
+**Failure:** The first baseline `npm test` could not create its temporary directory and exited with `EPERM`.
+
+**Evidence:** Vitest stopped before running the existing tests. The identical command with approved filesystem access passed 2 files and 9 tests.
+
+**Root cause:** The restricted execution sandbox blocked temporary-file creation; no application or test defect was observed.
+
+**Recovery:** Repeated the unchanged test command with narrowly approved write access and accepted only that result as test evidence.
+
+**Next-time rule:** When Vitest fails before collection with a sandbox-only `EPERM` on temporary storage, do not modify test code. Retry the exact command once with scoped filesystem approval and compare the command and output.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
+
+### L100. Classify restricted Next.js build-output errors before editing configuration
+
+**Observed at:** Exact time not captured; during the private single-user baseline on 2026-07-23.
+
+**Failure:** The first baseline `npm run build` could not write the `.next` output and exited with `EPERM`.
+
+**Evidence:** Next.js stopped on generated-file creation. The identical command with approved workspace write access compiled, type-checked, and generated all 17 baseline routes.
+
+**Root cause:** The restricted execution sandbox blocked expected build artifacts; no Next.js configuration defect was observed.
+
+**Recovery:** Repeated the unchanged build with narrowly approved write access.
+
+**Next-time rule:** If a Next.js build fails only while creating `.next` under a read-only sandbox, preserve source and configuration, rerun the identical build with scoped write approval, and report the two outcomes separately.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
+
+### L101. Wait for dynamic dashboard controls before resolving locators
+
+**Observed at:** Exact time not captured; during authorized DeepInfra removal on 2026-07-23.
+
+**Failure:** The first in-app browser lookup for Vercel's `More` button returned zero immediately after navigation even though a subsequent fresh snapshot showed exactly one button.
+
+**Evidence:** No click occurred and no Vercel state changed during the failed lookup.
+
+**Root cause:** The dynamic marketplace page had not finished rendering the control when the locator count was taken.
+
+**Recovery:** Captured a fresh DOM snapshot, resolved the observed exact button, asserted a count of one, and clicked once.
+
+**Next-time rule:** After navigating a dynamic dashboard, wait for a fresh semantic snapshot that visibly contains the target before counting or clicking it. A zero count during initial render is not evidence that the control is absent.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
+
+### L102. Do not send keyboard navigation to a non-focusable main landmark
+
+**Observed at:** Exact time not captured; during authorized DeepInfra removal on 2026-07-23.
+
+**Failure:** Attempting to press `End` on Vercel's `main` landmark failed because the focused input target no longer matched the resolved locator.
+
+**Evidence:** The browser reported the locator press failure before any permission or integration action.
+
+**Root cause:** A semantic landmark is not a stable focus target for keyboard scrolling in this browser bridge.
+
+**Recovery:** Used an observed, uniquely focusable link for the navigation attempt, then switched to the official Vercel CLI when the dashboard still omitted its documented uninstall control.
+
+**Next-time rule:** Send navigation keys only to an observed focusable control. If a dashboard omits a documented destructive control after a full semantic inspection, prefer its official authenticated CLI over coordinate or hidden-state workarounds.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
+
+### L103. Quote optional zsh paths instead of using unmatched globs
+
+**Observed at:** Exact time not captured; during documentation fact-checking on 2026-07-23.
+
+**Failure:** A read-only ripgrep command included the unmatched zsh path glob `web/.env*`; zsh returned `no matches found` and the compound fact-check exited 1.
+
+**Evidence:** The preceding status and diff checks completed, but the intended text scan did not run.
+
+**Root cause:** zsh expands unmatched globs before invoking the command.
+
+**Recovery:** Inspected the known files with explicit paths and later added the intended tracked `web/.env.example`.
+
+**Next-time rule:** For optional files under zsh, enumerate with `rg --files` first or pass explicit known paths. Do not put a possibly unmatched glob directly in a compound validation command.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
+
+### L104. Re-read exact source context after an apply-patch mismatch
+
+**Observed at:** Exact time not captured; during German welcome-copy editing on 2026-07-23.
+
+**Failure:** The first patch for `welcome/page.tsx` expected a sentence that differed from the current file, so `apply_patch` rejected the hunk without changing the file.
+
+**Evidence:** The patch tool reported the missing expected lines.
+
+**Root cause:** The edit used recalled wording instead of the exact current source.
+
+**Recovery:** Read the relevant file section, rebuilt the patch against exact current lines, and applied it successfully.
+
+**Next-time rule:** Before patching copy that has multiple historical versions, read the exact current block and use that text as patch context. After a context mismatch, do not guess a second time.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
+
+### L105. Run staged whitespace validation before committing documentation
+
+**Observed at:** Exact time not captured; during publication preparation on 2026-07-23.
+
+**Failure:** The first staged `git diff --cached --check` exited 2 because both newly added private-version documents had an extra blank line at end of file.
+
+**Evidence:** Git named only `ADR-0009` line 85 and the engineering log line 76. No commit or push had occurred.
+
+**Root cause:** The add-file patches left two newline-only final lines that normal Markdown reading did not reveal.
+
+**Recovery:** Removed only the two blank lines, restaged the affected documents and lesson ledger, and repeated the staged validation.
+
+**Next-time rule:** Always run `git diff --cached --check` after staging newly created Markdown files and before committing. Treat whitespace errors as publication blockers, not cosmetic warnings.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
+
+### L106. Anchor append-only lesson additions to the actual file tail
+
+**Observed at:** Exact time not captured; during lesson-ledger cleanup on 2026-07-23.
+
+**Failure:** New lessons L99-L104 were inserted before existing L98, and L105 was inserted after L99 because the patch context matched an earlier repeated source line rather than the end of the ledger.
+
+**Evidence:** A heading scan showed `L99`, `L105`, `L100` through `L104`, then `L98`.
+
+**Root cause:** The append patches used non-unique repeated Markdown context instead of the true final record.
+
+**Recovery:** Moved only the uncommitted new lesson blocks after L98 and restored ascending L99-L106 order without changing any historical lesson.
+
+**Next-time rule:** Before appending to a ledger, read its final heading and tail. Anchor the patch to that exact final record, then scan the resulting heading order before staging.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)

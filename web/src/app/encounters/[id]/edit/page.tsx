@@ -51,7 +51,7 @@ export default function EditEncounterPage() {
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : "We couldn't save this moment."
+          : "Dieser Moment konnte nicht gespeichert werden."
       );
     }
   }
@@ -71,7 +71,7 @@ export default function EditEncounterPage() {
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : "We couldn't delete this moment."
+          : "Dieser Moment konnte nicht gelöscht werden."
       );
     }
   }
@@ -83,14 +83,14 @@ export default function EditEncounterPage() {
           onClick={() => router.back()}
           className="text-sm text-[var(--muted)]"
         >
-          &larr; Cancel
+          &larr; Abbrechen
         </button>
 
         <h1 className="font-serif text-2xl text-[var(--foreground)]">
-          Edit this moment
+          Diesen Moment bearbeiten
         </h1>
 
-        <Field label="When">
+        <Field label="Wann">
           <input
             type="date"
             value={encounter.date ? formatDateInputValue(encounter.date) : ""}
@@ -104,58 +104,58 @@ export default function EditEncounterPage() {
                 setErrorMessage(
                   error instanceof Error
                     ? error.message
-                    : "Please pick a valid date."
+                    : "Bitte wähle ein gültiges Datum."
                 );
               }
             }}
           />
         </Field>
 
-        <Field label="Where">
+        <Field label="Wo">
           <input
             value={encounter.where || ""}
             onChange={(e) => update("where", e.target.value)}
-            placeholder="Where you met"
+            placeholder="Wo ihr euch getroffen habt"
           />
         </Field>
 
-        <Field label="How it felt">
+        <Field label="Wie es sich anfühlte">
           <textarea
             value={encounter.impression || ""}
             onChange={(e) => update("impression", e.target.value)}
-            placeholder="What stood out about them?"
+            placeholder="Was ist dir aufgefallen?"
             rows={3}
           />
         </Field>
 
-        <Field label="What you talked about">
+        <Field label="Worüber ihr gesprochen habt">
           <textarea
             value={encounter.talkedAbout || ""}
             onChange={(e) => update("talkedAbout", e.target.value)}
-            placeholder="Topics, stories, anything you remember..."
+            placeholder="Themen, Geschichten und alles, woran du dich erinnerst …"
             rows={3}
           />
         </Field>
 
-        <Field label="Memorable detail">
+        <Field label="Was du dir merken möchtest">
           <textarea
             value={encounter.memorableDetail || ""}
             onChange={(e) => update("memorableDetail", e.target.value)}
-            placeholder="A detail you want to keep"
+            placeholder="Ein Detail, das du behalten möchtest"
             rows={3}
           />
         </Field>
 
-        <Field label="Next time, you could ask">
+        <Field label="Beim nächsten Mal könntest du fragen">
           <textarea
             value={encounter.nextTimeAsk || ""}
             onChange={(e) => update("nextTimeAsk", e.target.value)}
-            placeholder="A natural way to pick this up later"
+            placeholder="Eine natürliche Frage zum späteren Anknüpfen"
             rows={3}
           />
         </Field>
 
-        <Field label="Mood">
+        <Field label="Gefühl">
           <div className="flex justify-between gap-2">
             {MOOD_VALUES.map((value) => (
               <button
@@ -176,7 +176,7 @@ export default function EditEncounterPage() {
         </Field>
 
         <button onClick={save} className="primary-button w-full justify-center">
-          Save changes
+          Änderungen speichern
         </button>
 
         {errorMessage && (
@@ -188,7 +188,9 @@ export default function EditEncounterPage() {
             onClick={handleDelete}
             className="text-xs text-[var(--muted)] transition-colors hover:text-[#c47b7b]"
           >
-            {confirmDelete ? "Tap again to delete" : "Delete this moment"}
+            {confirmDelete
+              ? "Zum Löschen nochmals tippen"
+              : "Diesen Moment löschen"}
           </button>
         </div>
       </div>
@@ -212,4 +214,3 @@ function Field({
     </div>
   );
 }
-

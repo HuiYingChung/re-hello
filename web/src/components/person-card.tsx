@@ -89,7 +89,7 @@ export function PersonCard({
           )}
         </div>
         <div className="whitespace-nowrap text-xs font-medium text-[var(--muted)]">
-          {daysAgo === 0 ? "Today" : `${daysAgo}d ago`}
+          {daysAgo === 0 ? "Heute" : `vor ${daysAgo} T.`}
         </div>
       </div>
     </Link>

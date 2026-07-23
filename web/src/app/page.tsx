@@ -21,11 +21,11 @@ import { useHydrated } from "@/lib/use-hydrated";
 
 function computeGreeting(d: Date) {
   const h = d.getHours();
-  if (h < 5) return "Still up?";
-  if (h < 12) return "Good morning";
-  if (h < 18) return "Good afternoon";
-  if (h < 22) return "Good evening";
-  return "Winding down";
+  if (h < 5) return "Noch wach?";
+  if (h < 12) return "Guten Morgen";
+  if (h < 18) return "Guten Tag";
+  if (h < 22) return "Guten Abend";
+  return "Zeit zum Abschalten";
 }
 
 const SECTION = {
@@ -62,7 +62,7 @@ export default function HomePage() {
       setActionError(
         error instanceof Error
           ? error.message
-          : "We couldn't update that reminder."
+          : "Die Erinnerung konnte nicht aktualisiert werden."
       );
     }
   }
@@ -76,7 +76,7 @@ export default function HomePage() {
       setActionError(
         error instanceof Error
           ? error.message
-          : "We couldn't update that section."
+          : "Der Bereich konnte nicht ausgeblendet werden."
       );
     }
   }
@@ -99,12 +99,12 @@ export default function HomePage() {
             <div className="min-w-0">
               <p className="text-sm text-[var(--muted)]">{greeting ?? "\u00A0"}</p>
               <h1 className="text-balance font-serif text-[1.75rem] leading-tight text-[var(--foreground)]">
-                Ready for someone new?
+                Bereit, jemanden festzuhalten?
               </h1>
             </div>
             <Link
               href="/settings"
-              aria-label="Settings"
+              aria-label="Einstellungen"
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
             >
               <Icon as={SlidersHorizontal} size={16} flat />
@@ -113,17 +113,17 @@ export default function HomePage() {
 
           <div className="rounded-[24px] border border-[var(--border)] bg-[var(--surface)] p-5 text-center">
             <p className="text-balance font-serif text-lg leading-7 text-[var(--foreground)]">
-              Nothing saved here yet.
+              Noch ist hier nichts gespeichert.
             </p>
             <p className="mt-2 text-pretty text-xs leading-6 text-[var(--muted)]">
-              Start with one person, or replay the welcome tour if you want a fresh start.
+              Beginne mit einer Person oder öffne die Einführung erneut.
             </p>
             <div className="mt-4 grid grid-cols-2 gap-3">
               <Link href="/remember" className="primary-button justify-center text-sm">
-                Remember someone
+                Jemanden merken
               </Link>
               <Link href="/welcome" className="secondary-button justify-center text-sm">
-                Replay tour
+                Einführung
               </Link>
             </div>
           </div>
@@ -140,12 +140,12 @@ export default function HomePage() {
             <div className="min-w-0">
               <p className="text-sm text-[var(--muted)]">{greeting ?? "\u00A0"}</p>
               <h1 className="text-balance font-serif text-[1.75rem] leading-tight text-[var(--foreground)]">
-                Who&apos;s on your mind?
+                An wen denkst du?
               </h1>
             </div>
             <Link
               href="/settings"
-              aria-label="Settings"
+              aria-label="Einstellungen"
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
             >
               <Icon as={SlidersHorizontal} size={16} flat />
@@ -154,10 +154,10 @@ export default function HomePage() {
 
           <div className="grid grid-cols-2 gap-3">
             <Link href="/remember" className="primary-button justify-center text-sm">
-              Remember someone
+              Jemanden merken
             </Link>
             <Link href="/prep" className="secondary-button justify-center text-sm">
-              Prep for an event
+              Auf Treffen vorbereiten
             </Link>
           </div>
         </section>
@@ -170,11 +170,11 @@ export default function HomePage() {
           <section className="space-y-3">
             <div className="section-heading">
               <h3 className="text-base font-semibold text-[var(--accent-strong)]">
-                Reach out today
+                Heute daran denken
               </h3>
             </div>
             <p className="-mt-1 text-xs text-[var(--muted)]">
-              Gentle nudges for today.
+              Ruhige Erinnerungen für heute.
             </p>
             {dueReminders.map((reminder) => {
               const person = people.find((item) => item.id === reminder.personId);
@@ -208,13 +208,13 @@ export default function HomePage() {
                       onClick={() => handleDismiss(reminder.id)}
                       className="text-xs text-[var(--muted)]"
                     >
-                      Dismiss
+                      Erledigt
                     </button>
                     <Link
                       href={`/people/${person.id}/recall`}
                       className="text-xs font-semibold text-[var(--accent-strong)]"
                     >
-                      Open recall →
+                      Karte öffnen →
                     </Link>
                   </div>
                 </div>
@@ -227,7 +227,7 @@ export default function HomePage() {
           <section className="relative">
             <button
               onClick={() => handleHide(SECTION.recallPreview)}
-              aria-label="Hide this section"
+              aria-label="Diesen Bereich ausblenden"
               className="absolute right-3 top-3 z-10 flex h-6 w-6 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]"
             >
               <Icon as={X} size={14} flat />
@@ -237,7 +237,7 @@ export default function HomePage() {
               className="card block border-[rgba(177,110,70,0.12)] bg-[var(--accent-soft)]"
             >
               <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-strong)]">
-                Review before you meet again
+                Vor dem nächsten Treffen ansehen
               </p>
               <div className="mb-3 flex items-center gap-3">
                 <Avatar
@@ -265,14 +265,14 @@ export default function HomePage() {
         {people.length > 0 && !isHidden(SECTION.recentPeople) && (
           <section className="space-y-3">
             <div className="section-heading">
-              <h3>Recent people</h3>
+              <h3>Kürzlich hinzugefügt</h3>
               <div className="flex items-center gap-3">
                 <Link href="/people" className="text-sm text-[var(--accent-strong)]">
-                  See all
+                  Alle ansehen
                 </Link>
                 <button
                   onClick={() => handleHide(SECTION.recentPeople)}
-                  aria-label="Hide Recent people"
+                  aria-label="Kürzlich hinzugefügt ausblenden"
                   className="flex h-6 w-6 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[var(--surface-alt)] hover:text-[var(--foreground)]"
                 >
                   <Icon as={X} size={14} flat />
@@ -292,17 +292,17 @@ export default function HomePage() {
         {worthReviewing.length > 0 && !isHidden(SECTION.worthRefresh) && (
           <section className="space-y-3">
             <div className="section-heading">
-              <h3>Worth a quick refresh</h3>
+              <h3>Kurz auffrischen</h3>
               <button
                 onClick={() => handleHide(SECTION.worthRefresh)}
-                aria-label="Hide Worth a quick refresh"
+                aria-label="Kurz auffrischen ausblenden"
                 className="flex h-6 w-6 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[var(--surface-alt)] hover:text-[var(--foreground)]"
               >
                 <Icon as={X} size={14} flat />
               </button>
             </div>
             <p className="-mt-1 text-xs text-[var(--muted)]">
-              You haven&apos;t looked at these in a while.
+              Diese Menschen hast du länger nicht angesehen.
             </p>
             {worthReviewing.map((person) => (
               <Link
@@ -325,7 +325,7 @@ export default function HomePage() {
                   </p>
                 </div>
                 <span className="text-xs text-[var(--accent-strong)]">
-                  Refresh →
+                  Ansehen →
                 </span>
               </Link>
             ))}
@@ -335,17 +335,17 @@ export default function HomePage() {
         {upcomingReminders.length > 0 && !isHidden(SECTION.upcoming) && (
           <section className="space-y-3">
             <div className="section-heading">
-              <h3>Stay in touch this week</h3>
+              <h3>Diese Woche in Verbindung bleiben</h3>
               <button
                 onClick={() => handleHide(SECTION.upcoming)}
-                aria-label="Hide Stay in touch this week"
+                aria-label="Erinnerungen dieser Woche ausblenden"
                 className="flex h-6 w-6 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[var(--surface-alt)] hover:text-[var(--foreground)]"
               >
                 <Icon as={X} size={14} flat />
               </button>
             </div>
             <p className="-mt-1 text-xs text-[var(--muted)]">
-              Coming up soon.
+              Demnächst fällig.
             </p>
             {upcomingReminders.map((reminder) => {
               const person = people.find((item) => item.id === reminder.personId);
@@ -371,7 +371,7 @@ export default function HomePage() {
                     </p>
                   </div>
                   <p className="text-[10px] uppercase tracking-wider text-[var(--muted)]">
-                    {new Date(reminder.triggerDate).toLocaleDateString("en-US", {
+                    {new Date(reminder.triggerDate).toLocaleDateString("de-CH", {
                       month: "short",
                       day: "numeric",
                     })}

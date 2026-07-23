@@ -75,14 +75,14 @@ function RecallFlow() {
               {encounter.where && (
                 <div className="text-center">
                   <p className="text-xs text-[var(--muted)]">
-                    You met at {encounter.where}
+                    Getroffen bei {encounter.where}
                   </p>
                 </div>
               )}
 
               {encounter.talkedAbout && (
                 <div>
-                  <p className="detail-label text-center">You talked about</p>
+                  <p className="detail-label text-center">Gesprächsthemen</p>
                   <p className="text-center text-sm leading-7 text-[var(--foreground)]">
                     {encounter.talkedAbout}
                   </p>
@@ -91,7 +91,7 @@ function RecallFlow() {
 
               {encounter.memorableDetail && (
                 <div>
-                  <p className="detail-label text-center">Remember this</p>
+                  <p className="detail-label text-center">Merken</p>
                   <p className="text-center text-sm leading-7 text-[var(--foreground)]">
                     {encounter.memorableDetail}
                   </p>
@@ -101,7 +101,7 @@ function RecallFlow() {
               {encounter.nextTimeAsk && (
                 <div className="rounded-[20px] bg-[var(--accent-soft)] p-5 text-center">
                   <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-strong)]">
-                    You could ask
+                    Du könntest fragen
                   </p>
                   <p className="text-pretty font-serif text-2xl leading-9 text-[var(--foreground)]">
                     &ldquo;{encounter.nextTimeAsk}&rdquo;
@@ -115,7 +115,7 @@ function RecallFlow() {
         {showPicker && !reminderSet && (
           <div className="w-full rounded-[20px] border border-dashed border-[var(--border)] bg-[var(--surface)] p-5">
             <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-strong)]">
-              Remind me to think of {person.name}
+              An {person.name} erinnern
             </p>
             <StayInTouchPicker
               personId={person.id}
@@ -133,7 +133,7 @@ function RecallFlow() {
 
         {reminderSet && (
           <p className="text-center text-xs text-[var(--accent-strong)]">
-            Set. It&apos;ll be waiting in Rehello &mdash; no push notification.
+            Gespeichert. Die Erinnerung wartet in Helloagain, ohne Push-Nachricht.
           </p>
         )}
 
@@ -147,11 +147,11 @@ function RecallFlow() {
               onClick={() => setShowPicker(true)}
               className="secondary-button justify-center"
             >
-              Remind me later
+              Später erinnern
             </button>
           )}
           <button onClick={handleReady} className="primary-button justify-center">
-            Got it, I&apos;m ready
+            Alles klar, ich bin bereit
           </button>
         </div>
       </div>

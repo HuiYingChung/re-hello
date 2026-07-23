@@ -16,18 +16,18 @@ type Slide = {
 const slides: Slide[] = [
   {
     icon: Hand,
-    title: "Hi, I'm Rehello.",
-    body: "I'm here to help you remember the people you meet so the next conversation feels a little less scary.",
+    title: "Hallo, ich bin Helloagain.",
+    body: "Ein ruhiger Ort für Menschen in deinem Leben: was wichtig war, was du fragen möchtest und wie sich eure Treffen anfühlten.",
   },
   {
     icon: Sparkles,
-    title: "Three small things",
-    body: "Capture a moment after you meet someone. Review them before you see them again. Walk into the room with something to say.",
+    title: "Drei kleine Dinge",
+    body: "Halte nach einem Treffen einen Moment fest. Schau ihn vor dem Wiedersehen an. Geh mit einem guten Anknüpfungspunkt ins Gespräch.",
   },
   {
     icon: Sprout,
-    title: "No pressure",
-    body: "See a ready-made result without an API call. To shape your own note with GPT-5.6, use your OpenAI API key once.",
+    title: "Ohne Druck",
+    body: "Die geführte Eingabe funktioniert ohne KI. Optional kannst du eine freie Notiz einmalig mit deinem eigenen OpenAI-Schlüssel strukturieren.",
   },
 ];
 
@@ -51,7 +51,7 @@ function WelcomeInner() {
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : "We couldn't finish setup on this device."
+          : "Die Einrichtung konnte nicht abgeschlossen werden."
       );
     }
   }
@@ -94,13 +94,13 @@ function WelcomeInner() {
                     onClick={() => setStep((s) => s + 1)}
                     className="primary-button w-full justify-center"
                   >
-                    Next
+                    Weiter
                   </button>
                   <button
                     onClick={() => setStep(slides.length - 1)}
                     className="block w-full text-center text-xs text-[var(--muted)]"
                   >
-                    Skip
+                    Überspringen
                   </button>
                 </>
               ) : (
@@ -109,13 +109,13 @@ function WelcomeInner() {
                     onClick={() => start(false)}
                     className="primary-button w-full justify-center"
                   >
-                    {isReplay ? "Back home" : "Shape my first memory"}
+                    {isReplay ? "Zurück zum Start" : "Erste Erinnerung festhalten"}
                   </button>
                   <button
                     onClick={() => start(true)}
                     className="secondary-button w-full justify-center"
                   >
-                    {isReplay ? "Load sample data" : "Explore a ready-made demo"}
+                    {isReplay ? "Beispieldaten laden" : "Beispiel ansehen"}
                   </button>
                 </>
               )}

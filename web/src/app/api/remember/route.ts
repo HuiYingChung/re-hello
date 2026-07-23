@@ -49,7 +49,7 @@ const quickMemorySchema = z.object({
     .describe("One natural follow-up question grounded in the user's note, without quotation marks."),
 });
 
-const SYSTEM_PROMPT = `You turn a person's messy post-conversation note into a gentle Rehello recall card.
+const SYSTEM_PROMPT = `You turn a person's messy post-conversation note into a gentle Helloagain recall card.
 
 Rules:
 - Use only facts explicitly present in the user's note. Never invent, infer, or embellish details.

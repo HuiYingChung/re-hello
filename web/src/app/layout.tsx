@@ -14,14 +14,14 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://re-hello.vercel.app"),
+  metadataBase: new URL("https://helloagain.vercel.app"),
   title: {
-    default: "Rehello | GPT-5.6 for easier next conversations",
-    template: "%s | Rehello",
+    default: "Helloagain | Private Beziehungserinnerungen",
+    template: "%s | Helloagain",
   },
   description:
-    "GPT-5.6 turns a messy memory into a thoughtful recall card so the next conversation feels easier.",
-  applicationName: "Rehello",
+    "Eine private App für Menschen, gemeinsame Momente und sanfte Erinnerungen.",
+  applicationName: "Helloagain",
   keywords: [
     "social memory app",
     "remember people",
@@ -30,9 +30,9 @@ export const metadata: Metadata = {
     "networking app",
     "personal CRM alternative",
   ],
-  authors: [{ name: "Rehello" }],
-  creator: "Rehello",
-  publisher: "Rehello",
+  authors: [{ name: "Helloagain" }],
+  creator: "Helloagain",
+  publisher: "Helloagain",
   category: "productivity",
   alternates: {
     canonical: "/",
@@ -40,29 +40,29 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: "/",
-    siteName: "Rehello",
-    title: "Rehello | GPT-5.6 for easier next conversations",
+    siteName: "Helloagain",
+    title: "Helloagain | Private Beziehungserinnerungen",
     description:
-      "Turn a messy memory into a thoughtful recall card: who they are, what mattered, and what to ask next.",
+      "Eine private App für Menschen, gemeinsame Momente und sanfte Erinnerungen.",
     images: [
       {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Rehello uses GPT-5.6 to turn messy memories into recall cards",
+        alt: "Helloagain hält persönliche Erinnerungen übersichtlich fest",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Rehello | GPT-5.6 for easier next conversations",
+    title: "Helloagain | Private Beziehungserinnerungen",
     description:
-      "Turn a messy memory into a thoughtful recall card: who they are, what mattered, and what to ask next.",
+      "Eine private App für Menschen, gemeinsame Momente und sanfte Erinnerungen.",
     images: ["/twitter-image"],
   },
   appleWebApp: {
     capable: true,
-    title: "Rehello",
+    title: "Helloagain",
     statusBarStyle: "default",
   },
   formatDetection: {
@@ -84,7 +84,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="de"
       data-scroll-behavior="smooth"
       className={`${notoSansTc.variable} ${instrumentSerif.variable}`}
     >

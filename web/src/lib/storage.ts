@@ -13,6 +13,14 @@ const HIDDEN_SECTIONS_KEY = "rehello_hidden_sections";
 const ONBOARDED_KEY = "rehello_onboarded";
 const STORAGE_WRITE_ERROR =
   "We couldn't save your changes on this device. Please try again.";
+const DATA_CHANGE_EVENT = "rehello-local-data-changed";
+
+function announceCoreDataChange(key: string) {
+  if (typeof window === "undefined") return;
+  if (Object.values(KEYS).includes(key)) {
+    window.dispatchEvent(new Event(DATA_CHANGE_EVENT));
+  }
+}
 
 function read<T>(key: string): T[] {
   if (typeof window === "undefined") return [];
@@ -28,6 +36,7 @@ function write<T>(key: string, data: T[]) {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(key, JSON.stringify(data));
+    announceCoreDataChange(key);
   } catch {
     throw new Error(STORAGE_WRITE_ERROR);
   }
@@ -46,6 +55,7 @@ function removeValue(key: string) {
   if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(key);
+    announceCoreDataChange(key);
   } catch {
     throw new Error(STORAGE_WRITE_ERROR);
   }
@@ -118,6 +128,17 @@ function isValidPerson(value: unknown): value is Person {
     !!asValidDate(person.createdAt) &&
     !!asValidDate(person.updatedAt) &&
     (person.contactInfo === undefined || typeof person.contactInfo === "string") &&
+    (person.relationship === undefined ||
+      ["family", "friend", "professional", "acquaintance", "other"].includes(
+        person.relationship
+      )) &&
+    (person.tags === undefined ||
+      (Array.isArray(person.tags) &&
+        person.tags.every((tag) => typeof tag === "string"))) &&
+    (person.birthday === undefined ||
+      (typeof person.birthday === "string" &&
+        /^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(person.birthday))) &&
+    (person.notes === undefined || typeof person.notes === "string") &&
     (person.lastReviewedAt === undefined || !!asValidDate(person.lastReviewedAt))
   );
 }
@@ -161,7 +182,9 @@ function isValidReminder(value: unknown): value is Reminder {
     typeof reminder.personId === "string" &&
     !!asValidDate(reminder.triggerDate) &&
     typeof reminder.dismissed === "boolean" &&
-    (reminder.message === undefined || typeof reminder.message === "string")
+    (reminder.message === undefined || typeof reminder.message === "string") &&
+    (reminder.repeat === undefined ||
+      ["none", "monthly", "quarterly", "yearly"].includes(reminder.repeat))
   );
 }
 
@@ -401,7 +424,16 @@ export function dismissReminder(id: string) {
   const all = read<Reminder>(KEYS.reminders);
   const reminder = all.find((r) => r.id === id);
   if (reminder) {
-    reminder.dismissed = true;
+    if (reminder.repeat && reminder.repeat !== "none") {
+      const next = new Date(reminder.triggerDate);
+      if (reminder.repeat === "monthly") next.setMonth(next.getMonth() + 1);
+      if (reminder.repeat === "quarterly") next.setMonth(next.getMonth() + 3);
+      if (reminder.repeat === "yearly") next.setFullYear(next.getFullYear() + 1);
+      reminder.triggerDate = next.toISOString();
+      reminder.dismissed = false;
+    } else {
+      reminder.dismissed = true;
+    }
     write(KEYS.reminders, all);
   }
 }
@@ -490,6 +522,13 @@ export function importData(payload: unknown): {
         error instanceof Error ? error.message : STORAGE_WRITE_ERROR,
     };
   }
+}
+
+export function replaceCoreData(payload: ExportPayload) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(KEYS.people, JSON.stringify(payload.people));
+  localStorage.setItem(KEYS.encounters, JSON.stringify(payload.encounters));
+  localStorage.setItem(KEYS.reminders, JSON.stringify(payload.reminders));
 }
 
 export function clearAllData() {

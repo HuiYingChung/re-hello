@@ -17,10 +17,10 @@ import {
 } from "@/lib/storage";
 
 const SECTION_LABELS: Record<string, string> = {
-  "recall-preview": "Review before you meet again",
-  "recent-people": "Recent people",
-  "worth-refresh": "Worth a quick refresh",
-  "upcoming": "Stay in touch this week",
+  "recall-preview": "Vor dem nächsten Treffen ansehen",
+  "recent-people": "Kürzlich hinzugefügt",
+  "worth-refresh": "Kurz auffrischen",
+  "upcoming": "Diese Woche in Verbindung bleiben",
 };
 
 export default function SettingsPage() {
@@ -42,7 +42,7 @@ export default function SettingsPage() {
       flash(
         error instanceof Error
           ? error.message
-          : "We couldn't update that setting."
+          : "Die Einstellung konnte nicht aktualisiert werden."
       );
     }
   }
@@ -51,12 +51,12 @@ export default function SettingsPage() {
     try {
       showAllSections();
       setHidden([]);
-      flash("All sections restored.");
+      flash("Alle Bereiche sind wieder sichtbar.");
     } catch (error) {
       flash(
         error instanceof Error
           ? error.message
-          : "We couldn't update those settings."
+          : "Die Einstellungen konnten nicht aktualisiert werden."
       );
     }
   }
@@ -78,7 +78,7 @@ export default function SettingsPage() {
     a.download = `rehello-backup-${stamp}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    flash("Backup downloaded.");
+    flash("Sicherung heruntergeladen.");
   }
 
   function handleImportClick() {
@@ -98,7 +98,7 @@ export default function SettingsPage() {
         setTimeout(() => router.push("/"), 1200);
       }
     } catch {
-      setMessage("Couldn't read that file.");
+      setMessage("Die Datei konnte nicht gelesen werden.");
     } finally {
       if (fileRef.current) fileRef.current.value = "";
     }
@@ -107,13 +107,17 @@ export default function SettingsPage() {
   function handleLoadDemo() {
     try {
       const seeded = seedDemoData();
-      flash(seeded ? "Sample data loaded." : "Sample data only loads when your list is empty.");
+      flash(
+        seeded
+          ? "Beispieldaten geladen."
+          : "Beispieldaten können nur in eine leere Liste geladen werden."
+      );
       setTimeout(() => router.push("/"), 800);
     } catch (error) {
       flash(
         error instanceof Error
           ? error.message
-          : "We couldn't load sample data."
+          : "Die Beispieldaten konnten nicht geladen werden."
       );
     }
   }
@@ -125,7 +129,7 @@ export default function SettingsPage() {
       flash(
         error instanceof Error
           ? error.message
-          : "We couldn't reset the welcome tour."
+          : "Die Einführung konnte nicht geöffnet werden."
       );
     }
   }
@@ -139,7 +143,7 @@ export default function SettingsPage() {
     try {
       clearAllData();
       resetOnboarding();
-      setMessage("All data cleared.");
+      setMessage("Alle Daten wurden gelöscht.");
       setConfirmReset(false);
       setTimeout(() => router.push("/welcome"), 800);
     } catch (error) {
@@ -147,9 +151,15 @@ export default function SettingsPage() {
       setMessage(
         error instanceof Error
           ? error.message
-          : "We couldn't clear your data."
+          : "Die Daten konnten nicht gelöscht werden."
       );
     }
+  }
+
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.replace("/login");
+    router.refresh();
   }
 
   return (
@@ -159,24 +169,24 @@ export default function SettingsPage() {
           onClick={() => router.back()}
           className="text-sm text-[var(--muted)]"
         >
-          &larr; Back
+          &larr; Zurück
         </button>
 
         <h1 className="font-serif text-2xl text-[var(--foreground)]">
-          Settings
+          Einstellungen
         </h1>
 
         {/* Your data */}
         <section className="space-y-3">
           <h3 className="text-sm font-semibold text-[var(--foreground)]">
-            Your data
+            Deine Daten
           </h3>
           <p className="text-xs leading-6 text-[var(--muted)]">
-            Your saved people and moments live only in this browser. The
-            ready-made demo uses no API. For your own Quick Remember note, you
-            provide an OpenAI API key for one request; Rehello does not save it.
-            Save a backup so you don&apos;t lose your local records. Backups are
-            readable JSON files, so keep yours somewhere private.
+            Deine Menschen, Momente und Erinnerungen werden in deiner privaten
+            PostgreSQL-Datenbank gespeichert und lokal gespiegelt. Die
+            JSON-Sicherung hält dich unabhängig von Vercel und Neon. Ein
+            OpenAI-Schlüssel wird nur für eine ausdrücklich gewählte
+            Strukturierung verwendet und nicht gespeichert.
           </p>
 
           <div className="space-y-2">
@@ -184,13 +194,13 @@ export default function SettingsPage() {
               onClick={handleExport}
               className="primary-button w-full justify-center"
             >
-              Download backup
+              JSON-Sicherung herunterladen
             </button>
             <button
               onClick={handleImportClick}
               className="secondary-button w-full justify-center"
             >
-              Restore from backup
+              JSON-Sicherung wiederherstellen
             </button>
             <input
               ref={fileRef}
@@ -211,24 +221,23 @@ export default function SettingsPage() {
         {/* Try it out */}
         <section className="space-y-3">
           <h3 className="text-sm font-semibold text-[var(--foreground)]">
-            Try it out
+            Ausprobieren
           </h3>
           <p className="text-xs leading-6 text-[var(--muted)]">
-            Just exploring? Load a few sample people, or replay the welcome
-            tour.
+            Lade einige Beispielpersonen oder öffne die Einführung erneut.
           </p>
           <div className="space-y-2">
             <button
               onClick={handleLoadDemo}
               className="secondary-button w-full justify-center"
             >
-              Load sample data
+              Beispieldaten laden
             </button>
             <button
               onClick={handleReplayWelcome}
               className="secondary-button w-full justify-center"
             >
-              Replay welcome tour
+              Einführung erneut ansehen
             </button>
           </div>
         </section>
@@ -237,10 +246,10 @@ export default function SettingsPage() {
         {hidden.length > 0 && (
           <section className="space-y-3">
             <h3 className="text-sm font-semibold text-[var(--foreground)]">
-              Hidden home sections
+              Ausgeblendete Startbereiche
             </h3>
             <p className="text-xs leading-6 text-[var(--muted)]">
-              You&apos;ve tucked these away on Home. Bring any of them back.
+              Diese Bereiche kannst du jederzeit wieder einblenden.
             </p>
             <div className="space-y-2">
               {hidden.map((id) => (
@@ -255,7 +264,7 @@ export default function SettingsPage() {
                     onClick={() => handleShow(id)}
                     className="text-xs font-semibold text-[var(--accent-strong)]"
                   >
-                    Show again
+                    Wieder anzeigen
                   </button>
                 </div>
               ))}
@@ -264,7 +273,7 @@ export default function SettingsPage() {
                   onClick={handleShowAll}
                   className="text-xs text-[var(--muted)] hover:text-[var(--foreground)]"
                 >
-                  Show all
+                  Alle anzeigen
                 </button>
               )}
             </div>
@@ -274,11 +283,11 @@ export default function SettingsPage() {
         {/* Start over */}
         <section className="space-y-3 rounded-[20px] border border-[var(--border)] bg-[var(--surface-alt)] p-4">
           <h3 className="text-sm font-semibold text-[var(--foreground)]">
-            Start over
+            Neu beginnen
           </h3>
           <p className="text-xs leading-6 text-[var(--muted)]">
-            Removes everyone, every moment, every reminder, and resets the
-            welcome tour. Can&apos;t be undone.
+            Entfernt alle Menschen, Momente und Erinnerungen. Dies kann nicht
+            rückgängig gemacht werden.
           </p>
           <button
             onClick={handleReset}
@@ -288,28 +297,34 @@ export default function SettingsPage() {
                 : "text-[var(--muted)] hover:text-[#c47b7b]"
             }`}
           >
-            {confirmReset ? "Tap again to wipe everything" : "Clear all data"}
+            {confirmReset
+              ? "Zum Löschen nochmals tippen"
+              : "Alle Daten löschen"}
           </button>
         </section>
+
+        <button
+          onClick={handleLogout}
+          className="secondary-button w-full justify-center"
+        >
+          Abmelden
+        </button>
 
         {/* About */}
         <section className="space-y-2 pt-2 text-center">
           <Logo size="md" className="block" />
           <p className="text-xs italic text-[var(--muted)]">
-            A gentle place for the people you meet.
+            Ein ruhiger Ort für die Menschen in deinem Leben.
           </p>
           <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--muted)]">
-            Version 0.1 · Made with care
+            Private Version · Helloagain
           </p>
           <p className="mx-auto max-w-[260px] pt-2 text-xs leading-6 text-[var(--muted)]">
-            No accounts. Your people and moments stay in this browser. A Quick
-            Remember note and the one-time key you provide pass through
-            Rehello&apos;s server to OpenAI only when you choose to shape it. No
-            third-party analytics script is included in the app.
+            Passwortgeschützt, ohne Analyse-Skripte. Deine Daten bleiben als
+            lesbare JSON-Datei exportierbar.
           </p>
         </section>
       </div>
     </AppShell>
   );
 }
-

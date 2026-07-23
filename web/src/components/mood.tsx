@@ -26,11 +26,11 @@ export const MOOD_EMOJI: Record<MoodValue, string> = {
 };
 
 export const MOOD_LABEL: Record<MoodValue, string> = {
-  1: "drained",
-  2: "off",
+  1: "erschöpft",
+  2: "unruhig",
   3: "okay",
-  4: "good",
-  5: "lifted",
+  4: "gut",
+  5: "belebt",
 };
 
 export type MoodSize = "sm" | "md" | "lg";
