@@ -27,7 +27,7 @@ const slides: Slide[] = [
   {
     icon: Sprout,
     title: "No pressure",
-    body: "Drop in the messy details. GPT-5.6 shapes them into something useful for the next conversation.",
+    body: "See a ready-made result without an API call. To shape your own note with GPT-5.6, use your OpenAI API key once.",
   },
 ];
 
