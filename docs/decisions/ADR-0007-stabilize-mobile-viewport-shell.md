@@ -123,3 +123,21 @@ The decision is amended again:
 Local WebKit and system Chrome matrices passed all eight shared-shell routes. Home and People also passed at 320, 360, 375, 390, and 430 CSS pixels in both engines. Each current viewport width propagated through the shell grid column, scroller, content, and navigation; no descendant crossed the horizontal boundary; forced horizontal scrolling remained zero; and the desktop shell remained 390 by 820 pixels. The Chrome device gate used a Pixel 7 descriptor at 412 pixels, so this is not an iPhone-only or 390-pixel-only implementation.
 
 This remains local browser evidence. No physical post-change phone test, push, exact-commit CI, deployment, or corrected-production smoke test has occurred. Physical Safari and Android Chrome browser bars, installed PWA safe areas, and a real software keyboard remain required acceptance boundaries.
+
+## Stable-height and vertical-containment amendment - 2026-07-23
+
+After the preceding shared-shell corrections, the user reported that the bottom navigation still moved vertically on some scroll gestures but not others. The current CSS explained the intermittent trigger:
+
+- the mobile stage and shell resolved to `100dvh`, whose computed height changes when retractable browser UI changes the dynamic viewport;
+- the inner vertical scroller still used the default `overscroll-behavior-y: auto`, so a gesture at its top or bottom boundary could chain beyond the scroller.
+
+A local Chrome baseline at 390 pixels wide measured the navigation top at 584 pixels in a 664-pixel viewport. Increasing only the viewport height to 724 pixels moved the navigation top to 644 pixels: the shell and navigation followed the full 60-pixel dynamic-height change. Headless Chrome does not reproduce a physical browser toolbar animation, but this measurement confirms the CSS coupling identified by the user's report. The behavior of dynamic viewport units and scroll chaining is also documented by [MDN's viewport-length reference](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/length) and [MDN's overscroll-behavior reference](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/overscroll-behavior).
+
+The mobile-height decision is therefore amended:
+
+- use ordered `100vh` and `100svh` sizing for the mobile stage, deliberately omitting `100dvh`;
+- keep the mobile document at a fixed, non-scrolling shell boundary;
+- contain vertical overscroll inside `.phone-scroll`;
+- keep the three-row grid, normal-flow navigation, safe-area padding, responsive width rules, and 390-by-820 desktop frame unchanged.
+
+This chooses a stable, always-available mobile height over stretching the application into transient space revealed while browser controls retract. It also prevents a boundary gesture in the inner scroller from becoming document scrolling. A physical Safari and Android Chrome check is still required because Playwright viewport resizing is mechanism evidence, not a reproduction of mobile browser chrome or rubber-band physics.
