@@ -1,6 +1,15 @@
-import OpenAI from "openai";
+import OpenAI, {
+  APIError,
+  AuthenticationError,
+  PermissionDeniedError,
+  RateLimitError,
+} from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import { z } from "zod";
+import {
+  MAX_OPENAI_API_KEY_LENGTH,
+  OPENAI_API_KEY_HEADER,
+} from "@/lib/remember-api";
 import type { QuickMemoryDraft } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -55,7 +64,10 @@ Rules:
 function noStoreJson(body: unknown, status = 200) {
   return Response.json(body, {
     status,
-    headers: { "Cache-Control": "no-store" },
+    headers: {
+      "Cache-Control": "no-store",
+      Pragma: "no-cache",
+    },
   });
 }
 
@@ -71,11 +83,39 @@ function trimDraft(draft: QuickMemoryDraft): QuickMemoryDraft {
   };
 }
 
+function providerErrorStatus(error: unknown) {
+  if (
+    error instanceof AuthenticationError ||
+    error instanceof PermissionDeniedError ||
+    error instanceof RateLimitError ||
+    error instanceof APIError
+  ) {
+    return error.status;
+  }
+
+  if (
+    error &&
+    typeof error === "object" &&
+    "status" in error &&
+    typeof error.status === "number"
+  ) {
+    return error.status;
+  }
+
+  return undefined;
+}
+
 export async function POST(request: Request) {
-  if (!process.env.OPENAI_API_KEY) {
+  const origin = request.headers.get("origin");
+  if (origin && origin !== new URL(request.url).origin) {
+    return noStoreJson({ error: "This request isn't allowed." }, 403);
+  }
+
+  const apiKey = request.headers.get(OPENAI_API_KEY_HEADER)?.trim() || "";
+  if (!apiKey || apiKey.length > MAX_OPENAI_API_KEY_LENGTH) {
     return noStoreJson(
-      { error: "Quick Remember isn't connected yet." },
-      503
+      { error: "Enter your OpenAI API key to shape this memory." },
+      401
     );
   }
 
@@ -114,7 +154,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const openai = new OpenAI({ apiKey });
     const response = await openai.responses.parse({
       model: MODEL,
       store: false,
@@ -146,7 +186,33 @@ export async function POST(request: Request) {
     }
 
     return noStoreJson({ draft, model: MODEL });
-  } catch {
+  } catch (error) {
+    const status = providerErrorStatus(error);
+
+    if (status === 401) {
+      return noStoreJson(
+        { error: "OpenAI rejected that key. Check it and try again." },
+        401
+      );
+    }
+
+    if (status === 403) {
+      return noStoreJson(
+        { error: "That key doesn't have permission to use this model." },
+        403
+      );
+    }
+
+    if (status === 429) {
+      return noStoreJson(
+        {
+          error:
+            "OpenAI says this project is rate-limited or out of API credit.",
+        },
+        429
+      );
+    }
+
     return noStoreJson(
       { error: "Quick Remember is taking a breather. Try again in a moment." },
       502

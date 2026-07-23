@@ -10,6 +10,14 @@ import { type AvatarStyle } from "@/lib/avatar-styles";
 import { Mood, type MoodValue } from "@/components/mood";
 import { StayInTouchPicker } from "@/components/stay-in-touch-picker";
 import {
+  QUICK_MEMORY_EXAMPLE,
+  QUICK_MEMORY_EXAMPLE_DRAFT,
+} from "@/lib/quick-memory-demo";
+import {
+  MAX_OPENAI_API_KEY_LENGTH,
+  OPENAI_API_KEY_HEADER,
+} from "@/lib/remember-api";
+import {
   parseDateInputAsIso,
   savePerson,
   saveEncounter,
@@ -99,9 +107,6 @@ const moodOptions: { value: MoodValue; label: string }[] = [
   { value: 5, label: "Lifted" },
 ];
 
-const QUICK_MEMORY_EXAMPLE =
-  "I met Maya at the neighborhood book club. We talked about Taiwanese cooking and her sourdough experiments. She said she might bring starter next time. It felt easy and warm.";
-
 const QUICK_MEMORY_MIN_LENGTH = 20;
 
 const QUICK_MEMORY_PROMPTS = [
@@ -157,6 +162,9 @@ function RememberInner() {
   const [quickDraft, setQuickDraft] = useState<QuickMemoryDraft | null>(null);
   const [quickError, setQuickError] = useState<string | null>(null);
   const [isShaping, setIsShaping] = useState(false);
+  const [isKeyPanelOpen, setIsKeyPanelOpen] = useState(false);
+  const [apiKey, setApiKey] = useState("");
+  const [isDemoDraft, setIsDemoDraft] = useState(false);
   const quickMemoryInputRef = useRef<HTMLTextAreaElement>(null);
 
   // If editing/adding to existing person, skip the personOnly steps
@@ -249,10 +257,16 @@ function RememberInner() {
     }
   }
 
-  async function shapeQuickMemory() {
+  async function shapeQuickMemory(oneTimeApiKey: string) {
     const memory = quickMemory.trim();
     if (getQuickMemoryContentLength(memory) < QUICK_MEMORY_MIN_LENGTH) {
       setQuickError("Add a little more detail so we have something to shape.");
+      return;
+    }
+
+    const key = oneTimeApiKey.trim();
+    if (!key || key.length > MAX_OPENAI_API_KEY_LENGTH) {
+      setQuickError("Enter a valid OpenAI API key.");
       return;
     }
 
@@ -264,7 +278,10 @@ function RememberInner() {
     try {
       const response = await fetch("/api/remember", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          [OPENAI_API_KEY_HEADER]: key,
+        },
         body: JSON.stringify({ memory }),
         signal: controller.signal,
       });
@@ -291,6 +308,8 @@ function RememberInner() {
 
       setAvatarStyle((current) => current ?? randomAvatarStyle());
       setQuickDraft(draft);
+      setIsDemoDraft(false);
+      setIsKeyPanelOpen(false);
     } catch (error) {
       setQuickError(
         error instanceof DOMException && error.name === "AbortError"
@@ -301,8 +320,19 @@ function RememberInner() {
       );
     } finally {
       window.clearTimeout(timeout);
+      setApiKey("");
       setIsShaping(false);
     }
+  }
+
+  function showQuickMemoryDemo() {
+    setQuickMemory(QUICK_MEMORY_EXAMPLE);
+    setQuickDraft({ ...QUICK_MEMORY_EXAMPLE_DRAFT });
+    setAvatarStyle((current) => current ?? randomAvatarStyle());
+    setQuickError(null);
+    setApiKey("");
+    setIsKeyPanelOpen(false);
+    setIsDemoDraft(true);
   }
 
   function addQuickMemoryPrompt(starter: string) {
@@ -313,6 +343,7 @@ function RememberInner() {
       return note ? `${note}\n${starter}` : starter;
     });
     setQuickError(null);
+    setIsDemoDraft(false);
     window.requestAnimationFrame(() => {
       const input = quickMemoryInputRef.current;
       if (!input) return;
@@ -320,6 +351,14 @@ function RememberInner() {
       input.focus();
       input.setSelectionRange(input.value.length, input.value.length);
     });
+  }
+
+  function startGuidedCapture() {
+    setApiKey("");
+    setIsKeyPanelOpen(false);
+    setQuickError(null);
+    setIsDemoDraft(false);
+    setCaptureMode("guided");
   }
 
   function saveQuickDraft() {
@@ -390,6 +429,9 @@ function RememberInner() {
     setCaptureMode("guided");
     setQuickDraft(null);
     setQuickError(null);
+    setApiKey("");
+    setIsKeyPanelOpen(false);
+    setIsDemoDraft(false);
   }
 
   function finish() {
@@ -413,6 +455,9 @@ function RememberInner() {
     setQuickDraft(null);
     setQuickError(null);
     setIsShaping(false);
+    setIsKeyPanelOpen(false);
+    setApiKey("");
+    setIsDemoDraft(false);
   }
 
   if (done) {
@@ -544,7 +589,7 @@ function RememberInner() {
 
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-strong)]">
-              Your Rehello card
+              {isDemoDraft ? "Demo result · No API request" : "Your Rehello card"}
             </p>
             <h1 className="mt-2 text-balance font-serif text-2xl text-[var(--foreground)]">
               Here&apos;s what stood out.
@@ -668,13 +713,10 @@ function RememberInner() {
                 {quickMemory.length === 0 && (
                   <button
                     type="button"
-                    onClick={() => {
-                      setQuickMemory(QUICK_MEMORY_EXAMPLE);
-                      setQuickError(null);
-                    }}
+                    onClick={showQuickMemoryDemo}
                     className="text-xs font-semibold text-[var(--accent-strong)]"
                   >
-                    Try an example
+                    See a no-API example
                   </button>
                 )}
               </div>
@@ -708,6 +750,9 @@ function RememberInner() {
               value={quickMemory}
               onChange={(event) => {
                 setQuickMemory(event.target.value);
+                setIsDemoDraft(false);
+                setIsKeyPanelOpen(false);
+                setApiKey("");
                 if (quickError) setQuickError(null);
               }}
               placeholder="Their name, where you met, what you talked about, and anything you don't want to forget..."
@@ -728,7 +773,7 @@ function RememberInner() {
               >
                 {charactersNeeded > 0
                   ? `Add ${charactersNeeded} more ${charactersNeeded === 1 ? "character" : "characters"} to continue`
-                  : "Ready to shape"}
+                  : "Ready — your API key is required"}
               </span>
               <span>{quickMemory.length}/1200</span>
             </div>
@@ -743,14 +788,96 @@ function RememberInner() {
             </p>
           )}
 
-          <button
-            type="button"
-            onClick={shapeQuickMemory}
-            disabled={!canShape}
-            className="primary-button w-full justify-center disabled:opacity-40"
-          >
-            {isShaping ? "Shaping your memory..." : "Shape my memory"}
-          </button>
+          {isKeyPanelOpen ? (
+            <form
+              className="space-y-3 rounded-[20px] border border-[var(--border)] bg-[var(--surface)] p-4"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void shapeQuickMemory(apiKey);
+              }}
+            >
+              <div className="space-y-1">
+                <label
+                  htmlFor="openai-api-key"
+                  className="text-sm font-semibold text-[var(--foreground)]"
+                >
+                  Use your OpenAI API key once
+                </label>
+                <p className="text-xs leading-5 text-[var(--muted)]">
+                  Rehello sends this key and note through its server to OpenAI
+                  for this request. The key is cleared from this page after the
+                  attempt and is not saved by Rehello.
+                </p>
+              </div>
+              <input
+                id="openai-api-key"
+                name="openai-api-key"
+                type="password"
+                autoComplete="off"
+                autoCapitalize="none"
+                spellCheck={false}
+                value={apiKey}
+                onChange={(event) => {
+                  setApiKey(event.target.value);
+                  if (quickError) setQuickError(null);
+                }}
+                placeholder="Paste a restricted project API key"
+                aria-describedby="openai-api-key-help"
+              />
+              <p
+                id="openai-api-key-help"
+                className="text-xs leading-5 text-[var(--muted)]"
+              >
+                Use a dedicated, restricted project key. ChatGPT subscriptions
+                do not include API usage.{" "}
+                <a
+                  href="https://platform.openai.com/api-keys"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-semibold text-[var(--accent-strong)] underline underline-offset-2"
+                >
+                  Manage API keys
+                </a>
+              </p>
+              <div className="flex flex-col gap-2">
+                <button
+                  type="submit"
+                  disabled={
+                    isShaping ||
+                    apiKey.trim().length === 0 ||
+                    apiKey.trim().length > MAX_OPENAI_API_KEY_LENGTH
+                  }
+                  className="primary-button w-full justify-center disabled:opacity-40"
+                >
+                  {isShaping ? "Shaping your memory..." : "Use this key once"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setApiKey("");
+                    setIsKeyPanelOpen(false);
+                    setQuickError(null);
+                  }}
+                  disabled={isShaping}
+                  className="text-xs font-semibold text-[var(--muted)] disabled:opacity-40"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setQuickError(null);
+                setIsKeyPanelOpen(true);
+              }}
+              disabled={!canShape}
+              className="primary-button w-full justify-center disabled:opacity-40"
+            >
+              Shape my memory
+            </button>
+          )}
 
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 bg-[var(--border)]" />
@@ -760,14 +887,16 @@ function RememberInner() {
 
           <button
             type="button"
-            onClick={() => setCaptureMode("guided")}
+            onClick={startGuidedCapture}
             className="secondary-button w-full justify-center"
           >
             One question at a time
           </button>
 
           <p className="text-center text-[11px] leading-5 text-[var(--muted)]">
-            Only this note is sent to OpenAI to shape your card. Saved people stay on this device.
+            The ready-made example makes no API request. For your own note,
+            Rehello sends the note and your one-time key through its server to
+            OpenAI. Saved people stay on this device.
           </p>
         </div>
       </AppShell>

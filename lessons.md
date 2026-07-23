@@ -95,6 +95,18 @@ Before changing code or publication state:
 | L76 | The first L73-L75 detail patch reused a repeated source line and inserted the blocks before L52. | Append ordered records only after a unique final-entry sentence and validate heading order immediately. |
 | L77 | Windows CLI argument splitting created an unexpected untracked help-output file at the web root. | After any native-argument failure, inspect the complete untracked-file set, not only expected browser artifact directories. |
 | L78 | A final PowerShell status validator used `-like '??*'` and misclassified every modified line as untracked. | Use `StartsWith('?? ')` or escape wildcard metacharacters when parsing porcelain status. |
+| L79 | The OpenAI documentation MCP installer could not launch `codex.exe`, including after narrow execution approval. | After the approved identical retry also returns `Access is denied`, stop retrying CLI variants and use the official-domain documentation fallback. |
+| L80 | A documentation line-count command repeated the invalid direct pipe after a PowerShell `foreach` statement. | Collect `foreach` output in a task-specific variable before piping it, including in read-only discovery commands. |
+| L81 | The BYOK implementation began on `main` instead of an isolated feature branch. | Create the scoped `codex/` feature branch immediately after read-only preflight and before the first working-tree edit. |
+| L82 | The first background dev-server command hid its launch result inside a 30-second readiness loop and timed out without a PID. | Start the server in one observable step, then poll readiness separately with the captured process handle or cell ID. |
+| L83 | Both `Start-Process` variants failed on duplicate `Path` and `PATH` environment keys. | After the duplicate-key error repeats with `-UseNewEnvironment`, stop using `Start-Process` and use a managed execution cell with explicit termination. |
+| L84 | The Playwright skill reference used the obsolete `network` command for the installed CLI. | Check the installed CLI help when a referenced command is rejected, then use its current command name without retrying aliases. |
+| L85 | Route-gating Analytics did not remove a script already loaded before SPA navigation to `/remember`. | For a credential-entry SPA route, remove the third-party analytics integration globally unless a fresh-document boundary is enforced and verified. |
+| L86 | A Playwright CLI `route --body` JSON string lost its quotes through Windows native argument reconstruction. | Use a page-context route handler with `JSON.stringify` when a mocked JSON body must survive Windows CLI parsing. |
+| L87 | The installed Playwright CLI rejected the skill's bare-`await` `run-code` form. | Read `run-code --help` and pass the installed version a function that explicitly accepts `page`. |
+| L88 | The first post-browser `npm ci` could not unlink the locked Lightning CSS native binary. | Before a clean install, confirm every repo-owned Next.js child process is gone, not only the outer execution cell and listening port. |
+| L89 | Default-sandbox process command-line inspection was denied. | After the read-only denial, request narrow approval and filter command lines to the exact workspace before stopping any PID. |
+| L90 | A read-only secret-classification script used unavailable modern .NET hash helpers. | Use PowerShell 5.1-compatible `SHA256.Create().ComputeHash()` or avoid hashing when tracked-baseline comparison is sufficient. |
 
 ## Detailed lessons
 
@@ -1209,3 +1221,195 @@ These items remain open and must not be described as fixed:
 **Next-time rule:** Parse fixed Git porcelain prefixes with exact string methods such as `StartsWith`. If `-like` is unavoidable, escape every wildcard metacharacter explicitly.
 
 **Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L79. Stop retrying the docs installer after an approved executable denial
+
+**Observed at:** Exact time not captured; during the API-cost-control review on 2026-07-22.
+
+**Failure:** The required OpenAI documentation MCP installation command could not launch `codex.exe`. The default attempt and the identical narrowly approved retry both returned `Access is denied` before the MCP server could be added.
+
+**Evidence:** `codex mcp add openaiDeveloperDocs --url https://developers.openai.com/mcp` exited 1 twice with PowerShell `NativeCommandFailed`; neither attempt reached MCP registration or network access.
+
+**Root cause:** The current desktop execution boundary denied launching `codex.exe`. The failure did not establish an OpenAI documentation, network, or repository defect.
+
+**Recovery:** Stopped retrying executable and shell variants, then used the skill's official-domain fallback for current OpenAI pricing and project-budget guidance and the connected Vercel documentation search for hosting-side controls.
+
+**Next-time rule:** First inspect whether the OpenAI documentation MCP tools are callable. If they are absent and both the normal installer and the identical approved retry fail at executable launch, record zero MCP-install evidence, stop broadening execution, and use only official OpenAI-domain fallback sources for that turn.
+
+**Source:** Current API-cost-control review; no separate engineering log was created.
+
+### L80. Apply the foreach-output rule to read-only discovery too
+
+**Observed at:** Exact time not captured; during the BYOK planning review on 2026-07-22.
+
+**Failure:** A read-only command intended to count three installed Next.js documentation files placed a pipe directly after a statement-form PowerShell `foreach` loop and failed at parse time with `An empty pipe element is not allowed`.
+
+**Evidence:** The command exited 1 before returning any file or line count. This repeated the exact PowerShell grammar class already recorded in L65.
+
+**Root cause:** The discovery command treated the known `foreach` output rule as relevant only to status probes, even though the grammar restriction applies to every PowerShell statement-form loop.
+
+**Recovery:** Assigned the loop output to the task-specific `$docCounts` variable and piped that variable to `ConvertTo-Json`. The corrected command returned line counts for all three intended local documentation files.
+
+**Next-time rule:** For every PowerShell command, including read-only discovery, write `$results = foreach (...) { ... }` and pipe `$results` afterward. Do not type a pipe immediately after the closing brace of a statement-form loop.
+
+**Source:** Current BYOK planning review; no separate engineering log was created.
+
+### L81. Create the feature branch before the first implementation edit
+
+**Observed at:** Exact time not captured; after the first BYOK implementation and test edits on 2026-07-22.
+
+**Failure:** The local BYOK implementation began on `main` and accumulated uncommitted application, test, CI, and documentation changes before a feature branch was created.
+
+**Evidence:** The implementation record captured `main` at starting commit `e2f316ba816c96ddf8eea891ba347abbbf30df39`. The user then asked why no branch had been opened. `git switch -c codex/byok-zero-api-demo` succeeded with the entire uncommitted change set preserved.
+
+**Root cause:** The implementation treated the instruction not to deploy or publish as sufficient isolation and omitted the repository workflow step of creating a scoped branch before editing.
+
+**Recovery:** Created `codex/byok-zero-api-demo` without stashing, cleaning, committing, or dropping any working-tree file. `git status -sb` confirmed all intended modifications now belong to the new branch.
+
+**Next-time rule:** After mandatory read-only preflight and before the first working-tree edit, create the scoped `codex/` branch for any multi-file feature, even when the requested work is local-only and publication is prohibited.
+
+**Source:** [BYOK and zero-API demo engineering log](docs/engineering-log/2026-07-22-byok-zero-api-demo.md)
+
+### L82. Separate background-process launch evidence from readiness polling
+
+**Observed at:** Exact time not captured; during BYOK browser verification on 2026-07-22.
+
+**Failure:** The first background Next.js dev-server command combined `Start-Process` with a 30-iteration HTTP readiness loop. The shell command timed out after 30 seconds without printing a PID or launch error, and port 3127 had no listener afterward.
+
+**Evidence:** The command exited 124 at 30.1 seconds with no output. A separate `Get-NetTCPConnection -LocalPort 3127` check returned `NO_LISTENER_3127`.
+
+**Root cause:** The command deferred all process evidence until after readiness polling and caught every request exception, so a launch failure was hidden behind the probe timeout.
+
+**Recovery:** Split launch diagnosis from readiness verification and captured the subsequent `Start-Process` error directly before choosing a different process mechanism.
+
+**Next-time rule:** Start a background server in one observable step and emit its PID or launch error immediately. Poll HTTP readiness only after a valid process handle or execution-cell ID exists.
+
+**Source:** [BYOK and zero-API demo engineering log](docs/engineering-log/2026-07-22-byok-zero-api-demo.md)
+
+### L83. Stop using Start-Process after repeated duplicate environment-key failures
+
+**Observed at:** Exact time not captured; immediately after L82 during BYOK browser verification on 2026-07-22.
+
+**Failure:** A diagnostic `Start-Process` call failed with `Item has already been added. Key in dictionary: 'Path' Key being added: 'PATH'`, then the script tried to call `Refresh()` on a null process. An otherwise identical retry with `-UseNewEnvironment` failed the same way and repeated the null-handle error.
+
+**Evidence:** Both commands returned the same PowerShell `ArgumentException`; neither produced a PID or started a listener.
+
+**Root cause:** The current Windows PowerShell host exposes colliding case variants in the environment dictionary used by `Start-Process`. `-UseNewEnvironment` did not bypass that construction path. The scripts also failed to guard against a null process after launch failure.
+
+**Recovery:** Stopped retrying `Start-Process`. Started `npm run dev` inside a managed execution cell, captured cell ID 3, and confirmed `GET http://127.0.0.1:3127/remember` returned 200 before browser work.
+
+**Next-time rule:** If `Start-Process` reports duplicate `Path`/`PATH` keys, do not add more variants after one `-UseNewEnvironment` confirmation. Use a managed long-running execution cell, retain its cell ID, and terminate it explicitly after verification.
+
+**Source:** [BYOK and zero-API demo engineering log](docs/engineering-log/2026-07-22-byok-zero-api-demo.md)
+
+### L84. Verify Playwright CLI commands against installed help
+
+**Observed at:** Exact time not captured; during BYOK network verification on 2026-07-22.
+
+**Failure:** The Playwright skill reference prescribed `network`, but the installed `@playwright/cli` rejected it as an unknown command and printed usage.
+
+**Evidence:** The command exited 1. Installed help listed `requests`, `request`, and related commands under Network, with no `network` alias.
+
+**Root cause:** The skill reference described an older CLI command surface than the package resolved by `npx`.
+
+**Recovery:** Used `requests` and `requests --static`, which returned the current session's full request inventory.
+
+**Next-time rule:** When a Playwright reference command is rejected, read the installed CLI help once and switch to the exact listed command. Do not retry historical aliases.
+
+**Source:** [BYOK and zero-API demo engineering log](docs/engineering-log/2026-07-22-byok-zero-api-demo.md)
+
+### L85. Route-only analytics gating is insufficient across SPA navigation
+
+**Observed at:** Exact time not captured; during the first no-API demo browser verification on 2026-07-22.
+
+**Failure:** `AnalyticsGate` returned null on `/remember`, but the request inventory still showed `https://va.vercel-scripts.com/v1/script.debug.js` after navigating from Welcome to Remember in the same browser document.
+
+**Evidence:** Playwright `requests --static` showed the Analytics script as request 32, followed by the client-side `/remember` navigation as request 33. The no-API demo itself made no `/api/remember` request.
+
+**Root cause:** Unmounting the Analytics component does not unload or undo a third-party script already fetched and executed before client-side route navigation.
+
+**Recovery:** Removed the Analytics component from the root layout and uninstalled `@vercel/analytics`. Updated interface and documentation claims to state that the app includes no third-party analytics script.
+
+**Next-time rule:** For an SPA credential-entry surface, route-level conditional rendering is not a verified script-isolation boundary. Remove the third-party integration globally unless navigation forces and verifies a fresh document that never loads it.
+
+**Source:** [BYOK and zero-API demo engineering log](docs/engineering-log/2026-07-22-byok-zero-api-demo.md)
+
+### L86. Do not pass JSON mock bodies through fragile Windows native quoting
+
+**Observed at:** Exact time not captured; during BYOK error-path browser verification on 2026-07-22.
+
+**Failure:** The first `playwright-cli route` mock used `--body` with inline JSON. Windows native argument reconstruction stripped the property-name quotes, so the client received invalid JSON and displayed `Expected property name or '}' in JSON at position 1`.
+
+**Evidence:** The intercepted `/api/remember` request returned 401 without reaching the local route or OpenAI, but `response.json()` failed before the intended mocked error could be shown.
+
+**Root cause:** JSON syntax was embedded in a native CLI argument whose quotes were reconstructed across PowerShell, `npx`, and the Playwright CLI.
+
+**Recovery:** Removed the malformed route and created the mock inside the page context with `route.fulfill({ contentType: 'application/json', body: JSON.stringify(...) })`. The rerun displayed the intended bounded error and still made no provider call.
+
+**Next-time rule:** On Windows, create nontrivial Playwright JSON mocks in a page-context route handler and use `JSON.stringify`. Reserve CLI `--body` for plain text or independently verified simple payloads.
+
+**Source:** [BYOK and zero-API demo engineering log](docs/engineering-log/2026-07-22-byok-zero-api-demo.md)
+
+### L87. Match run-code input to the installed Playwright CLI contract
+
+**Observed at:** Exact time not captured; immediately after L86 during BYOK browser verification on 2026-07-22.
+
+**Failure:** The first recovery used the skill reference's bare `await page...` `run-code` form. The installed CLI rejected it with `SyntaxError: Unexpected identifier 'page'`.
+
+**Evidence:** `playwright-cli run-code --help` stated that the argument must be a JavaScript function invoked with `page`.
+
+**Root cause:** The skill example and installed CLI version use different `run-code` input contracts.
+
+**Recovery:** Passed `async (page) => { ... }`; the CLI accepted it and installed the JSON-safe route handler.
+
+**Next-time rule:** Before the first `run-code` use in a resolved Playwright CLI version, read that command's help and follow its exact function-or-snippet contract.
+
+**Source:** [BYOK and zero-API demo engineering log](docs/engineering-log/2026-07-22-byok-zero-api-demo.md)
+
+### L88. Confirm child-process exit before npm clean installation
+
+**Observed at:** Exact time not captured; during the final clean-install verification on 2026-07-22.
+
+**Failure:** The first post-browser `npm ci` failed with `EPERM` while unlinking `node_modules/lightningcss-win32-x64-msvc/lightningcss.win32-x64-msvc.node`.
+
+**Evidence:** npm exited 1 and identified the exact locked native binary. Later command-line inspection found PID 28940 still running this repository's `next start --hostname 127.0.0.1 -p 3128`, even though execution cell 4 had been terminated.
+
+**Root cause:** Terminating the outer managed execution cell did not terminate its spawned Next.js child process, which retained a Windows file handle in `node_modules`.
+
+**Recovery:** Resolved the exact repo-owned PID, stopped only PID 28940, confirmed it exited, and reran `npm ci` successfully. The subsequent test, lint, and build gates all passed.
+
+**Next-time rule:** After browser verification, terminate the execution cell and separately inspect for repo-owned child processes before running `npm ci` or replacing native modules. A closed port alone is not sufficient process-exit evidence.
+
+**Source:** [BYOK and zero-API demo engineering log](docs/engineering-log/2026-07-22-byok-zero-api-demo.md)
+
+### L89. Escalate only exact workspace process inspection after denial
+
+**Observed at:** Exact time not captured; while diagnosing L88 on 2026-07-22.
+
+**Failure:** The default-sandbox `Get-CimInstance Win32_Process` command returned `Access denied` before it could identify the process holding the native module.
+
+**Evidence:** The command exited 1 with only `Access denied`; it did not return or change process state.
+
+**Root cause:** Windows process command-line inspection crosses the current sandbox's read boundary.
+
+**Recovery:** Requested narrow read-only approval, filtered `node.exe` command lines to the resolved workspace path, and found exactly one match. Stopped only that confirmed PID using the already approved exact process-stop operation.
+
+**Next-time rule:** When default process command-line inspection is denied, request narrow read-only approval immediately. Filter to the exact resolved workspace and display the match before stopping any process.
+
+**Source:** [BYOK and zero-API demo engineering log](docs/engineering-log/2026-07-22-byok-zero-api-demo.md)
+
+### L90. Keep read-only validators compatible with Windows PowerShell 5.1
+
+**Observed at:** Exact time not captured; during final secret-scan triage on 2026-07-22.
+
+**Failure:** A read-only classifier attempted to call static `SHA256.HashData()` and `Convert.ToHexString()`. Both methods were unavailable in the current PowerShell/.NET runtime, so the command exited 1 before returning its intended redacted classification.
+
+**Evidence:** PowerShell reported one missing-method error for each API. The command did not print the sensitive line or change any file.
+
+**Root cause:** The validator used modern .NET convenience APIs without checking the Windows PowerShell 5.1 runtime surface.
+
+**Recovery:** Avoided the unnecessary hash and used Git baseline comparison plus a tighter key-value pattern. This distinguished the unchanged Markdown empty-variable example from the new test fixture without exposing any value.
+
+**Next-time rule:** Write repository validators for the active PowerShell 5.1 surface. If hashing is actually required, use `SHA256.Create().ComputeHash()` and `BitConverter`; otherwise prefer a simpler baseline comparison.
+
+**Source:** [BYOK and zero-API demo engineering log](docs/engineering-log/2026-07-22-byok-zero-api-demo.md)

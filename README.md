@@ -10,8 +10,10 @@ mattered, and what you could ask next.
 
 The rest of Rehello stays deliberately local-first. There are no
 accounts, and saved people, moments, and reminders stay in the
-browser. Only a Quick Remember note that the user explicitly submits
-is sent through the server-side OpenAI route for shaping.
+browser. Ready-made demos use no API. To shape a personal Quick
+Remember note, the visitor supplies an OpenAI API key for that one
+request; the note and key pass through Rehello's server to OpenAI and
+the app does not save the key.
 
 ---
 
@@ -89,7 +91,7 @@ focused on the real usage environment.
 | **Home** | Greeting that adapts to time of day, a featured person worth refreshing, recall preview, recent people, "worth a quick refresh", and upcoming reminders. Each section can be hidden. |
 | **People** | Sortable list (Recent / A–Z / Last met / Custom drag-to-reorder) with search. |
 | **Person profile** | Name, tags, color, encounter history, and a "Stay in touch" picker with in-app reminder list. |
-| **Remember flow** | Paste one messy note and let GPT-5.6 shape a recall card, or use the original prompt-by-prompt capture flow. |
+| **Remember flow** | See a fixed no-API example, paste one messy note and use your own OpenAI API key once to shape it, or use the original prompt-by-prompt capture flow. |
 | **Recall** | Spaced-review card that surfaces what to ask about next time, plus an inline in-app reminder picker. |
 | **Prep** | Pick an event type (social mixer / work / class / coffee), get starters tuned to that context plus topics mined from your own conversation history. |
 | **Settings** | Back up or restore people, moments, and reminders; restore hidden sections; load sample data; replay Welcome; or clear local data. |
@@ -98,9 +100,9 @@ focused on the real usage environment.
 
 ## User flow
 
-Only an explicit Quick Remember submission crosses the server boundary. Guided
-capture, saved records, reminders, sample data, and Prep topic mining stay in
-the browser.
+Only an explicit BYOK Quick Remember submission crosses the server boundary.
+Both ready-made demos, guided capture, saved records, reminders, sample data,
+and Prep topic mining stay in the browser.
 
 ```mermaid
 flowchart TD
@@ -114,11 +116,14 @@ flowchart TD
   H -->|Remember someone| Q
 
   Q --> E{"Capture method"}
-  E -->|Messy note| F["Use an example and starter prompts"]
+  E -->|Ready-made example| DEMO["Load a fixed recall card locally<br/>no API request"]
+  E -->|Own messy note| F["Write a note or use starter prompts"]
   E -->|One question at a time| G["Guided capture"]
-  F -->|Explicit submit| API["/api/remember to OpenAI Responses API"]
+  DEMO --> R["Review recall card"]
+  F --> K["Enter a visitor-owned OpenAI API key<br/>used for one request"]
+  K -->|Explicit submit| API["/api/remember to OpenAI Responses API"]
   API --> AI["GPT-5.6 returns a structured draft"]
-  AI --> R["Review GPT draft"]
+  AI --> R
   R -->|Adjust details| G
   G --> G2["Answer prompts and optional mood"]
   R -->|Save as-is| S["Save person and moment in browser localStorage"]
@@ -152,8 +157,10 @@ no path that automatically uploads saved `localStorage` history to the model.
 flowchart TD
   subgraph browser["Browser / current device"]
     Q["Quick Remember note<br/>20-1200 characters"]
+    K["Visitor-owned OpenAI API key<br/>held only for one request"]
+    D["Fixed demo note and recall card<br/>no network request"]
     G["Guided capture<br/>no GPT call"]
-    R["Review GPT draft<br/>save as-is or adjust"]
+    R["Review recall card<br/>save as-is or adjust"]
     S["Browser save logic"]
     L[("localStorage<br/>people / encounters / reminders")]
     F["Rendered app surfaces<br/>Home / People / Recall / in-app reminders<br/>Prep uses local keyword mining"]
@@ -161,8 +168,7 @@ flowchart TD
   end
 
   subgraph server["Next.js server route"]
-    K["OPENAI_API_KEY<br/>server environment only"]
-    A["POST /api/remember<br/>validate key, JSON, and note length"]
+    A["POST /api/remember<br/>validate origin, visitor key, JSON, and note length"]
     P["System rules and Zod schema<br/>facts from note only / preserve language<br/>store:false / low reasoning"]
     V["Validate parsed draft<br/>seven strings and a required name"]
   end
@@ -171,10 +177,9 @@ flowchart TD
     M["Responses API<br/>GPT-5.6 Terra<br/>note to structured recall-card draft"]
   end
 
-  T["Vercel Analytics<br/>component mounted globally"]
-
+  D --> R
   Q -->|"Explicit submit: this note only"| A
-  K --> A
+  K -->|"Custom request header"| A
   A --> P
   P -->|"Prompt, schema, and current note"| M
   M -->|"Structured candidate"| V
@@ -184,7 +189,6 @@ flowchart TD
   S --> L
   L --> F
   L <--> B
-  F -.->|"Root-layout analytics; live payload not audited here"| T
 ```
 
 The seven generated fields are `name`, `oneLiner`, `where`, `impression`,
@@ -219,30 +223,34 @@ reduce unwanted output; they do not guarantee factual accuracy.
   SMS, calendar, or operating-system notifications. The user must reopen the app
   to see due or upcoming reminders.
 - **Local-first does not mean zero external data flow.** The explicitly
-  submitted note passes through the Vercel server route to OpenAI. The request
-  sets `store:false`, and the route sends `Cache-Control: no-store`, but this
+  submitted note and visitor-provided API key pass through the Vercel server
+  route to OpenAI. The key is held in React state for the attempt, sent in a
+  custom request header, cleared after the attempt, and never written by
+  Rehello to localStorage, sessionStorage, a URL, or a backup. The request sets
+  `store:false`, and the route sends `Cache-Control: no-store`, but this
   repository does not prove end-to-end encryption or zero provider retention.
-  Vercel Analytics is also mounted globally; its live configuration and payload
-  were not audited for this diagram.
+  Rehello does not include a third-party analytics script.
 - **Availability depends on external services.** Quick Remember needs the
-  server-side API key, network access, the deployed route, and OpenAI. The client
-  stops waiting after 45 seconds and shows an error; guided capture remains the
-  non-AI fallback.
-- **Abuse and cost controls are not implemented in the route.** The endpoint is
-  unauthenticated and has no repository-level rate limiter. Any Vercel WAF rule,
-  provider budget, or billing cap is deployment configuration and was not
-  verified by this code audit.
+  visitor's API key, API credit and model permission, network access, the
+  deployed route, and OpenAI. The client stops waiting after 45 seconds and
+  shows an error; the fixed example and guided capture remain no-API fallbacks.
+- **BYOK removes owner-funded model usage, not every hosting cost.** The route
+  ignores `OPENAI_API_KEY` in the server environment and cannot charge the
+  project owner's OpenAI account. It is still an unauthenticated server
+  function with no repository-level rate limiter, so requests can consume
+  hosting invocations. Same-origin checking is defense-in-depth, not
+  authentication. Any Vercel WAF rule remains deployment configuration and is
+  not verified by this local change.
 - **PWA does not mean offline.** The repository has PWA manifest metadata but no
   service worker or Workbox implementation. Offline loading is not promised,
   and GPT shaping always requires a network request.
 - **Language support is partial.** The model prompt requests output in the
   note's language, but the application interface and error messages are mainly
   English and have no complete localization system.
-- **Verification coverage is limited.** CI runs lint and production build only.
-  No unit or end-to-end test scripts or conventional test files were found in
-  the checked repository, and this
-  documentation task did not verify a physical phone, installed PWA, live WAF,
-  analytics payload, or production API call.
+- **Verification coverage is still bounded.** CI runs unit tests, lint, and a
+  production build. Route tests use a mocked OpenAI client and make no paid API
+  request. This local change does not verify a physical phone, installed PWA,
+  live WAF, analytics payload, deployment, or production API call.
 
 ---
 
@@ -254,13 +262,13 @@ reduce unwanted output; they do not guarantee factual accuracy.
 - **Tailwind CSS 4**
 - **lucide-react** for icons
 - **@dnd-kit** for drag-to-reorder
-- **Vercel Analytics** through `@vercel/analytics`
 - **localStorage** for people, encounters, and reminders
 - **OpenAI Responses API** with GPT-5.6 Terra for the Quick Remember core
 
 People, encounters, and reminders still persist in `localStorage`.
-Quick Remember sends only the note a user explicitly submits to the
-server-side API route; the OpenAI key is never exposed to the browser.
+Quick Remember sends only the note a user explicitly submits and the
+visitor-owned key entered for that request through the server-side API route.
+The app does not persist the key.
 
 The whole app is statically prerendered where possible. Anything
 that depends on local data hydrates on the client.
@@ -278,22 +286,23 @@ npm install
 npm run dev
 ```
 
-To use Quick Remember locally, copy `.env.example` to `.env.local`
-and set `OPENAI_API_KEY`. Never commit `.env.local`.
-
 Open <http://localhost:3000>. On first load, advance to the final
 Welcome screen and choose **Explore a ready-made demo** to seed five
 sample people with intentionally overlapping conversation themes so
-Prep has something interesting to surface.
+Prep has something interesting to surface. That demo and the fixed Quick
+Remember example make no API request. To shape your own note, use a dedicated,
+restricted OpenAI project key in the one-time prompt. ChatGPT subscriptions do
+not include API usage.
 
 ```bash
+npm test        # mocked route and demo-fixture tests; no live API call
 npm run build   # production build
 npm run lint    # eslint
 ```
 
-GitHub Actions runs `npm ci`, `npm run lint`, and `npm run build`
+GitHub Actions runs `npm ci`, `npm test`, `npm run lint`, and `npm run build`
 on every push and pull request using Node.js 24. The CI workflow does
-not receive `OPENAI_API_KEY` and does not make a live OpenAI request.
+not receive an OpenAI API key and does not make a live OpenAI request.
 
 ---
 
@@ -338,7 +347,8 @@ data shape easy to evolve.
 This is a launch-stage portfolio project, not a production-grade
 service. It explores what a softer people tool could feel like.
 There are no accounts or sync; saved people remain in the current
-browser. An explicitly submitted Quick Remember note is processed
-through the OpenAI API, and Vercel Analytics is enabled for the app.
+browser. Ready-made demos do not use an API. A personal Quick Remember note is
+processed only with the visitor's one-time OpenAI API key. No third-party
+analytics script is included.
 
 Feedback and conversation welcome.
