@@ -66,8 +66,23 @@ Before changing code or publication state:
 | L19 | The original disabled `Shape my memory` action did not explain its 20-character requirement. | Every disabled primary action must expose the unmet prerequisite; test empty, boundary-minus-one, and boundary states. |
 | L20 | GPT-5.6 was described as optional even though the contest required a clear model-centered story. | Before launch, map the claim to the strongest real model transformation and show it in the first-run and social-preview surfaces. |
 | L21 | A staged diff check found a blank line at EOF, but a composite shell command continued and obscured the check's exit status. | Run integrity gates as standalone commands or capture and propagate their exit codes immediately. |
-| L52 | A Windows PowerShell production probe tried to construct `HttpClient` before loading its assembly. | Load `System.Net.Http` explicitly before constructing `HttpClient` in Windows PowerShell 5.1. |
-| L53 | A lesson patch reused feature-branch context after the user switched the worktree to `main`. | Re-read the exact target region after every branch switch before creating a patch. |
+| L50 | A strict Welcome snapshot regex rejected a valid button ref when Playwright inserted an `active` attribute. | Parse the ref from the remainder of the matching snapshot line instead of assuming it immediately follows the accessible name. |
+| L51 | A textarea-ref parser assumed every Playwright ref used the simple `e39` form and rejected a valid frame-prefixed ref. | Capture the complete bracketed ref token; treat ref values as opaque identifiers. |
+| L52 | Windows PowerShell could not resolve `System.Net.Http.HttpClient` before the assembly was loaded. | Load `System.Net.Http` explicitly before constructing `HttpClient` in Windows PowerShell 5.1. |
+| L53 | A lesson patch reused context from the feature branch after the user switched to `main`. | Re-read the branch and exact patch target immediately after every branch switch. |
+| L54 | A Playwright mobile configuration was silently ignored, so a desktop Chrome result looked like iPhone evidence. | Gate mobile runs on user agent, viewport, screen size, and DPR, and pass device options explicitly. |
+| L55 | A broad npm-cache search produced noisy, truncated output and a nonzero composite result. | Use the focused CLI help command before searching package caches. |
+| L56 | The first WebKit iPhone gate failed because the browser binary was absent. | Prove the requested browser is installed before starting the application matrix. |
+| L57 | Headless WebKit passed while a physical iPhone screenshot still showed the whole shared shell shifted left. | Treat physical-device evidence as the acceptance authority and correct the shared root rather than product pages. |
+| L58 | Browser-tool discovery used the wrong working-directory path, an uncached `@latest` package, and then an assumed global executable. | Use the skill wrapper's exact package form and verify paths relative to the declared working directory. |
+| L59 | `Start-Process` again failed on duplicate `Path` and `PATH` environment keys. | Do not use `Start-Process` for this workspace's dev server; use a managed foreground tool cell. |
+| L60 | Several Playwright CLI attempts failed in package resolution, daemon permissions, command naming, or JavaScript grammar before measuring the page. | Fix one CLI layer at a time and count no page evidence until a minimal command returns browser state. |
+| L61 | A many-process CLI matrix exceeded 124 seconds and returned no measurements. | Run one browser process with an in-process matrix and a bounded, explicit cleanup path. |
+| L62 | Expired or detached Next dev children caused a navigation timeout, stale listeners, and misleading readiness failures. | Verify server readiness immediately before browsing and inspect exact child PIDs when a managed parent ends. |
+| L63 | The browser first loaded non-hydrated SSR through `127.0.0.1`, then a stale `.next` stylesheet from before the shell fix. | Use the server-declared origin and prove the served CSS contract before trusting browser assertions. |
+| L64 | The first two `.next` cleanup attempts failed because surviving Next child processes still held Turbopack files. | Stop every command-line-confirmed repo Next child before deleting the validated untracked cache path. |
+| L65 | The final status probe repeated the invalid direct pipe after a PowerShell `foreach` statement. | Always assign `foreach` output to a variable before piping it to a formatter. |
+| L66 | A combined prerequisite read ended nonzero because its guessed Next documentation glob matched no files. | List the installed documentation tree first and handle an expected zero-match search explicitly. |
 
 ## Detailed lessons
 
@@ -639,6 +654,118 @@ These items remain open and must not be described as fixed:
 
 **Source:** [Honest boundary copy engineering log](docs/engineering-log/2026-07-22-honest-boundary-copy.md)
 
+### L45. Convert expected memory-search absence into an explicit result
+
+**Observed at:** Exact time not captured; before 2026-07-22 17:09:23.835 -05:00
+
+**Failure:** A composite discovery command successfully read the Playwright skill and then exited 1 because its final `rg` search found no relevant Rehello mobile-layout entry in the memory registry.
+
+**Evidence:** The tool output contained the complete skill text, an empty `MEMORY HITS` section, and overall exit code 1.
+
+**Root cause:** The command repeated L35 by leaving an expected no-match `rg` invocation as its unhandled final operation.
+
+**Recovery:** Classified the memory lookup as a zero-match, stopped memory discovery, and continued from current repository and production evidence.
+
+**Next-time rule:** Memory discovery must count or explicitly handle zero matches. Do not let an expected empty lookup obscure successful prerequisite reads or appear to be an operational failure.
+
+**Source:** [Mobile viewport shell investigation](docs/engineering-log/2026-07-22-mobile-viewport-shell-investigation.md)
+
+### L46. Classify an uncached browser CLI before diagnosing the application
+
+**Observed at:** Exact time not captured; before 2026-07-22 17:09:23.835 -05:00
+
+**Failure:** The first `@playwright/cli` help command failed before browser launch because restricted npm used `only-if-cached` mode and had no cached package response.
+
+**Evidence:** npm returned `ENOTCACHED` for `@playwright/cli` and reported that it could not write a log under the npm cache directory.
+
+**Root cause:** The required diagnostic CLI package was absent from the restricted npm cache. No Rehello request or browser action occurred.
+
+**Recovery:** Re-ran the unchanged package and help command with narrowly approved npm network access, then opened an isolated browser session.
+
+**Next-time rule:** When a pinned or explicit browser CLI fails only with `ENOTCACHED`, record it as tool availability, retry the identical command with narrow network access, and do not infer an application defect.
+
+**Source:** [Mobile viewport shell investigation](docs/engineering-log/2026-07-22-mobile-viewport-shell-investigation.md)
+
+### L47. Match Playwright CLI code to the command's execution grammar
+
+**Observed at:** Exact time not captured; after 2026-07-22 17:09:23.835 and before 17:16:11.857 -05:00
+
+**Failure:** The first geometry measurement used a top-level `return` in Playwright CLI `run-code` and failed with `SyntaxError: Unexpected token 'return'`.
+
+**Evidence:** The CLI returned the syntax error and no viewport, scroll-width, or navigation geometry result.
+
+**Root cause:** The submitted snippet assumed function-body return semantics that the selected CLI command did not provide at its top level.
+
+**Recovery:** Re-expressed the measurement as a value-producing expression for the CLI `eval` command.
+
+**Next-time rule:** Before sending a long browser diagnostic, prove the chosen CLI command's grammar with a one-line expression. Treat a syntax failure as zero page evidence and rerun the full measurement only after the probe succeeds.
+
+**Source:** [Mobile viewport shell investigation](docs/engineering-log/2026-07-22-mobile-viewport-shell-investigation.md)
+
+### L48. Pass complex Playwright expressions through one PowerShell variable
+
+**Observed at:** Exact time not captured; after L47 and before 2026-07-22 17:16:11.857 -05:00
+
+**Failure:** The first `eval` geometry expression failed with `SyntaxError: Unexpected token '*'` because quotes around the universal selector did not survive the Windows native-command argument boundary.
+
+**Evidence:** The error was consistent with the browser receiving `querySelectorAll(*)` instead of a quoted selector, and no geometry result was returned.
+
+**Root cause:** Nested JavaScript double quotes were reconstructed incorrectly between PowerShell and the native CLI, repeating the quoting class already identified by L12.
+
+**Recovery:** Stored the full expression in a task-specific PowerShell variable and used JavaScript single-quoted strings encoded inside the PowerShell value. The next command returned the complete JSON measurement.
+
+**Next-time rule:** For Playwright CLI `eval` on Windows, pass one prebuilt expression argument from a task-specific variable and validate it with a small probe. Do not stack shell escapes around nested JavaScript quotes.
+
+**Source:** [Mobile viewport shell investigation](docs/engineering-log/2026-07-22-mobile-viewport-shell-investigation.md)
+
+### L49. Keep Playwright session snapshots out of the repository
+
+**Observed at:** Artifacts created from 2026-07-22 17:09:23.835 through 17:22:35.249 -05:00; cleanup completed before 17:26:41.436 -05:00
+
+**Failure:** Playwright navigation and snapshot commands created 21 untracked `.playwright-cli/page-*.yml` files because the directory was not ignored. The fetched main branch already contained one tracked snapshot from an earlier commit.
+
+**Evidence:** `git status --short` listed 21 untracked snapshot files, `git check-ignore` returned no rule, and `git ls-files` listed the older tracked snapshot.
+
+**Root cause:** The browser CLI writes session snapshots to `.playwright-cli` by default, while the repository ignores `.agent-browser` and test-report directories but not `.playwright-cli`.
+
+**Recovery:** Closed the exact browser session, enumerated only untracked `.playwright-cli` paths, validated every resolved path stayed inside the expected directory, removed 21 generated files, preserved the tracked file, and confirmed a clean working tree.
+
+**Next-time rule:** Add `.playwright-cli/` to `.gitignore` before further CLI browser work and deliberately remove any tracked session snapshot in a scoped commit. During cleanup, enumerate only untracked files and never delete the directory recursively when tracked evidence is present.
+
+**Source:** [Mobile viewport shell investigation](docs/engineering-log/2026-07-22-mobile-viewport-shell-investigation.md)
+
+### L50. Treat Playwright snapshot attributes as variable metadata
+
+**Observed at:** The final Welcome snapshot was created at 2026-07-22 17:43:22.902 -05:00; the harness failure followed immediately, but its exact time was not captured.
+
+**Failure:** The first mobile-shell browser matrix stopped before loading sample data because its snapshot parser did not find the visible `Explore a ready-made demo` button.
+
+**Evidence:** The fresh snapshot contained `button "Explore a ready-made demo" [active] [ref=e40]`, while the parser required `[ref=...]` to appear immediately after the accessible name. The server and browser cleanup still completed, and `LISTENER_REMAINS=False` confirmed that port 3174 was released.
+
+**Root cause:** The harness treated Playwright's optional state attributes as a fixed snapshot grammar. The button was present and active; this was not an application rendering or navigation failure.
+
+**Recovery:** The parser was changed to accept same-line metadata between the accessible name and ref. A standalone check against the captured fresh snapshot returned `RECOVERED_REF=e40` before the browser matrix was retried.
+
+**Next-time rule:** When extracting a ref from a fresh Playwright snapshot, match the accessible role and name, then allow variable same-line attributes before `[ref=...]`. Preserve the snapshot and classify a parser mismatch separately from application behavior.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L51. Treat Playwright ref values as opaque identifiers
+
+**Observed at:** The Remember snapshot was created at 2026-07-22 17:49:19.354 -05:00; the harness failure followed immediately, but its exact time was not captured.
+
+**Failure:** The corrected browser matrix passed all 17 mobile geometry cases and the desktop-frame assertion, then stopped before the focused-textarea check because the parser did not recognize the textarea ref.
+
+**Evidence:** The fresh Remember snapshot contained `textbox "What you remember" [active] [ref=f20e39]`. The parser allowed only refs matching `e` followed by digits. Browser and listener cleanup again completed with `LISTENER_REMAINS=False`.
+
+**Root cause:** Playwright generated a frame-prefixed ref after repeated navigations, but the harness treated the earlier short `e40` form as the ref schema. The textarea was already rendered and active; this was not an application focus failure.
+
+**Recovery:** The parser was changed to capture the entire non-closing-bracket token after `ref=` and to treat it as opaque. A standalone check against the captured snapshot returned `RECOVERED_TEXTAREA_REF=f20e39` before retrying the focused-input verification.
+
+**Next-time rule:** Never validate Playwright ref syntax beyond its enclosing `[ref=...]` marker. Capture and reuse the complete token from the latest snapshot because navigation and frame context can change its prefix.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
 ### L52. Load the HTTP assembly explicitly in Windows PowerShell
 
 **Observed at:** Exact time not captured; after the user confirmed the iPhone 14 issue affected every page in portrait orientation and before the corrected production CSS probe on 2026-07-22.
@@ -653,7 +780,7 @@ These items remain open and must not be described as fixed:
 
 **Next-time rule:** In Windows PowerShell 5.1, run `Add-Type -AssemblyName System.Net.Http` before constructing `HttpClient`. Treat a missing type as a local runtime setup failure and zero network evidence.
 
-**Source:** Current iPhone 14 production follow-up; no separate engineering log was created.
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
 
 ### L53. Re-read patch context after a branch switch
 
@@ -665,8 +792,216 @@ These items remain open and must not be described as fixed:
 
 **Root cause:** The patch reused target context read before the user switched branches instead of re-reading `lessons.md` from the current worktree.
 
-**Recovery:** The current branch, lesson headings, ledger, and final L44 block were inspected again. The replacement patch used the current L44 tail as its unique insertion anchor and retained L52-L53 numbers to avoid colliding with L45-L51 already present on the feature branch.
+**Recovery:** The current branch, lesson headings, ledger, and final detailed block were inspected again. The replacement patch used the current tail as its unique insertion anchor and retained L52-L53 numbers to avoid colliding with L45-L51 already present on the feature branch.
 
 **Next-time rule:** After any branch switch or user-directed worktree change, re-read the exact target region immediately before applying a patch. Never reuse a patch anchor from a previous branch snapshot.
 
-**Source:** Current worktree cleanup; no separate engineering log was created.
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L54. Gate mobile emulation on device facts
+
+**Observed at:** Exact time not captured; during the physical-iPhone follow-up on 2026-07-22.
+
+**Failure:** The first supposed iPhone 14 measurement used a configuration file at `.playwright-cli/iphone14/playwright-cli.json` that the installed CLI did not read. The run looked geometrically healthy but was desktop Chrome, not mobile WebKit.
+
+**Evidence:** The result reported a Windows HeadlessChrome user agent, 1280 by 720 inner viewport, and device pixel ratio 1. `playwright-cli open --help` later identified `.playwright/cli.config.json` as the default configuration path and exposed explicit `--browser` and `--device` options.
+
+**Root cause:** The workflow reference described a configuration location that did not match the installed CLI version, and the first harness did not assert device identity.
+
+**Recovery:** The run was discarded. WebKit was opened with `--browser webkit --device "iPhone 14"`, and the gate required an iPhone user agent, 390-pixel inner width, 390 by 844 screen, and DPR 3 before collecting layout evidence.
+
+**Next-time rule:** Every mobile browser run must fail fast unless user agent, inner viewport, screen dimensions, and DPR match the requested device. A width-only result is not mobile evidence.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L55. Prefer focused CLI discovery over broad cache searches
+
+**Observed at:** Exact time not captured; immediately before the corrected Playwright device gate on 2026-07-22.
+
+**Failure:** A broad recursive search of the npm cache, combined with a help probe, produced noisy and truncated output and exited nonzero.
+
+**Evidence:** The composite result did not provide a stable executable or configuration answer, while the focused `open --help` command immediately returned the supported device and config flags.
+
+**Root cause:** Discovery searched a large implementation cache before asking the installed command for its public grammar.
+
+**Recovery:** Stopped the broad search and used focused CLI help, then applied explicit browser and device flags.
+
+**Next-time rule:** Ask the installed executable for command-specific help first. Search package implementation files only when the public help lacks the required fact, and never combine the search with the acceptance probe.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L56. Prove the requested browser binary before the matrix
+
+**Observed at:** Exact time not captured; during the WebKit iPhone gate on 2026-07-22.
+
+**Failure:** The first explicit WebKit iPhone 14 launch stopped because the WebKit browser binary was not installed.
+
+**Evidence:** Playwright reported the missing executable before navigation. No application request or geometry measurement occurred.
+
+**Root cause:** The CLI package was available, but its separately managed WebKit runtime was absent.
+
+**Recovery:** Installed WebKit 26.5 (59.4 MiB), reran the device gate, and obtained the expected iPhone user agent, 390 by 664 inner viewport, 390 by 844 screen, and DPR 3.
+
+**Next-time rule:** Before starting a browser matrix, run a minimal launch/version gate for the exact engine. Treat missing browser installation as tool setup and zero application evidence.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L57. Let physical-device evidence override emulation acceptance
+
+**Observed at:** User screenshot received on 2026-07-22 after the initial stabilization had passed local Chrome and WebKit geometry checks.
+
+**Failure:** The accepted shared-shell implementation still appeared shifted left on a physical iPhone 14 in portrait orientation across all pages.
+
+**Evidence:** The supplied Safari screenshot showed the shared notch, product content, and bottom navigation displaced together, while browser chrome remained aligned. Earlier emulation had measured every shared box at left 0 and right 390, so it did not reproduce the physical failure.
+
+**Root cause:** The earlier acceptance over-relied on headless geometry. The most bounded diagnosis from the physical screenshot is a root visual-viewport offset interacting with redundant root `overflow-x: clip`, not a People card or page-specific width defect.
+
+**Recovery:** Removed root `overflow-x: clip`, explicitly set `html` and `body` to width 100% and min-width 0, reset body margin, and bounded the stage and shell. Fresh WebKit verification then kept all shared boxes at 0 through 390 on six routes.
+
+**Next-time rule:** Physical iOS evidence outranks headless acceptance for visual-viewport and browser-chrome behavior. When every shared layer moves together, correct the root shell and do not redesign individual pages.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L58. Keep browser-tool discovery relative and version-stable
+
+**Observed at:** Exact time not captured; after applying the physical-device correction on 2026-07-22.
+
+**Failure:** One composite command ran from `web/` but tried to read `web/package.json`, then requested uncached `@playwright/cli@latest`. The next recovery attempt assumed a global `playwright-cli` executable that was not on `PATH`.
+
+**Evidence:** PowerShell reported the nonexistent `web/web/package.json`; npm returned `ENOTCACHED`; and the following command reported `playwright-cli` was not recognized. None of these attempts launched a browser.
+
+**Root cause:** The commands ignored their declared working directory and improvised package/executable forms instead of using the skill wrapper's exact package invocation.
+
+**Recovery:** Read `package.json` relative to `web/`, used `npx --yes --package @playwright/cli playwright-cli`, and then pinned the already downloaded executable only after locating it explicitly.
+
+**Next-time rule:** Resolve every path against the command's working directory and use the skill wrapper's package form verbatim. Do not add `@latest` or assume a global binary during recovery.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L59. Do not repeat the duplicate-Path Start-Process failure
+
+**Observed at:** Exact time not captured; during the corrected local browser setup on 2026-07-22.
+
+**Failure:** A background `Start-Process npm.cmd` attempt again failed with `Item has already been added. Key in dictionary: 'Path' Key being added: 'PATH'`, producing a null PID.
+
+**Evidence:** The command returned `Pid:null` plus the duplicate-key exception, and no listener was created by that attempt.
+
+**Root cause:** The current inherited Windows environment still contains case-insensitive duplicate path keys, exactly the condition already documented by L09.
+
+**Recovery:** Used the tool's managed long-running foreground cell for `npm run dev`, with separate readiness and exact termination checks.
+
+**Next-time rule:** In this workspace, do not use `Start-Process` for Next server verification. Apply L09 immediately and launch the server through a managed foreground command cell.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L60. Separate Playwright CLI plumbing from page evidence
+
+**Observed at:** Exact times not captured; during the corrected WebKit verification on 2026-07-22.
+
+**Failure:** Several CLI attempts failed before a reliable measurement: npm intermittently returned `ENOTCACHED`; the pinned executable hit `EPERM` writing its user-level daemon; an unapproved console composite never opened a session and also used the nonexistent `network` command; and a multi-statement `run-code` snippet returned `SyntaxError: Unexpected identifier 'page'`.
+
+**Evidence:** Each attempt returned an npm, filesystem, command-grammar, or JavaScript parser error. The misleading console composite ended with exit code 0 only because its last cleanup command succeeded.
+
+**Root cause:** Package resolution, sandbox permissions, CLI command grammar, and page JavaScript grammar were changed together instead of being proven one at a time.
+
+**Recovery:** Located the installed Playwright Core runtime, switched to one workspace-owned verification script, and required its first successful output to include actual iPhone viewport and DOM geometry.
+
+**Next-time rule:** Prove package resolution, process launch, session persistence, and one minimal page read as separate gates. Propagate every native exit code, and do not count a session-open or click message as layout evidence.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L61. Use one browser process for a multi-route matrix
+
+**Observed at:** The failed command timed out after approximately 124 seconds on 2026-07-22.
+
+**Failure:** A PowerShell matrix launched a separate CLI client process for every storage, navigation, evaluation, screenshot, and cleanup step. It exceeded the command timeout and returned no buffered measurements.
+
+**Evidence:** The tool reported exit code 124 after 124 seconds. A subsequent session listing showed `iphone14fix` and `iphone14matrix2` still open.
+
+**Root cause:** Per-command CLI startup and daemon round trips multiplied across six routes, while all output remained buffered behind one shell invocation.
+
+**Recovery:** Closed all residual sessions and replaced the matrix with one Playwright Core browser/context/page process that navigated every route internally and closed in `finally`.
+
+**Next-time rule:** For more than a few route measurements, use a single browser process and emit one result per route. Keep session cleanup in the same program even when an assertion fails.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L62. Verify the live server immediately before browser work
+
+**Observed at:** Exact times not captured; during repeated local WebKit attempts on 2026-07-22.
+
+**Failure:** The first single-process browser script timed out navigating to `/welcome` because the original managed server had reached its 604-second lifecycle limit. A replacement then failed with `EADDRINUSE` while readiness polling found no response; a malformed `foreach` pipeline obscured the first PID inspection, `Get-CimInstance` was sandbox-denied, and a 500-millisecond stop check briefly reported the exact Next PID still alive before it exited.
+
+**Evidence:** Playwright returned a 30-second `page.goto` timeout; Next identified stale PID 24892 and repo path; PowerShell reported `An empty pipe element is not allowed`; and later process inspection showed surviving repo Next child processes even after the managed parent cell ended.
+
+**Root cause:** Parent command lifetime, detached npm/Next child lifetime, listener state, and readiness were assumed to be identical. They were not on Windows.
+
+**Recovery:** Used exact listener/process checks, queried command lines with narrow approval, stopped only repo-owned Next processes, selected a fresh port, and required an HTTP 200 immediately before browser launch.
+
+**Next-time rule:** A managed parent ending does not prove its Windows child tree ended. Before every browser run, confirm the exact port returns HTTP 200; after termination, confirm both listener absence and no repo-owned Next child command lines.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L63. Prove hydration and the served stylesheet before layout assertions
+
+**Observed at:** Exact times not captured; during the corrected WebKit matrix on 2026-07-22.
+
+**Failure:** Opening the dev server through `127.0.0.1` rendered SSR controls but blocked a Next development resource, so `Skip` clicks reported success without changing state. After switching to `localhost`, two CSS readiness assertions still failed because the server was returning a stale pre-stabilization stylesheet from `.next`.
+
+**Evidence:** The Next log recorded a blocked cross-origin HMR request and a browser `ChunkLoadError`. Direct stylesheet inspection then showed the old `height: calc(100vh - 82px)` and absolute bottom navigation, while the source file already contained the new grid shell.
+
+**Root cause:** The browser origin did not match the server-declared local origin, and Turbopack's persistent cache survived branch/worktree changes without reflecting the current source.
+
+**Recovery:** Used `http://localhost`, stopped every repo Next process, removed only the validated untracked `web/.next`, restarted on port 3184, and fetched the served stylesheet before browsing. The fresh CSS contained the grid, root hidden overflow, and zero body margin, and omitted both root clip and the old height calculation.
+
+**Next-time rule:** Use the exact local origin printed by Next. Before accepting a layout run after branch switches, fetch the served stylesheet and assert current source markers; rebuild `.next` if any old marker remains.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L64. Stop every Next child before deleting its cache
+
+**Observed at:** Exact time not captured; during the stale `.next` recovery on 2026-07-22.
+
+**Failure:** Two validated recursive removals of untracked `web/.next` failed with access denied on Turbopack `.sst` and `.meta` files, including one attempt with elevated filesystem permission.
+
+**Evidence:** The target resolved inside the repository and `git ls-files -- web/.next` returned zero, but the directory remained. Approved command-line inspection found npm PID 17548, Next CLI PID 31384, and Next server PID 32176 still attached to the repo and port 3183.
+
+**Root cause:** Terminating the managed shell cell stopped neither the npm wrapper nor both Next child processes, which continued to hold cache handles.
+
+**Recovery:** Stopped only those three confirmed repo processes, waited for them to disappear, and reran the same validated removal. `web/.next` then reported `Exists:false` before the fresh server was started.
+
+**Next-time rule:** If a generated Next cache resists deletion, do not retry broad filesystem commands. Inspect command lines, stop only the confirmed repo Next process tree, revalidate the exact untracked target, and then retry once.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L65. Collect PowerShell foreach output before piping
+
+**Observed at:** During the final clean-worktree check after commit `b50258d` on 2026-07-22.
+
+**Failure:** The final composite status probe placed a pipe directly after `foreach (...) { ... }` and failed at parse time with `An empty pipe element is not allowed`.
+
+**Evidence:** The command returned exit code 1 before reporting Git status, listener state, or artifact existence. This repeated the same grammar class already encountered during L62.
+
+**Root cause:** The probe did not apply the recovery already used earlier in the same task: statement-form `foreach` output cannot be piped directly without being collected or wrapped.
+
+**Recovery:** Assigned the loop output to a task-specific `$portResults` variable, piped that variable to `ConvertTo-Json`, and reran the entire status check. The branch was clean and ahead by one commit, ports 3182-3184 had no listeners, and `.playwright-cli` did not exist.
+
+**Next-time rule:** In Windows PowerShell status probes, always write `$results = foreach (...) { ... }` and pipe `$results` afterward. A parser failure invalidates every sibling check in the composite command.
+
+**Source:** [Mobile viewport shell stabilization log](docs/engineering-log/2026-07-22-mobile-viewport-shell-stabilization.md)
+
+### L66. Discover the installed Next documentation tree before filtering it
+
+**Observed at:** During local merge cleanup on 2026-07-22, before merged-tree testing.
+
+**Failure:** A composite prerequisite command successfully read `web/AGENTS.md` and then exited 1 because an `rg --files` filter guessed `.mdx` paths for the installed Next documentation, which actually uses `.md` files.
+
+**Evidence:** The output contained the complete nested guidance and no documentation paths, with overall exit code 1. No lint or build command had started.
+
+**Root cause:** The command assumed documentation extensions and left the expected zero-match `rg` result unhandled, repeating the absence-check class from L35 and L45.
+
+**Recovery:** Listed `web/node_modules/next/dist/docs` first, found the installed CSS and `generateViewport` `.md` guides, and read both completely before testing.
+
+**Next-time rule:** After dependency upgrades or branch merges, enumerate the installed documentation tree before applying a filename filter. If a discovery search may legitimately find nothing, capture that result explicitly instead of letting it invalidate a successful prerequisite read.
+
+**Source:** Current merge cleanup; no separate engineering log was created.

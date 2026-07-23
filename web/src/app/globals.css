@@ -28,13 +28,24 @@
 
 html {
   scroll-behavior: smooth;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
 }
 
 body {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), sans-serif;
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
   background-image:
     radial-gradient(circle at top left, rgba(212, 142, 97, 0.24), transparent 28%),
     radial-gradient(circle at top right, rgba(95, 138, 105, 0.16), transparent 24%),
@@ -49,6 +60,8 @@ a {
 .app-stage {
   margin: 0 auto;
   display: flex;
+  width: 100%;
+  min-width: 0;
   min-height: 100vh;
   max-width: 1100px;
   flex-direction: column;
@@ -60,7 +73,12 @@ a {
 
 .phone-shell {
   position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   width: min(100%, 390px);
+  min-width: 0;
+  max-width: 100%;
+  height: 820px;
   min-height: 820px;
   overflow: hidden;
   border: 1px solid rgba(117, 84, 60, 0.2);
@@ -73,6 +91,7 @@ a {
 }
 
 .phone-status {
+  grid-row: 1;
   display: flex;
   justify-content: center;
   padding: 0.85rem 0 0.55rem;
@@ -86,12 +105,13 @@ a {
 }
 
 .phone-scroll {
-  height: calc(820px - 82px);
+  grid-row: 2;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
   overflow-y: auto;
-}
-
-.phone-scroll.welcome-scroll {
-  height: calc(820px - 28px);
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
 }
 
 .screen-header {
@@ -99,14 +119,12 @@ a {
 }
 
 .screen-content {
-  padding: 1.2rem 1rem 6rem;
+  padding: 1.2rem 1rem;
 }
 
 .bottom-nav {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  grid-row: 3;
+  min-width: 0;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.45rem;
@@ -310,23 +328,31 @@ textarea:focus {
 
 @media (max-width: 640px) {
   .app-stage {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100vh;
+    min-height: 100svh;
+    min-height: 100dvh;
     padding: 0;
   }
 
   .phone-shell {
     width: 100%;
-    min-height: 100vh;
+    height: 100vh;
+    height: 100svh;
+    height: 100dvh;
+    min-height: 0;
     border: none;
     border-radius: 0;
     box-shadow: none;
   }
 
-  .phone-scroll {
-    height: calc(100vh - 82px);
+  .phone-status {
+    padding-top: max(0.85rem, env(safe-area-inset-top, 0px));
   }
 
-  .phone-scroll.welcome-scroll {
-    height: calc(100dvh - 28px);
+  .bottom-nav {
+    padding-bottom: calc(0.95rem + env(safe-area-inset-bottom, 0px));
   }
 
   .app-caption {
