@@ -60,6 +60,40 @@ Git connection, Neon provisioning, production secrets, deployment, and the
 deployed database smoke test remain separate from this local implementation
 record until completed.
 
+## Publication update
+
+- Commit `e72fab2d2be18666e09566839ab1cb09d090b531` was pushed to
+  `Benjamin-00001/helloagain` on branch
+  `codex/private-persistent-version`.
+- Draft pull request 1 targets `main` and reports the exact same head SHA.
+- GitHub reported no checks or workflow runs for the new fork branch; this is
+  recorded as CI not started, not as a pass or failure.
+- The local directory was linked to the existing `benbar/helloagain` Vercel
+  project without deploying.
+- The first Neon provisioning request was intentionally fixed to plan
+  `free_v3`, region `fra1`, and `auth=false`. Vercel required the owner to
+  accept Marketplace terms before a resource could be created.
+
+## Vercel configuration update
+
+- The owner accepted the Neon Marketplace terms in the authenticated Vercel
+  browser.
+- The identical retry provisioned `helloagain-db` successfully on `free_v3`
+  in `fra1` with Neon application auth disabled.
+- Vercel connected the database resource to `benbar/helloagain`.
+- A name-and-scope-only environment listing confirmed `DATABASE_URL` and the
+  related Neon variables for Production, Preview, and Development. No secret
+  value was retrieved or printed.
+- A freshly generated random `AUTH_SECRET` was piped directly to Vercel and
+  stored as Sensitive for Production and Preview without local persistence or
+  output.
+- The owner chose and saved `APP_PASSWORD` personally. A later
+  name-and-scope-only listing confirmed that it is encrypted and available to
+  Production and Preview; its value was not retrieved.
+- The Neon installer also created unrelated untracked local agent-skill
+  metadata. Those exact generated files were removed before publication; the
+  external Neon resource and application dependencies were unchanged.
+
 ## Current local verification
 
 | Check | Result | Scope |

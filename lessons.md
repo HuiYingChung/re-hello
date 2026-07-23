@@ -1675,3 +1675,179 @@ These items remain open and must not be described as fixed:
 **Next-time rule:** Before appending to a ledger, read its final heading and tail. Anchor the patch to that exact final record, then scan the resulting heading order before staging.
 
 **Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
+
+### L107. Expect marketplace terms before first provider provisioning
+
+**Observed at:** Exact time not captured; during Neon provisioning on 2026-07-23.
+
+**Failure:** The first fully specified free Neon provisioning command exited 1 with `integration_terms_acceptance_required` before creating a resource.
+
+**Evidence:** Vercel returned a verification URL, the three applicable policy links, `userActionRequired: true`, and the exact retry command. No Neon resource was created.
+
+**Root cause:** The Vercel account had not yet accepted the Neon Marketplace terms, and non-interactive CLI mode cannot provide that legal consent.
+
+**Recovery:** Opened the exact verification URL in the authenticated Vercel browser and left the `Accept & Install` action to the account owner. Preserved the original free-plan, Frankfurt-region, auth-disabled retry command.
+
+**Next-time rule:** Before first provisioning from a Vercel Marketplace provider, query or expect terms status. Treat terms acceptance as an owner-only legal action and never replace it with automated clicking.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
+
+### L108. Use command-group help for the Vercel Git CLI
+
+**Observed at:** Exact time not captured; during Vercel Git-connection planning on 2026-07-23.
+
+**Failure:** `vercel git connect --help` printed only the parent `vercel git` help and exited 2, so it provided no connect-specific flags or no-deploy option.
+
+**Evidence:** The output listed only `connect` and `disconnect` subcommands and global options. It did not document an option to suppress the initial deployment.
+
+**Root cause:** This CLI version routes the nested help invocation to the command group and uses a nonzero exit for that path.
+
+**Recovery:** Did not infer an undocumented no-deploy option and did not connect the repository while `main` still contained the old public version.
+
+**Next-time rule:** Treat parent help with exit 2 as zero subcommand-option evidence. Do not guess Vercel Git flags; preserve production safety and connect only when the selected production branch is ready.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
+
+### L109. Distinguish absent GitHub checks from failed checks
+
+**Observed at:** Exact time not captured; immediately after opening pull request 1 on 2026-07-23.
+
+**Failure:** `gh pr checks 1` exited 1 with `no checks reported` rather than returning check results.
+
+**Evidence:** A separate `gh run list` query for the exact branch returned no workflow runs. Local tests, lint, and build remained green.
+
+**Root cause:** GitHub Actions had not started a workflow in the new fork. The command did not report a failing CI job.
+
+**Recovery:** Reported the local verification separately and kept the pull request as a draft instead of treating absent CI as passing or failing.
+
+**Next-time rule:** When `gh pr checks` reports no checks, query exact-branch workflow runs once. Record `not started/reported` as its own state and never collapse it into either PASS or FAIL.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
+
+### L110. Apply the ledger-tail rule immediately after writing it
+
+**Observed at:** Exact time not captured; during the same publication record update on 2026-07-23.
+
+**Failure:** The patch for L107-L109 again matched the first repeated source link and inserted those records between L99 and L100, despite L106 already requiring an exact tail anchor.
+
+**Evidence:** The heading scan returned L98, L99, L107-L109, then L100-L106.
+
+**Root cause:** The patch was prepared against a repeated source line instead of the unique final wording of L106.
+
+**Recovery:** Removed only the three misplaced uncommitted blocks, anchored them after L106's unique next-time rule, and added this record after them.
+
+**Next-time rule:** When a lesson specifically corrects an append procedure, use its unique final rule text as the very next append anchor; never fall back to a generic repeated source link.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
+
+### L111. Pass complete tab objects to browser finalization
+
+**Observed at:** Exact time not captured; while handing the Neon terms page to the owner on 2026-07-23.
+
+**Failure:** The first `browser.tabs.finalize` call passed the tab ID string in `keep` and was rejected because the API requires objects containing both the tab binding and a status.
+
+**Evidence:** The browser returned `keep entries must be objects like { tab, status }`; it did not close or navigate the tab.
+
+**Root cause:** The finalization call used the opaque tab identifier instead of the documented handoff object shape.
+
+**Recovery:** Reused the existing tab binding and called finalization with `{ tab, status: 'handoff' }`. The terms tab remained open for the owner.
+
+**Next-time rule:** For browser finalization, retain the actual tab binding and pass an explicit status object. Never substitute a tab ID string for the tab object.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
+
+### L112. Split mandatory long-file reads before output truncation
+
+**Observed at:** Exact time not captured; at the start of the post-terms continuation on 2026-07-23.
+
+**Failure:** The first combined read of `lessons.md` and the Browser skill, and a second four-range combined lesson read, both exceeded the tool output boundary and were marked truncated.
+
+**Evidence:** The tool reported 39,145 and 36,415 original tokens respectively and omitted middle content. Neither result alone proved the mandatory lesson file had been read completely.
+
+**Root cause:** The prerequisite read grouped a 1,741-line ledger with another instruction file, then grouped too many ledger ranges in one call.
+
+**Recovery:** Read `lessons.md` in separate bounded 300-line ranges through line 1,741 and confirmed the Browser skill's explicit end marker.
+
+**Next-time rule:** Check line count before reading a mandatory long file. Use separate calls with bounded ranges from the first attempt and never combine it with another large instruction source.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
+
+### L113. Treat Vercel nested help exit 2 as useful text but a failed command
+
+**Observed at:** Exact time not captured; before adding `AUTH_SECRET` on 2026-07-23.
+
+**Failure:** `vercel env add --help` printed the relevant environment-variable syntax and options but exited 2.
+
+**Evidence:** The output documented comma-separated environments, stdin input, and `--sensitive`; no variable was changed by the help command.
+
+**Root cause:** This Vercel CLI version uses a nonzero exit for nested command help, as already observed for the Git command group.
+
+**Recovery:** Used only the printed documented syntax, piped a random value directly to `env add`, and verified that `AUTH_SECRET` was added as Sensitive for Production and Preview without printing its value.
+
+**Next-time rule:** Run Vercel nested help as a discovery-only operation and inspect both text and exit code. Do not count exit 2 as a successful command, and never infer a state mutation from help output.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
+
+### L114. Apply bounded-read guidance before the first mandatory read
+
+**Observed at:** Exact time not captured; during the post-password continuation on 2026-07-23.
+
+**Failure:** The first mandatory lesson read combined six bounded shell commands inside one orchestration result. The combined output still exceeded the outer tool boundary and was truncated, repeating the failure class documented by L112.
+
+**Evidence:** The orchestration result reported 37,256 original tokens and omitted content despite each nested command using a line range.
+
+**Root cause:** The ranges were bounded individually but their outputs were recombined into one result, so the effective response was not bounded.
+
+**Recovery:** Re-read the complete 1,789-line file through nine standalone calls of at most 200 lines each before changing repository or Vercel state.
+
+**Next-time rule:** A mandatory long-file read must use standalone tool calls from the first attempt. Do not aggregate their outputs in a wrapper even when each inner command is bounded.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
+
+### L115. Inspect local files after Vercel Marketplace provisioning
+
+**Observed at:** Exact time not captured; during Neon provisioning on 2026-07-23.
+
+**Failure:** The Vercel Neon installer unexpectedly created untracked `.agents/skills` content and `skills-lock.json` in the repository even though the task required only a hosted database resource.
+
+**Evidence:** Git status listed the generated agent-skill paths after successful resource provisioning; none belonged to the application implementation.
+
+**Root cause:** The Marketplace installer included local agent metadata as an additional setup side effect.
+
+**Recovery:** Confirmed the paths were untracked and unrelated to runtime, removed only those generated files, and preserved the connected Neon resource and application dependencies.
+
+**Next-time rule:** Immediately inspect full Git status after any Vercel Marketplace provisioning command. Review and remove unrequested local setup metadata before staging, while treating the external resource as separate state.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
+
+### L116. Revalidate GitHub CLI authentication before publication
+
+**Observed at:** Exact time not captured; during the post-password publication update on 2026-07-23.
+
+**Failure:** `gh auth status` reported that the previously active `Benjamin-00001` token was invalid, so the composite publication preflight stopped before its later diff checks.
+
+**Evidence:** GitHub CLI exited 1 and recommended reauthentication. No commit, push, pull-request transition, or merge occurred in that attempt.
+
+**Root cause:** The local GitHub CLI credential became invalid between publication steps; the expiry or revocation cause is unknown.
+
+**Recovery:** Kept all GitHub mutations paused and switched PR metadata and merge planning to the separately authorized connected GitHub app. Repository validation was rerun independently from the failed authentication command.
+
+**Next-time rule:** Run `gh auth status` as a standalone preflight before relying on GitHub CLI. If it is invalid, do not combine it with repository gates and do not infer that Git push or a connected GitHub app shares the same credential state.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
+
+### L117. Coerce extracted lesson numbers before comparing them in awk
+
+**Observed at:** Exact time not captured; during lesson-order validation on 2026-07-23.
+
+**Failure:** The first awk validator incorrectly rejected the valid transition from L99 to L100.
+
+**Evidence:** The command printed `invalid lesson order at L100`, while a direct heading scan showed L99 followed by L100 through L116 in ascending order.
+
+**Root cause:** The extracted heading token remained string-typed, so the relational comparison used lexical ordering for the three-digit transition.
+
+**Recovery:** Inspected the exact heading sequence and reran the validator with explicit numeric coercion before comparison.
+
+**Next-time rule:** When awk parses numbered Markdown records, coerce the normalized token with `+ 0` before ordering comparisons and keep uniqueness as a separate check.
+
+**Source:** [Private single-user version engineering log](docs/engineering-log/2026-07-23-private-single-user-version.md)
