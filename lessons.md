@@ -1515,3 +1515,35 @@ These items remain open and must not be described as fixed:
 **Next-time rule:** Before downloading a Mermaid-specific browser, check for an installed stable Chrome and pass it through `--puppeteerConfigFile`. Treat a missing default browser as zero diagram evidence; accept the diagram only after syntax render and visual inspection both pass.
 
 **Source:** [README BYOK refresh engineering log](docs/engineering-log/2026-07-23-readme-byok-refresh.md)
+
+### L97. Start long-lived Next.js verification servers in a managed yielded cell
+
+**Observed at:** Exact time not captured; during bottom-navigation baseline verification on 2026-07-23.
+
+**Failure:** The first `npm run dev` command used a short direct shell timeout. The wrapper timed out, but its Next.js child remained alive. A second managed start reported `EADDRINUSE` on port 3197, the orphaned server logged `EPIPE`, and a bounded HTTP request to `/people` timed out.
+
+**Evidence:** Next.js identified the surviving server as PID 28228 on port 3197. The development log recorded `EPIPE: broken pipe, write`, and `Invoke-WebRequest` returned a timeout instead of an HTTP response.
+
+**Root cause:** The timeout terminated the outer shell before the long-lived server was attached to a managed execution cell, while leaving its child process running without a usable output pipe.
+
+**Recovery:** Stopped only PID 28228, restarted the unchanged server command in a yielded execution cell, confirmed HTTP 200 on `/people`, and completed browser verification. After terminating the cell, command-line inspection found three remaining Node children whose commands resolved inside this repository; stopped only those PIDs before the production build.
+
+**Next-time rule:** Start every long-lived Next.js verification server through a managed yielded execution cell from the first attempt. On cleanup, terminate the cell and separately inspect exact repository-owned child command lines before building or replacing generated files.
+
+**Source:** [Bottom navigation height stability engineering log](docs/engineering-log/2026-07-23-bottom-nav-stability.md)
+
+### L98. Treat Playwright CLI `ENOTCACHED` as zero browser evidence
+
+**Observed at:** Exact times not captured; during bottom-navigation browser verification and screenshot capture on 2026-07-23.
+
+**Failure:** A Playwright snapshot command and a later screenshot-preparation command failed before browser interaction because npm cache mode was `only-if-cached` and no usable cached response for `@playwright/cli` was available.
+
+**Evidence:** Both attempts exited with npm code `ENOTCACHED` and named the registry URL for `@playwright/cli`. Neither returned a page result, geometry measurement, or screenshot.
+
+**Root cause:** The restricted execution environment intermittently could not resolve the wrapper's npm package, even though earlier CLI invocations in the same session had succeeded.
+
+**Recovery:** Repeated the unchanged Playwright commands with narrowly approved npm-registry access. The snapshot, mobile matrix, and screenshot then completed successfully.
+
+**Next-time rule:** An npm `ENOTCACHED` result from the Playwright wrapper is tool-availability evidence only. Do not infer browser or application state; retry the exact command once with narrow network approval and accept evidence only from the successful rerun.
+
+**Source:** [Bottom navigation height stability engineering log](docs/engineering-log/2026-07-23-bottom-nav-stability.md)

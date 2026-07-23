@@ -33,6 +33,7 @@ This directory separates current engineering evidence from historical product ma
 - [Engineering Log: Product Architecture and Limitations](engineering-log/2026-07-22-product-architecture-limitations.md)
 - [Engineering Log: Honest Boundary Copy](engineering-log/2026-07-22-honest-boundary-copy.md)
 - [Engineering Log: Mobile Viewport Shell Investigation](engineering-log/2026-07-22-mobile-viewport-shell-investigation.md)
+- [Engineering Log: Bottom Navigation Height Stability](engineering-log/2026-07-23-bottom-nav-stability.md)
 - [Engineering Log: BYOK and Zero-API Demo](engineering-log/2026-07-22-byok-zero-api-demo.md)
 - [Failure Lessons and Prevention Playbook](../lessons.md)
 - [MVP Specification](product/mvp-spec.md)
