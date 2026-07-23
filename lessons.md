@@ -107,6 +107,12 @@ Before changing code or publication state:
 | L88 | The first post-browser `npm ci` could not unlink the locked Lightning CSS native binary. | Before a clean install, confirm every repo-owned Next.js child process is gone, not only the outer execution cell and listening port. |
 | L89 | Default-sandbox process command-line inspection was denied. | After the read-only denial, request narrow approval and filter command lines to the exact workspace before stopping any PID. |
 | L90 | A read-only secret-classification script used unavailable modern .NET hash helpers. | Use PowerShell 5.1-compatible `SHA256.Create().ComputeHash()` or avoid hashing when tracked-baseline comparison is sufficient. |
+| L91 | The connected Vercel tool returned `Project not found` for the repository-linked project ID. | Treat connector and CLI authorization as separate scopes; verify through the linked CLI before concluding that a project or deployment is absent. |
+| L92 | A Vercel JSON compaction command discarded the CLI output stream and converted `$null` into a false one-deployment result. | Require a non-empty JSON boundary and a known current deployment before using parsed CLI output to select destructive targets. |
+| L93 | The first corrected Vercel JSON query failed with npm `ENOTCACHED` in the restricted environment. | Retry the unchanged read-only query once with approved network access; do not mutate deployments until the complete target set is recovered. |
+| L94 | The generic web opener rejected the production `.vercel.app` URL as unsafe before making a request. | When a deployment smoke URL is rejected before transport, use one bounded PowerShell 5.1 `HttpClient` request and keep the tool denial separate from production evidence. |
+| L95 | A combined ripgrep fact-check used an invalid escaped alternation and failed before reading any source evidence. | Pass multiple fixed patterns with separate `-e` arguments and keep paths outside the regex. |
+| L96 | The first pinned Mermaid render could not find Puppeteer's expected Chrome Headless Shell. | Check for an installed system Chrome and pass it through a scoped Puppeteer config before downloading another browser. |
 
 ## Detailed lessons
 
@@ -1413,3 +1419,99 @@ These items remain open and must not be described as fixed:
 **Next-time rule:** Write repository validators for the active PowerShell 5.1 surface. If hashing is actually required, use `SHA256.Create().ComputeHash()` and `BitConverter`; otherwise prefer a simpler baseline comparison.
 
 **Source:** [BYOK and zero-API demo engineering log](docs/engineering-log/2026-07-22-byok-zero-api-demo.md)
+
+### L91. Separate Vercel connector scope from linked CLI scope
+
+**Observed at:** Exact time not captured; during the authorized old-deployment cleanup on 2026-07-23.
+
+**Failure:** The connected Vercel deployment-list tool returned HTTP 404 `Project not found` for project ID `prj_9M5iVwQ2auFgIfFt8gFBZiZMPBlz` under the repository-linked team ID.
+
+**Evidence:** The tool returned no deployment list and made no mutation. The linked Vercel CLI subsequently authenticated as `huiyingchung` and listed all 36 deployments for project `re-hello`.
+
+**Root cause:** The exact connector authorization mismatch is unknown. The observed boundary is that the connector could not resolve a project that the independently authenticated linked CLI could access.
+
+**Recovery:** Stopped using the connector as deletion evidence, authenticated the linked CLI, inspected the current Production deployment and aliases, and used only CLI-confirmed deployment URLs for removal.
+
+**Next-time rule:** Treat connected-tool and CLI access as separate authorization scopes. A connector 404 is not proof that the linked Vercel project is absent; verify through the repository-linked CLI before making or abandoning a deployment decision.
+
+**Source:** [Vercel deployment cleanup engineering log](docs/engineering-log/2026-07-23-vercel-deployment-cleanup.md)
+
+### L92. Reject empty Vercel JSON before counting deployments
+
+**Observed at:** Exact time not captured; immediately after L91 on 2026-07-23.
+
+**Failure:** The first PowerShell compaction command redirected the Vercel CLI's machine output away, then wrapped `$null` in an array. It incorrectly printed `Total: 1`, one null target, and `CurrentExcluded: true`.
+
+**Evidence:** The result contained no deployment URL, SHA, ref, or creation time. No removal command had started, so remote state remained unchanged.
+
+**Root cause:** The command assumed JSON was on the retained native output stream and did not assert that a JSON object or `deployments` array existed before counting. In Windows PowerShell, `@($null).Count` is one.
+
+**Recovery:** Discarded the false result, required explicit JSON start and end boundaries, and reran the read-only list query. The recovered list reported 36 deployments, the exact Current SHA, and 35 non-Current targets.
+
+**Next-time rule:** Before selecting destructive Vercel targets from CLI JSON, require non-empty JSON boundaries, a real `deployments` array, the expected Current URL and SHA, and a non-null URL for every removal target. Never interpret `@($null).Count` as a resource count.
+
+**Source:** [Vercel deployment cleanup engineering log](docs/engineering-log/2026-07-23-vercel-deployment-cleanup.md)
+
+### L93. Classify restricted npm cache failure before Vercel mutation
+
+**Observed at:** Exact time not captured; during recovery from L92 on 2026-07-23.
+
+**Failure:** The first corrected `npx vercel ls` query failed before contacting Vercel because npm was in `only-if-cached` mode and had no cached response for the `vercel` package.
+
+**Evidence:** npm returned `ENOTCACHED`, no JSON object was found, and no removal command had started.
+
+**Root cause:** The restricted execution environment could not resolve the CLI package through the network for that attempt. This was tool availability, not Vercel project-state evidence.
+
+**Recovery:** Repeated the unchanged read-only query with narrowly approved network access. It returned all 36 deployments, after which the explicitly enumerated 35 non-Current URLs were removed successfully and a final list confirmed one remaining deployment.
+
+**Next-time rule:** When an unchanged Vercel read-only query fails only with `ENOTCACHED`, record zero project-state evidence and retry once with approved network access. Do not construct or run a removal command until the full live list has been recovered and the Current deployment is explicitly excluded.
+
+**Source:** [Vercel deployment cleanup engineering log](docs/engineering-log/2026-07-23-vercel-deployment-cleanup.md)
+
+### L94. Separate web-opener URL rejection from production availability
+
+**Observed at:** Exact time not captured; during the final post-delete production check on 2026-07-23.
+
+**Failure:** The generic web opener rejected `https://re-hello.vercel.app/` as unsafe and returned an internal error before sending a production request.
+
+**Evidence:** The tool explicitly labeled the error non-retryable and provided no HTTP status, response headers, or page content. This was zero production availability evidence.
+
+**Root cause:** The web tool's URL safety boundary rejected the deployment hostname. No application or Vercel runtime cause was observed.
+
+**Recovery:** Loaded `System.Net.Http` explicitly in Windows PowerShell 5.1 and made one bounded `HttpClient` GET to the same URL. It returned HTTP 200 `text/html` with a 13,421-byte response.
+
+**Next-time rule:** If a generic web opener rejects a Vercel deployment URL before transport, do not report the site as unavailable and do not retry the same tool. Use one bounded PowerShell 5.1 `HttpClient` request, record its exact status separately, and avoid routes that could trigger paid provider work.
+
+**Source:** [Vercel deployment cleanup engineering log](docs/engineering-log/2026-07-23-vercel-deployment-cleanup.md)
+
+### L95. Keep ripgrep paths outside multi-pattern expressions
+
+**Observed at:** Exact time not captured; during the README BYOK refresh on 2026-07-23.
+
+**Failure:** The first source fact-check placed several alternations, an incorrectly escaped `setApiKey("")` pattern, and the search paths inside one quoted ripgrep expression. Ripgrep returned `regex parse error: unopened group`.
+
+**Evidence:** The command exited 1 before returning any route, key-lifecycle, model, cache, or analytics match. It changed no file.
+
+**Root cause:** The composite regular expression mixed syntax-sensitive search terms with path arguments and relied on fragile nested escaping across PowerShell and ripgrep.
+
+**Recovery:** Repeated the fact-check with one `-e` argument per pattern and explicit paths after the patterns. The corrected query returned the model name, note limits, key header, `store: false`, no-store cache header, key-clearing paths, and owner-key regression test.
+
+**Next-time rule:** For a heterogeneous ripgrep fact-check, pass every search term through a separate `-e` argument and put paths after all patterns. Use fixed-string searches when regular-expression behavior is unnecessary.
+
+**Source:** [README BYOK refresh engineering log](docs/engineering-log/2026-07-23-readme-byok-refresh.md)
+
+### L96. Reuse installed Chrome for pinned Mermaid rendering
+
+**Observed at:** Exact time not captured; during README diagram verification on 2026-07-23.
+
+**Failure:** Mermaid CLI 11.16.0 parsed the invocation but stopped before rendering because Puppeteer could not find its expected `chrome-headless-shell` version in the user cache.
+
+**Evidence:** The CLI reported `Could not find chrome-headless-shell (ver. 150.0.7871.24)` and produced no PNG. This was browser-runtime availability, not Mermaid syntax evidence.
+
+**Root cause:** The pinned Mermaid package was available, but its separately managed default browser binary was not installed at the configured Puppeteer cache path.
+
+**Recovery:** Confirmed that stable system Chrome was installed, supplied its exact executable path through a scoped Puppeteer configuration, and reran the unchanged Mermaid source. The renderer succeeded. Visual inspection then found the first left-to-right layout too wide, so the README source changed to a top-to-bottom layout and the final render was readable and unclipped.
+
+**Next-time rule:** Before downloading a Mermaid-specific browser, check for an installed stable Chrome and pass it through `--puppeteerConfigFile`. Treat a missing default browser as zero diagram evidence; accept the diagram only after syntax render and visual inspection both pass.
+
+**Source:** [README BYOK refresh engineering log](docs/engineering-log/2026-07-23-readme-byok-refresh.md)

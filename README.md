@@ -2,283 +2,183 @@
 
 > GPT-5.6 turns messy memories into easier next conversations.
 
-Rehello is a personal social memory web app for introverts and the
-socially anxious. At its heart is a GPT-5.6 transformation: drop in
-the messy fragments you remember after meeting someone, and Quick
-Remember shapes them into a recall card with who they are, what
-mattered, and what you could ask next.
+[Open the live app](https://re-hello.vercel.app/) ·
+[Try Quick Remember](https://re-hello.vercel.app/remember) ·
+[Browse the documentation](docs/README.md)
 
-The rest of Rehello stays deliberately local-first. There are no
-accounts, and saved people, moments, and reminders stay in the
-browser. Ready-made demos use no API. To shape a personal Quick
-Remember note, the visitor supplies an OpenAI API key for that one
-request; the note and key pass through Rehello's server to OpenAI and
-the app does not save the key.
+Rehello is a mobile-first social memory app for introverts and people who find
+socializing tiring. Write down the fragments you remember after meeting
+someone, and Quick Remember can shape them into a structured recall card:
+who they are, what mattered, and what you could ask next.
 
----
+The app is deliberately local-first. There are no accounts; saved people,
+moments, and reminders stay in the current browser. The ready-made demos use
+no API. Live AI generation is BYOK: each visitor supplies their own OpenAI API
+key for the single request they choose to make.
 
-## Why it exists
+## Try it
 
-Most "people tools" are built for salespeople. They assume you want
-a pipeline, a deal stage, a follow-up cadence. For someone who finds
-socializing genuinely tiring, that framing makes the whole idea of
-remembering people feel transactional and worse, not better.
+Rehello offers three ways to capture a memory:
 
-Rehello is the opposite shape:
+| Path | API use | Best for |
+| --- | --- | --- |
+| **Ready-made demo** | None | Seeing the product immediately without an account, key, or API charge. |
+| **Quick Remember with BYOK** | One OpenAI request per attempt | Turning your own messy note into a structured draft with GPT-5.6. |
+| **Guided capture** | None | Answering the original prompts one question at a time. |
 
-- **Remember** — a soft, prompt-led capture flow (no blank fields).
-- **Recall** — a one-card refresh before you see someone again,
-  spaced so you do not over-rehearse.
-- **Stay in touch** — a single chip-based picker (a week, two weeks,
-  a month, or pick a date) that turns "I should reach out" into a
-  one-tap in-app reminder.
-- **Prep** — for events, mixers, and coffee chats: a small set of
-  conversation starters tuned to the kind of event, plus topics
-  mined from your own past encounters.
+For a zero-cost product tour, open the live app and choose
+**Explore a ready-made demo**, or open Quick Remember and choose
+**See a ready-made result**. Both paths are fixed local examples and make no
+OpenAI request.
 
-The whole app is designed to feel like a notebook a kind friend
-left on your desk — quiet, warm, never nagging.
+To test the real AI transformation in the deployed app:
 
----
+1. Open [Quick Remember](https://re-hello.vercel.app/remember).
+2. Enter at least 20 characters of your own note.
+3. Choose **Use your OpenAI API key once**.
+4. Paste a dedicated, restricted OpenAI project key.
+5. Review the generated draft before saving it.
 
-## Why mobile first
+The API usage is charged to the visitor's OpenAI project, not the Rehello
+project owner. ChatGPT subscriptions do not include API usage.
 
-Rehello deliberately ships as one phone-sized, touch-first experience instead
-of a separate desktop dashboard. The useful moments rarely happen while someone
-is sitting at a desk:
+> **API key safety:** only paste a key into the official deployment you trust.
+> Rehello sends the key and current note through its Vercel server route to
+> OpenAI for that attempt. The app clears the key afterward and does not write
+> it to localStorage, sessionStorage, the URL, or a backup. Do not paste a key
+> into an unknown fork, shared computer, screenshot, issue, chat, or source
+> file. See [OpenAI's API key safety guidance](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety).
 
-- **Right after meeting someone**, when a few messy details need to be captured
-  before they fade.
-- **On the way to the next event**, when a short recall card is more useful than
-  a large contact database.
-- **In the moment someone thinks "I should reach out"**, when setting a gentle
-  reminder should take only a few taps.
+## Why Rehello exists
 
-In those situations, the phone is already with the user and a home-screen PWA
-can open without changing context. A desktop-first layout would optimize for
-managing records later; Rehello optimizes for remembering and acting while the
-social context is still present.
+Most people tools are designed like sales software: pipelines, deal stages,
+follow-up cadences, and pressure to keep up. Rehello takes the opposite
+approach. It is meant to feel like a notebook a kind friend left on your desk:
+quiet, warm, and never nagging.
 
-The web app still opens in a desktop browser, but it intentionally keeps the
-same narrow phone surface. A separate desktop information architecture is out
-of scope for the current MVP so the interaction, copy, and testing can stay
-focused on the real usage environment.
+- **Remember** — capture a person without facing a blank form.
+- **Recall** — refresh one useful card before seeing someone again.
+- **Stay in touch** — turn “I should reach out” into a gentle in-app reminder.
+- **Prep** — get context-aware conversation starters for a mixer, work event,
+  class, or coffee chat.
 
----
+There are no streaks, scores, social rankings, or guilt-driven notifications.
 
-## Design principles
-
-1. **Low blank-page anxiety.** Every input has a placeholder, an
-   example, or a chip set. Nothing ever asks "tell me about this
-   person" with an empty box.
-2. **Show before ask.** Sections explain what they are for (e.g.
-   "people you have not refreshed in a while") so the user is
-   never guessing why something appeared.
-3. **Reversible by default.** Hide a home section, change the sort,
-   reorder by drag — every choice has a Settings escape hatch.
-4. **No streaks, no scoring.** There are no badges, no "you missed
-   a day" guilt loops, no notifications begging you to come back.
-5. **Hand-drawn warmth.** Icons get a subtle wobble filter, the
-   palette is warm cream and clay, and the wordmark is a serif with
-   a single accent dot — small humanizing details over cold UI.
-
----
-
-## Feature tour
+## The product
 
 | Surface | What it does |
 | --- | --- |
-| **Home** | Greeting that adapts to time of day, a featured person worth refreshing, recall preview, recent people, "worth a quick refresh", and upcoming reminders. Each section can be hidden. |
-| **People** | Sortable list (Recent / A–Z / Last met / Custom drag-to-reorder) with search. |
-| **Person profile** | Name, tags, color, encounter history, and a "Stay in touch" picker with in-app reminder list. |
-| **Remember flow** | See a fixed no-API example, paste one messy note and use your own OpenAI API key once to shape it, or use the original prompt-by-prompt capture flow. |
-| **Recall** | Spaced-review card that surfaces what to ask about next time, plus an inline in-app reminder picker. |
-| **Prep** | Pick an event type (social mixer / work / class / coffee), get starters tuned to that context plus topics mined from your own conversation history. |
-| **Settings** | Back up or restore people, moments, and reminders; restore hidden sections; load sample data; replay Welcome; or clear local data. |
+| **Home** | Shows recent people, one person worth refreshing, upcoming reminders, and sections the user can hide. |
+| **People** | Searches and sorts by recent, A–Z, last met, or a custom drag order. |
+| **Person profile** | Keeps tags, encounter history, recall details, and in-app reminders together. |
+| **Remember** | Offers the zero-API demo, BYOK Quick Remember, and the original guided flow. |
+| **Recall** | Surfaces what mattered and what might be worth asking next time. |
+| **Prep** | Combines event-specific starters with topics mined locally from saved encounters. |
+| **Settings** | Backs up or restores core records, loads sample data, restores hidden sections, replays Welcome, or clears local data. |
 
----
+Rehello is intentionally phone-sized and touch-first, even in a desktop
+browser. The useful moment is usually right after meeting someone or just
+before seeing them again, not while managing a large contact database at a
+desk. The app can also be installed as a PWA, although offline use is not
+currently promised.
 
-## User flow
+## How Quick Remember works
 
-Only an explicit BYOK Quick Remember submission crosses the server boundary.
-Both ready-made demos, guided capture, saved records, reminders, sample data,
-and Prep topic mining stay in the browser.
-
-```mermaid
-flowchart TD
-  A(["Open Rehello"]) --> B{"First visit?"}
-  B -->|Yes| C["Welcome"]
-  B -->|No| H["Home"]
-
-  C -->|Explore ready-made demo| D["Seed 5 sample people, moments, and reminders locally"]
-  D --> H
-  C -->|Shape my first memory| Q["Quick Remember"]
-  H -->|Remember someone| Q
-
-  Q --> E{"Capture method"}
-  E -->|Ready-made example| DEMO["Load a fixed recall card locally<br/>no API request"]
-  E -->|Own messy note| F["Write a note or use starter prompts"]
-  E -->|One question at a time| G["Guided capture"]
-  DEMO --> R["Review recall card"]
-  F --> K["Enter a visitor-owned OpenAI API key<br/>used for one request"]
-  K -->|Explicit submit| API["/api/remember to OpenAI Responses API"]
-  API --> AI["GPT-5.6 returns a structured draft"]
-  AI --> R
-  R -->|Adjust details| G
-  G --> G2["Answer prompts and optional mood"]
-  R -->|Save as-is| S["Save person and moment in browser localStorage"]
-  G2 --> S
-  S --> T{"Set an in-app reminder?"}
-  T -->|Yes| U["Choose 1 week, 2 weeks, 1 month, or a date"]
-  T -->|Not now| C2["Confirmation"]
-  U --> C2
-  C2 --> DONE(["Return Home"])
-
-  H -->|Open a person| V["Person profile"]
-  V --> W["Recall card and optional in-app reminder"]
-
-  H -->|Prep for an event| X["Choose social, work, class, or coffee"]
-  X --> Y["Review people you may see"]
-  Y --> Z["See context starters and topics mined locally"]
-
-  H -->|Settings| AA["Backup or restore, sample data, restore sections, or clear data"]
-```
-
----
-
-## Product architecture and GPT-5.6's role
-
-GPT-5.6 performs one bounded transformation: it turns the single Quick Remember
-note the user explicitly submits into a seven-field draft. It is not the app's
-database, reminder engine, Prep engine, or long-term memory. The checked code has
-no path that automatically uploads saved `localStorage` history to the model.
+Only an explicit BYOK submission crosses the server boundary. Demo cards,
+guided capture, saved records, reminders, and Prep topic mining stay in the
+browser.
 
 ```mermaid
 flowchart TD
-  subgraph browser["Browser / current device"]
-    Q["Quick Remember note<br/>20-1200 characters"]
-    K["Visitor-owned OpenAI API key<br/>held only for one request"]
-    D["Fixed demo note and recall card<br/>no network request"]
-    G["Guided capture<br/>no GPT call"]
-    R["Review recall card<br/>save as-is or adjust"]
-    S["Browser save logic"]
-    L[("localStorage<br/>people / encounters / reminders")]
-    F["Rendered app surfaces<br/>Home / People / Recall / in-app reminders<br/>Prep uses local keyword mining"]
-    B["Manual JSON backup / restore"]
-  end
+  U["Visitor chooses a capture path"] --> D["Ready-made demo"]
+  U --> Q["Own messy note"]
+  U --> G["Guided capture"]
 
-  subgraph server["Next.js server route"]
-    A["POST /api/remember<br/>validate origin, visitor key, JSON, and note length"]
-    P["System rules and Zod schema<br/>facts from note only / preserve language<br/>store:false / low reasoning"]
-    V["Validate parsed draft<br/>seven strings and a required name"]
-  end
+  D -->|"No API request"| R["Review recall card"]
+  G -->|"Local prompts"| S["Save locally"]
 
-  subgraph openai["OpenAI"]
-    M["Responses API<br/>GPT-5.6 Terra<br/>note to structured recall-card draft"]
-  end
+  Q --> K["Paste visitor-owned API key"]
+  K --> A["POST /api/remember"]
+  A --> O["OpenAI Responses API<br/>GPT-5.6 Terra"]
+  O --> V["Validate structured draft"]
+  V --> R
 
-  D --> R
-  Q -->|"Explicit submit: this note only"| A
-  K -->|"Custom request header"| A
-  A --> P
-  P -->|"Prompt, schema, and current note"| M
-  M -->|"Structured candidate"| V
-  V -->|"Draft JSON or error"| R
-  R -->|"User chooses Save"| S
-  G --> S
-  S --> L
-  L --> F
-  L <--> B
+  R -->|"Save or adjust"| S
+  S --> L[("Browser localStorage")]
 ```
 
-The seven generated fields are `name`, `oneLiner`, `where`, `impression`,
-`talkedAbout`, `memorableDetail`, and `nextTimeAsk`. The server asks the model
-to use only facts in the note, avoid sensitive inference, preserve the note's
-language, and leave missing fields empty. These instructions and the schema
-reduce unwanted output; they do not guarantee factual accuracy.
+GPT-5.6 performs one bounded transformation: a note of 20–1,200 characters
+becomes a seven-field draft:
 
----
+- `name`
+- `oneLiner`
+- `where`
+- `impression`
+- `talkedAbout`
+- `memorableDetail`
+- `nextTimeAsk`
 
-## Current limitations
+The server uses the OpenAI Responses API with strict Zod structured output,
+low reasoning effort, and `store: false`. Its instructions tell the model to
+use only facts from the submitted note, avoid sensitive inference, preserve
+the note's language, and leave unknown fields empty. These controls constrain
+the output; they do not guarantee that every draft is correct, so the user
+reviews the card before saving it.
 
-- **GPT-5.6 has a narrow role.** Only Quick Remember calls it. Guided capture,
-  Recall, reminders, sorting, sample data, and Prep topic mining are local,
-  deterministic application logic. There is no realtime voice conversation,
-  autonomous social assistant, or model access to a person's saved history.
-- **Generated drafts can still be wrong.** A prompt and Zod schema constrain
-  structure, not truth. Users must review the card before saving and use
-  `Adjust the details` when the draft is incomplete or inaccurate.
-- **Quick Remember is intentionally limited.** Notes need at least 20 characters
-  beyond inserted starter labels, no more than 1,200 total characters, and a
-  name. The quick path always creates a new person,
-  does not deduplicate existing people, and records the encounter time as the
-  save time rather than extracting a meeting date. Its preview does not display
-  the generated `impression` field unless the user enters the adjustment flow.
-- **Saved data belongs to one browser profile.** There is no account, cloud
-  database, or cross-device sync. Clearing site data, using private browsing, or
-  losing the device can remove records. Backup and restore are manual JSON
-  actions and cover people, encounters, and reminders, not every UI preference.
-  The downloaded JSON is not encrypted by Rehello and should be stored privately.
-- **Reminders are visible only inside Rehello.** They do not create push, email,
-  SMS, calendar, or operating-system notifications. The user must reopen the app
-  to see due or upcoming reminders.
-- **Local-first does not mean zero external data flow.** The explicitly
-  submitted note and visitor-provided API key pass through the Vercel server
-  route to OpenAI. The key is held in React state for the attempt, sent in a
-  custom request header, cleared after the attempt, and never written by
-  Rehello to localStorage, sessionStorage, a URL, or a backup. The request sets
-  `store:false`, and the route sends `Cache-Control: no-store`, but this
-  repository does not prove end-to-end encryption or zero provider retention.
-  Rehello does not include a third-party analytics script.
-- **Availability depends on external services.** Quick Remember needs the
-  visitor's API key, API credit and model permission, network access, the
-  deployed route, and OpenAI. The client stops waiting after 45 seconds and
-  shows an error; the fixed example and guided capture remain no-API fallbacks.
-- **BYOK removes owner-funded model usage, not every hosting cost.** The route
-  ignores `OPENAI_API_KEY` in the server environment and cannot charge the
-  project owner's OpenAI account. It is still an unauthenticated server
-  function with no repository-level rate limiter, so requests can consume
-  hosting invocations. Same-origin checking is defense-in-depth, not
-  authentication. Any Vercel WAF rule remains deployment configuration and is
-  not verified by this local change.
-- **PWA does not mean offline.** The repository has PWA manifest metadata but no
-  service worker or Workbox implementation. Offline loading is not promised,
-  and GPT shaping always requires a network request.
-- **Language support is partial.** The model prompt requests output in the
-  note's language, but the application interface and error messages are mainly
-  English and have no complete localization system.
-- **Verification coverage is still bounded.** CI runs unit tests, lint, and a
-  production build. Route tests use a mocked OpenAI client and make no paid API
-  request. This local change does not verify a physical phone, installed PWA,
-  live WAF, analytics payload, deployment, or production API call.
+## Data and API key boundary
 
----
+| Data | Where it goes |
+| --- | --- |
+| Ready-made demos | Loaded locally; no OpenAI request. |
+| Guided Remember answers | Saved in the current browser. |
+| People, encounters, and reminders | Stored in browser localStorage. |
+| Prep topics | Derived locally from saved encounter text. |
+| Submitted Quick Remember note | Sent through `/api/remember` to OpenAI only after explicit submission. |
+| Visitor API key | Held in React state for the attempt, sent in a custom request header, then cleared. |
+| Manual backup | Downloaded as readable JSON; it does not contain the API key. |
 
-## Tech stack
+Additional boundaries:
 
-- **Next.js 16** (App Router, Turbopack)
-- **React 19**
-- **TypeScript 5**
-- **Tailwind CSS 4**
-- **lucide-react** for icons
-- **@dnd-kit** for drag-to-reorder
-- **localStorage** for people, encounters, and reminders
-- **OpenAI Responses API** with GPT-5.6 Terra for the Quick Remember core
+- The server route does not read or fall back to a project-owner
+  `OPENAI_API_KEY`.
+- The response uses `Cache-Control: no-store`.
+- Rehello includes no third-party analytics script.
+- Saved history is not automatically uploaded to the model.
+- The application code does not persist the visitor's API key.
 
-People, encounters, and reminders still persist in `localStorage`.
-Quick Remember sends only the note a user explicitly submits and the
-visitor-owned key entered for that request through the server-side API route.
-The app does not persist the key.
+“Local-first” does not mean “nothing leaves the device.” A real Quick Remember
+request sends the submitted note and visitor-provided key through the deployed
+Vercel Function to OpenAI. The repository does not claim end-to-end encryption
+or zero provider retention beyond the configured `store: false` request.
 
-The whole app is statically prerendered where possible. Anything
-that depends on local data hydrates on the client.
+## Architecture
 
-It is also a **PWA** — installable to home screen, standalone
-display mode, themed splash, and a serif-monogram icon.
+```text
+Browser
+├── Next.js / React interface
+├── localStorage
+│   ├── people
+│   ├── encounters
+│   └── reminders
+├── fixed demo fixtures
+└── explicit BYOK request
+    └── POST /api/remember
+        └── OpenAI Responses API
+            └── validated recall-card draft
+```
 
----
+The main stack is:
 
-## Running it
+- Next.js 16 with App Router and Turbopack
+- React 19 and TypeScript 5
+- Tailwind CSS 4
+- OpenAI JavaScript SDK and Responses API
+- Zod structured output validation
+- Vitest
+- `@dnd-kit` for custom people ordering
+- `lucide-react` for icons
+
+## Run locally
 
 ```bash
 cd web
@@ -286,69 +186,74 @@ npm install
 npm run dev
 ```
 
-Open <http://localhost:3000>. On first load, advance to the final
-Welcome screen and choose **Explore a ready-made demo** to seed five
-sample people with intentionally overlapping conversation themes so
-Prep has something interesting to surface. That demo and the fixed Quick
-Remember example make no API request. To shape your own note, use a dedicated,
-restricted OpenAI project key in the one-time prompt. ChatGPT subscriptions do
-not include API usage.
+Open <http://localhost:3000>.
+
+No API key is required to run the app, explore the ready-made demo, use guided
+capture, or run the automated checks. To make a live Quick Remember request,
+paste a dedicated OpenAI project key into the one-time BYOK field in the app.
+Do not add a key to the repository.
 
 ```bash
-npm test        # mocked route and demo-fixture tests; no live API call
-npm run build   # production build
-npm run lint    # eslint
+npm test
+npm run lint
+npm run build
 ```
 
-GitHub Actions runs `npm ci`, `npm test`, `npm run lint`, and `npm run build`
-on every push and pull request using Node.js 24. The CI workflow does
-not receive an OpenAI API key and does not make a live OpenAI request.
+GitHub Actions runs `npm ci`, tests, lint, and a production build on Node.js 24
+for every push and pull request. CI receives no OpenAI API key, and route tests
+mock the OpenAI client rather than making a paid request.
 
----
+## Current limitations
+
+- Saved records belong to one browser profile. There is no account, cloud
+  database, or cross-device sync.
+- Clearing site data or using a temporary browser profile can remove records.
+  Backup and restore are manual JSON operations.
+- The backup file is readable JSON and is not encrypted by Rehello.
+- Reminders appear only inside Rehello; there are no push, email, SMS,
+  calendar, or operating-system notifications.
+- Quick Remember always creates a new person and does not deduplicate existing
+  records.
+- Generated drafts can still be incomplete or wrong and must be reviewed.
+- The interface is mainly English, although the model is asked to preserve the
+  submitted note's language.
+- The deployed BYOK route avoids owner-funded OpenAI usage but can still consume
+  Vercel Function invocations. Same-origin checking is not authentication, and
+  there is no repository-level distributed rate limiter.
+- The PWA has install metadata but no service worker, Workbox implementation,
+  or offline guarantee.
+
+## Verification and deployment status
+
+The BYOK and zero-API implementation is covered by route and demo-fixture tests,
+lint, and a production build. Browser verification confirmed that the demo path
+makes no `/api/remember` request and that the API key is absent from browser
+storage, the URL, and downloaded backups.
+
+The production deployment serves the merged BYOK version at
+[re-hello.vercel.app](https://re-hello.vercel.app/). On 2026-07-23, its
+homepage returned HTTP 200 after all 35 older Vercel deployments were removed.
+That availability check was not a paid production OpenAI request.
+
+Detailed evidence:
+
+- [BYOK and zero-API demo](docs/engineering-log/2026-07-22-byok-zero-api-demo.md)
+- [BYOK architecture decision](docs/decisions/ADR-0008-byok-and-zero-api-demo.md)
+- [Vercel deployment cleanup](docs/engineering-log/2026-07-23-vercel-deployment-cleanup.md)
 
 ## Documentation
 
 - [`docs/README.md`](docs/README.md) — documentation map and source-of-truth rules
-- [`docs/decisions/`](docs/decisions/) — detailed architecture and product decisions
-- [`docs/engineering-log/`](docs/engineering-log/) — timestamped engineering evidence
+- [`docs/decisions/`](docs/decisions/) — architecture and product decisions
+- [`docs/engineering-log/`](docs/engineering-log/) — timestamped implementation
+  and verification evidence
 - [`docs/product/`](docs/product/) — product specifications
 - [`docs/research/`](docs/research/) — historical feedback and research
 - [`docs/prototypes/`](docs/prototypes/) — archived standalone explorations
 
----
-
-## Project structure
-
-```text
-re-hello/
-├── docs/
-│   ├── decisions/          # ADRs: why a direction was chosen
-│   ├── engineering-log/    # Timestamped work and verification records
-│   ├── product/            # Product specifications
-│   ├── research/           # Historical feedback
-│   └── prototypes/         # Early standalone explorations, not deployed
-├── web/                    # Current Next.js application
-│   ├── public/             # PWA icons and static assets
-│   └── src/
-│       ├── app/            # Routes and server Route Handlers
-│       ├── components/     # Shared interface components
-│       └── lib/            # Storage, types, and client utilities
-└── README.md
-```
-
-All persistence flows through `web/src/lib/storage.ts`. There are no
-other places that touch `localStorage` directly, which keeps the
-data shape easy to evolve.
-
----
-
 ## Status
 
-This is a launch-stage portfolio project, not a production-grade
-service. It explores what a softer people tool could feel like.
-There are no accounts or sync; saved people remain in the current
-browser. Ready-made demos do not use an API. A personal Quick Remember note is
-processed only with the visitor's one-time OpenAI API key. No third-party
-analytics script is included.
-
-Feedback and conversation welcome.
+Rehello is a live, launch-stage portfolio project rather than a
+production-grade service. It demonstrates a bounded GPT-5.6 transformation
+inside a softer local-first people tool, while giving every visitor a useful
+zero-API way to explore it.
