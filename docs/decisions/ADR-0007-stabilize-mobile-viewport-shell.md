@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted, with a physical-device correction implemented locally on 2026-07-22. The implementation preserves individual product pages and changes only the shared shell CSS plus browser-artifact hygiene.
+Accepted, with two physical-device corrections implemented locally on 2026-07-22. The implementation preserves individual product pages and changes only the shared shell CSS plus browser-artifact hygiene.
 
 ## Context
 
@@ -107,3 +107,19 @@ The decision is amended as follows:
 After rebuilding a stale local `.next` cache, WebKit with the iPhone 14 device descriptor passed six representative routes at a 390-by-664 visual viewport. Every available document, stage, shell, scroller, and navigation box measured from left 0 to right 390; document and scroller scroll widths matched their client widths; forced horizontal scroll remained zero. A local People screenshot with sample data showed the intended 16-pixel content inset on both sides.
 
 This is local correction evidence only. The supplied screenshot is production evidence of the pre-correction defect; it is not evidence that the correction has been deployed. A refreshed physical-iPhone Safari check remains required after an authorized deployment. No CI, deployment, or corrected-production verification has been performed.
+
+## Physical right-edge and cross-mobile amendment - 2026-07-22
+
+After the first physical-device correction was merged, a second iPhone 14 Safari screenshot showed that the left edge was restored but unrelated shared elements were now clipped or crowded at the right visible edge. The user clarified that the product must adapt across phones rather than target one iPhone width.
+
+The decision is amended again:
+
+- the shared grid must declare its only column as `minmax(0, 1fr)` instead of relying on an implicit auto-sized column;
+- shared grid rows and screen content must have explicit 100% width and maximum-width containment;
+- at mobile breakpoints the stage and shell must follow viewport width with `100vw` and the supported `100dvw` refinement;
+- 390 pixels remains only the desktop phone-frame width and an iPhone test point, not a mobile width constant;
+- individual product pages remain out of scope unless later element-level evidence identifies a separate defect.
+
+Local WebKit and system Chrome matrices passed all eight shared-shell routes. Home and People also passed at 320, 360, 375, 390, and 430 CSS pixels in both engines. Each current viewport width propagated through the shell grid column, scroller, content, and navigation; no descendant crossed the horizontal boundary; forced horizontal scrolling remained zero; and the desktop shell remained 390 by 820 pixels. The Chrome device gate used a Pixel 7 descriptor at 412 pixels, so this is not an iPhone-only or 390-pixel-only implementation.
+
+This remains local browser evidence. No physical post-change phone test, push, exact-commit CI, deployment, or corrected-production smoke test has occurred. Physical Safari and Android Chrome browser bars, installed PWA safe areas, and a real software keyboard remain required acceptance boundaries.

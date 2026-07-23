@@ -150,3 +150,67 @@ Direct stylesheet inspection proved the stale server was still returning the old
 ### Remaining acceptance boundary
 
 The corrected code has not been pushed, checked by exact-commit CI, deployed, or rechecked on the user's physical iPhone. The original screenshot remains production evidence of the defect, not of the correction. Safari browser-bar transitions, installed PWA mode, Android Chrome, and a real software keyboard also remain unverified after this correction.
+
+## Physical right-edge correction and cross-mobile widening
+
+### New physical evidence
+
+After the root-offset correction was merged, the user supplied a second physical iPhone 14 Safari screenshot in portrait orientation. The left inset was present, but the shared settings control, second primary action, review card, Recent people controls, person card, and bottom navigation all extended toward or beyond the right visible edge. The user also clarified that acceptance is for phones generally, not only iPhone 14.
+
+The second screenshot supersedes the prior physical acceptance conclusion. It does not support redesigning the Home page or its cards individually because unrelated elements in every shared row move to the same right boundary.
+
+### Bounded diagnosis
+
+Fresh local WebKit baseline geometry still measured the 390-pixel shell, scroller, screen content, cards, and navigation inside a 390-pixel visual viewport. That baseline did not reproduce physical Safari's crop, so it is not evidence that the pre-change CSS was correct on the device.
+
+The baseline did expose two shared CSS contract gaps:
+
+- `.phone-shell` declared grid rows but left its only column implicit instead of constraining it with `minmax(0, 1fr)`;
+- `.phone-status`, `.phone-scroll`, `.screen-content`, and `.bottom-nav` depended on automatic grid stretching and did not all declare explicit 100% width and maximum-width bounds.
+
+With a physical WebKit layout or font-metric difference, an implicit grid column can become wider than the shell while `.phone-shell { overflow: hidden; }` clips the excess. This is the most bounded current diagnosis; the headless engines did not reproduce the original physical failure.
+
+### Shared implementation
+
+- Added `grid-template-columns: minmax(0, 1fr)` to the shared phone shell.
+- Bound the status row, inner scroller, shared screen content, and bottom navigation to `width: 100%`, `min-width: 0` where applicable, and `max-width: 100%`.
+- Bound the mobile stage and shell to `100vw`, with `100dvw` used when supported.
+- Retained the dynamic-height, safe-area, vertical-scroll, horizontal-containment, and desktop-frame decisions already accepted by ADR-0007.
+- Did not change any individual product page component.
+- Did not hard-code the mobile application to 390 pixels; the shell follows the current viewport through at least the tested 320-430 pixel range.
+
+### Local deterministic and production-build checks
+
+- Clean merged-tree baseline `npm run lint`: passed before the new CSS edit.
+- Post-change source CSS contract: passed for the bounded grid column, scroller width, screen-content width, navigation width, and `100vw`/`100dvw` mobile rules.
+- Post-artifact-cleanup `npm run lint`: passed.
+- `npm run build`: passed with Next.js 16.2.2; all 17 routes were generated or classified successfully.
+- The built CSS under the discovered `.next/static/chunks` tree contained the bounded grid column, dynamic viewport width, scroller width, and screen-content width markers.
+
+### Cross-engine mobile browser evidence
+
+The final matrices loaded built-in sample data only through the Welcome UI and made zero `/api/remember` requests.
+
+WebKit used the installed iPhone 14 descriptor and passed its device gate at a 390 by 664 visual viewport, 390 by 844 screen, and DPR 3. System Google Chrome used the Pixel 7 descriptor and passed its gate at a 412 by 839 visual viewport, 412 by 915 screen, and DPR 2.625.
+
+For both engines:
+
+- routes `/`, `/remember`, `/people`, `/prep`, `/settings`, `/people/rachel`, `/people/rachel/recall`, and `/welcome` passed;
+- Home and People passed at 320, 360, 375, 390, and 430 CSS pixels;
+- document client and scroll widths equaled the current viewport width;
+- shell, grid column, scroller, screen content when present, and navigation when present ended at the current viewport width;
+- no shared-shell descendant crossed the left or right boundary;
+- forced document and inner-scroller horizontal offsets remained zero;
+- bottom navigation stayed inside the visual viewport before and after maximum vertical scroll;
+- the desktop phone shell remained 390 by 820 pixels;
+- no browser console error was emitted.
+
+Visual inspection of the final iPhone 14 and Pixel 7 Home screenshots showed complete settings, action, card, section-control, and bottom-navigation right edges with balanced content insets. The black `N` control was the Next.js development toolbar, not product UI. The temporary scripts, screenshots, and CLI session files were removed after inspection.
+
+### Failed verification attempts
+
+No failed tool attempt was counted as application evidence. The recorded failures included stale or expired Next dev children, intermittent CLI package-cache failures, Windows long-expression argument splitting, sandbox `spawn EPERM`, an exact URL wait, an optional-Welcome-region assumption, denied default process inspection, a missing bundled Chromium binary, a temporary-harness lint error, a fail-fast parallel wrapper, an obsolete built-CSS directory guess, a misplaced lesson-detail append, an unexpected untracked help-output file caused by argument splitting, and a wildcard-based Git status misclassification. Their evidence, recovery, and prevention rules are recorded as L67-L78 in `lessons.md`.
+
+### Remaining acceptance boundary
+
+This second correction is local branch evidence only. It has not been pushed, checked by exact-commit CI, deployed, or rechecked on the user's physical iPhone or any physical Android phone. The new screenshot is production evidence of the merged pre-correction defect, not evidence of the local fix. Retractable browser bars, installed PWA mode, safe-area hardware, and a real software keyboard still require physical-device acceptance after an authorized deployment.
