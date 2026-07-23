@@ -105,3 +105,48 @@ Against that exact commit:
 - production build route result: all 17 routes generated or classified successfully.
 
 Publication state remains local only. The commit was not pushed, checked by CI, deployed, or tested in production.
+
+## Physical iPhone 14 correction
+
+### New production evidence
+
+After the initial local implementation and WebKit checks, the user supplied a Safari screenshot from a physical iPhone 14 in portrait orientation and confirmed the issue affected every page. The screenshot showed the shared notch, page content, and bottom navigation shifted left together while Safari chrome remained aligned. This corrected the earlier acceptance conclusion and localized the remaining defect to the shared document/shell boundary rather than any People-page card or individual product layout.
+
+A read-only production CSS fetch confirmed that the deployed page already contained the initial grid shell, dynamic viewport, safe-area, and vertical-touch rules. That fetch establishes only the CSS version that exhibited the defect; it does not establish the corrected behavior.
+
+### Corrected shared-shell implementation
+
+- Removed the redundant `overflow-x: clip` declarations from `html` and `body` while retaining `overflow-x: hidden` and horizontal overscroll suppression.
+- Added explicit 100% width and zero minimum width to `html` and `body`.
+- Added an explicit zero body margin instead of relying only on framework preflight.
+- Added explicit width/min-width bounds to the shared stage and min/max-width bounds to the phone shell.
+- Preserved the three-row grid, dynamic viewport sizing, safe-area rules, inner vertical scroller, bottom-navigation flow, desktop frame, and every individual product page component.
+
+This is a conservative root-boundary correction for physical WebKit. It does not claim that headless WebKit reproduced the physical offset.
+
+### Browser-tool corrections
+
+The first alleged iPhone result was discarded after its device gate revealed Windows HeadlessChrome at 1280 by 720 and DPR 1; the installed CLI had ignored a configuration file placed at the wrong default path. The corrected gate used explicit WebKit and iPhone 14 settings and reported a 390 by 664 inner viewport, a 390 by 844 screen, DPR 3, and an iPhone Safari user agent.
+
+Several later attempts produced no application evidence: missing WebKit installation, uncached or unavailable CLI forms, daemon permission failures, invalid CLI grammar, a 124-second many-process matrix timeout, an expired dev server, stale Next child processes, a non-hydrated `127.0.0.1` development origin, and stale `.next` CSS. A final status probe also repeated an invalid PowerShell `foreach` pipeline before its corrected rerun. Every attempt, evidence, recovery, and prevention rule is recorded as L52-L65 in `lessons.md`.
+
+Direct stylesheet inspection proved the stale server was still returning the old `calc(100vh - 82px)` and absolute navigation rules. After stopping the exact repo-owned Next child processes and removing only the validated untracked `web/.next`, a fresh port-3184 server returned the current grid, root-hidden, and zero-body-margin rules and omitted root clip and the old height calculation.
+
+### Corrected local verification
+
+- Baseline before the correction: `npm run lint` passed.
+- Corrected CSS contract assertions: passed.
+- Corrected `npm run lint`: passed.
+- Corrected `npm run build`: passed with Next.js 16.2.2 and all 17 routes generated or classified successfully.
+- A single-process WebKit matrix used the installed iPhone 14 device descriptor and local sample data without making an OpenAI request.
+- Routes `/`, `/remember`, `/people`, `/prep`, `/settings`, and `/welcome` all measured a 390-by-664 inner/visual viewport, 390-by-844 screen, and DPR 3.
+- On every route, `html`, `body`, `.app-stage`, `.phone-shell`, and `.phone-scroll` measured from left 0 to right 390. The bottom navigation did the same on every route where it exists.
+- Document, body, shell, and inner-scroller scroll widths equaled their client widths. Attempts to set document and scroller horizontal offsets to 40 ended at zero.
+- Computed root and body width was 390 pixels, minimum width was zero, root/body horizontal overflow was hidden, and body margin was zero.
+- Visual inspection of the generated People screenshot with Rachel and Sarah data showed the complete left edge and the intended 16-pixel content inset. The black `N` control was the Next.js development toolbar and not product UI.
+- No browser console error was emitted during the successful matrix.
+- The local dev listener was stopped after verification.
+
+### Remaining acceptance boundary
+
+The corrected code has not been pushed, checked by exact-commit CI, deployed, or rechecked on the user's physical iPhone. The original screenshot remains production evidence of the defect, not of the correction. Safari browser-bar transitions, installed PWA mode, Android Chrome, and a real software keyboard also remain unverified after this correction.
